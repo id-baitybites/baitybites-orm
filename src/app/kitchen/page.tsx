@@ -4,13 +4,17 @@ import { type ProductionOrder, type ProductionStatus } from "@/lib/kitchen-data"
 
 export const dynamic = "force-dynamic";
 
+import type { Order as DbOrder, OrderItem as DbOrderItem } from "@prisma/client";
+
+type DbOrderWithItems = DbOrder & { items: DbOrderItem[] };
+
 export default async function KitchenPage() {
-  const dbOrders = await db.order.findMany({
+  const dbOrders = (await db.order.findMany({
     include: { items: true },
     orderBy: { createdAt: "asc" },
-  });
+  })) as DbOrderWithItems[];
 
-  const orders: ProductionOrder[] = dbOrders.map((o) => {
+  const orders: ProductionOrder[] = dbOrders.map((o: DbOrderWithItems) => {
     let status: ProductionStatus = "menunggu";
     if (o.status === "DIMASAK") status = "dimasak";
     if (o.status === "SIAP_PICKUP") status = "siap_pickup";
@@ -25,7 +29,7 @@ export default async function KitchenPage() {
       orderRef: o.orderRef,
       customer: o.customer,
       channel,
-      items: o.items.map((it) => ({
+      items: o.items.map((it: DbOrderItem) => ({
         name: it.name,
         qty: it.qty,
         notes: it.notes ?? undefined,
