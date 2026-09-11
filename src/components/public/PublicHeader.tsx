@@ -66,15 +66,14 @@ export function PublicHeader({ isLoggedIn = true }: PublicHeaderProps) {
               </button>
             </>
           ) : (
-            <button
-              type="button"
+            <Link
+              href="/login"
               className="btn-auth-login"
-              onClick={toggleLogin}
-              title="Masuk ke Akun"
+              title="Masuk ke Akun Superadmin"
             >
               <HugeiconsIcon icon={UserIcon} size={15} strokeWidth={1.8} />
               <span>Login</span>
-            </button>
+            </Link>
           )}
 
           {/* MOBILE TOGGLE */}
