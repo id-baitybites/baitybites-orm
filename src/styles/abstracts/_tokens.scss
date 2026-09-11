@@ -1,0 +1,163 @@
+:root {
+  /* --------------------------------
+     TYPOGRAPHY SCALE
+  -------------------------------- */
+
+  --font-family-base: var(--font-ubuntu), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-family-mono: var(--font-ubuntu-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-family-numeric: var(--font-family-mono);
+
+  --font-size-3xs: 9px;
+  --font-size-2xs: 10px;
+  --font-size-xs: 11px;
+  --font-size-sm: 12px;
+  --font-size-base: 13px;
+  --font-size-md: 14px;
+  --font-size-lg: 16px;
+  --font-size-xl: 18px;
+  --font-size-2xl: 21px;
+  --font-size-3xl: 24px;
+  --font-size-4xl: 28px;
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --line-height-tight: 1.2;
+  --line-height-snug: 1.35;
+  --line-height-base: 1.5;
+  --line-height-relaxed: 1.65;
+
+  /* --------------------------------
+     LAYOUT
+  -------------------------------- */
+
+  --container-max-width: 1500px;
+  --container-padding-x: 20px;
+  --header-height: 70px;
+
+  /* --------------------------------
+     BRAND
+  -------------------------------- */
+
+  --color-primary: #ff7a00;
+  --color-primary-hover: #eb6f00;
+  --color-primary-active: #d96300;
+  --color-primary-soft: #fff3e6;
+  --color-primary-contrast: #ffffff;
+
+  --color-brand-cyan: #00b8d4;
+
+  /* --------------------------------
+     SECONDARY
+  -------------------------------- */
+
+  --color-secondary: #00a9c7;
+  --color-secondary-hover: #0095b0;
+  --color-secondary-soft: #eafaff;
+  --color-secondary-contrast: #ffffff;
+
+  /* --------------------------------
+     SEMANTIC
+  -------------------------------- */
+
+  --color-success: #00b887;
+  --color-success-hover: #00a377;
+  --color-success-soft: #e9fbf5;
+  --color-success-contrast: #ffffff;
+
+  --color-warning: #f4a900;
+  --color-warning-soft: #fff6d9;
+  --color-warning-contrast: #7a4600;
+
+  --color-danger: #ef4b4b;
+  --color-danger-soft: #fff0f0;
+  --color-danger-contrast: #ffffff;
+
+  --color-info: #3478f6;
+  --color-info-soft: #edf4ff;
+  --color-info-contrast: #ffffff;
+
+  --color-purple: #8655e8;
+  --color-purple-soft: #f4effe;
+  --color-purple-contrast: #ffffff;
+
+  /* --------------------------------
+     SURFACE
+  -------------------------------- */
+
+  --surface-page: #fafafa;
+  --surface-primary: #ffffff;
+  --surface-secondary: #f7f7f7;
+  --surface-tertiary: #f1f1f1;
+  --surface-hover: #f5f5f5;
+  --surface-active: #eeeeee;
+
+  /* --------------------------------
+     TEXT
+  -------------------------------- */
+
+  --text-primary: #171717;
+  --text-secondary: #636b78;
+  --text-muted: #949ea8;
+  --text-disabled: #c5c5c5;
+  --text-inverse: #ffffff;
+
+  /* --------------------------------
+     BORDER
+  -------------------------------- */
+
+  --border-default: #e8ecf0;
+  --border-subtle: #f0f3f6;
+  --border-strong: #d5dbe2;
+  --border-focus: var(--color-primary);
+
+  /* --------------------------------
+     NAVIGATION
+  -------------------------------- */
+
+  --navigation-background: #101a2f;
+  --navigation-surface: #19253a;
+  --navigation-hover: #223049;
+  --navigation-active: #2b3b57;
+  --navigation-text: #ffffff;
+  --navigation-muted: #a4b0c5;
+  --navigation-subtle: #7987a0;
+
+  /* --------------------------------
+     RADIUS
+  -------------------------------- */
+
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 11px;
+  --radius-xl: 14px;
+  --radius-full: 9999px;
+
+  /* --------------------------------
+     SHADOW
+  -------------------------------- */
+
+  --shadow-xs: 0 1px 3px rgb(16 26 47 / 4%);
+  --shadow-sm: 0 2px 8px rgb(16 26 47 / 6%);
+  --shadow-md: 0 5px 16px rgb(16 26 47 / 8%);
+  --shadow-lg: 0 12px 32px rgb(16 26 47 / 12%);
+
+  /* --------------------------------
+     SPACING
+  -------------------------------- */
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+}

@@ -1,0 +1,8 @@
+@use "../styles" as *;
+
+:root {
+  --background: var(--surface-page);
+  --foreground: var(--text-primary);
+  --icon-size-sm: 15px;
+  --icon-size-md: 17px;
+}

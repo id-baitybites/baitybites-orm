@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Baitybites ORM</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet" />
+
+    <style>
+        /* =========================================================
+       DESIGN TOKENS
+       ========================================================= */
+
+        :root {
+            --color-primary: #2563eb;
+            --color-primary-hover: #1d4ed8;
+            --color-primary-contrast: #ffffff;
+
+            --color-secondary: #64748b;
+            --color-secondary-hover: #475569;
+            --color-secondary-contrast: #ffffff;
+
+            --color-danger: #dc2626;
+            --color-danger-hover: #b91c1c;
+            --color-danger-contrast: #ffffff;
+
+            --surface: #ffffff;
+            --surface-subtle: #f8fafc;
+            --surface-hover: #f1f5f9;
+
+            --text-color: #0f172a;
+            --text-muted: #64748b;
+            --text-subtle: #94a3b8;
+
+            --border-color: #e2e8f0;
+
+            --sidebar-width: 250px;
+
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+
+            --shadow-sm:
+                0 1px 2px rgba(15, 23, 42, .05);
+
+            --shadow-md:
+                0 4px 12px rgba(15, 23, 42, .08);
+
+            --shadow-lg:
+                0 20px 40px rgba(15, 23, 42, .15);
+
+            --overlay-color:
+                rgba(15, 23, 42, .45);
+        }
+
+        /* =========================================================
+       RESET
+       ========================================================= */
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--surface-subtle);
+            color: var(--text-color);
+
+            font-family: "Ubuntu", sans-serif;
+            font-size: 14px;
+        }
+
+        button,
+        input,
+        select {
+            font: inherit;
+        }
+
+        button {
+            border: 0;
+        }
+
+        /* =========================================================
+       APP
+       ========================================================= */
+
+        .app {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* =========================================================
+       SIDEBAR
+       ========================================================= */
+
+        .sidebar {
+            position: fixed;
+            inset: 0 auto 0 0;
+
+            width: var(--sidebar-width);
+
+            display: flex;
+            flex-direction: column;
+
+            background: var(--surface);
+            border-right: 1px solid var(--border-color);
+        }
+
+        .sidebar__brand {
+            height: 72px;
+
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            padding: 0 22px;
+
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .brand__icon {
+            width: 36px;
+            height: 36px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 10px;
+
+            background: var(--color-primary);
+            color: white;
+
+            font-weight: 700;
+        }
+
+        .brand__name {
+            font-size: 17px;
+            font-weight: 700;
+        }
+
+        .brand__version {
+            color: var(--text-subtle);
+            font-size: 11px;
+        }
+
+        .sidebar__navigation {
+            padding: 20px 12px;
+        }
+
+        .navigation__label {
+            padding: 0 10px;
+            margin-bottom: 8px;
+
+            color: var(--text-subtle);
+
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+        }
+
+        .navigation__item {
+            width: 100%;
+
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            padding: 10px 12px;
+            margin-bottom: 3px;
+
+            border-radius: var(--radius-md);
+
+            background: transparent;
+            color: var(--text-muted);
+
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .navigation__item:hover {
+            background: var(--surface-hover);
+            color: var(--text-color);
+        }
+
+        .navigation__item--active {
+            background: #eff6ff;
+            color: var(--color-primary);
+            font-weight: 500;
+        }
+
+        .navigation__icon {
+            width: 20px;
+            text-align: center;
+            font-size: 17px;
+        }
+
+        /* =========================================================
+       MAIN
+       ========================================================= */
+
+        .main {
+            width: calc(100% - var(--sidebar-width));
+            margin-left: var(--sidebar-width);
+        }
+
+        /* =========================================================
+       HEADER
+       ========================================================= */
+
+        .header {
+            height: 72px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 0 32px;
+
+            background: var(--surface);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header__title {
+            margin: 0;
+
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .header__right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header__notification {
+            width: 36px;
+            height: 36px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 50%;
+
+            background: transparent;
+            color: var(--text-muted);
+
+            cursor: pointer;
+        }
+
+        .header__notification:hover {
+            background: var(--surface-hover);
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 50%;
+
+            background: #dbeafe;
+            color: var(--color-primary);
+
+            font-weight: 700;
+        }
+
+        /* =========================================================
+       CONTENT
+       ========================================================= */
+
+        .content {
+            padding: 32px;
+        }
+
+        .page-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            margin-bottom: 24px;
+        }
+
+        .page-heading__title {
+            margin: 0 0 4px;
+
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .page-heading__description {
+            margin: 0;
+
+            color: var(--text-muted);
+        }
+
+        /* =========================================================
+       BUTTON
+       ========================================================= */
+
+        .button {
+            height: 40px;
+
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+
+            padding: 0 16px;
+
+            border-radius: var(--radius-md);
+
+            font-weight: 500;
+
+            cursor: pointer;
+
+            transition:
+                background-color .15s ease,
+                border-color .15s ease,
+                color .15s ease;
+        }
+
+        .button--primary {
+            background: var(--color-primary);
+            color: var(--color-primary-contrast);
+        }
+
+        .button--primary:hover {
+            background: var(--color-primary-hover);
+        }
+
+        .button--outline {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+        }
+
+        .button--outline:hover {
+            background: var(--surface-hover);
+        }
+
+        .button--ghost {
+            background: transparent;
+            color: var(--text-muted);
+        }
+
+        .button--ghost:hover {
+            background: var(--surface-hover);
+            color: var(--text-color);
+        }
+
+        /* =========================================================
+       STAT CARDS
+       ========================================================= */
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stat-card {
+            padding: 20px;
+        }
+
+        .stat-card__label {
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .stat-card__value {
+            margin-top: 8px;
+
+            font-size: 26px;
+            font-weight: 700;
+        }
+
+        .stat-card__change {
+            margin-top: 8px;
+
+            color: #16a34a;
+            font-size: 12px;
+        }
+
+        /* =========================================================
+       TABLE
+       ========================================================= */
+
+        .table-card {
+            overflow: hidden;
+        }
+
+        .table-card__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 18px 20px;
+
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .table-card__title {
+            margin: 0;
+
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 14px 20px;
+
+            border-bottom: 1px solid var(--border-color);
+
+            text-align: left;
+        }
+
+        th {
+            background: var(--surface-subtle);
+
+            color: var(--text-muted);
+
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        td {
+            color: var(--text-color);
+        }
+
+        tbody tr:hover {
+            background: var(--surface-subtle);
+        }
+
+        .resident {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .resident__avatar {
+            width: 34px;
+            height: 34px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 50%;
+
+            background: #e0e7ff;
+            color: #4338ca;
+
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .resident__name {
+            font-weight: 500;
+        }
+
+        .resident__email {
+            margin-top: 2px;
+
+            color: var(--text-subtle);
+            font-size: 11px;
+        }
+
+        /* =========================================================
+       BADGE
+       ========================================================= */
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+
+            padding: 5px 9px;
+
+            border-radius: 999px;
+
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .badge--active {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .badge--inactive {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        .badge--warning {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        /* =========================================================
+       INPUT
+       ========================================================= */
+
+        .filters {
+            display: flex;
+            gap: 10px;
+        }
+
+        .input {
+            width: 220px;
+            height: 40px;
+
+            padding: 0 12px;
+
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+
+            background: var(--surface);
+            color: var(--text-color);
+
+            outline: none;
+        }
+
+        .input:focus {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, .1);
+        }
+
+        /* =========================================================
+       RESPONSIVE
+       ========================================================= */
+
+        @media (max-width: 1100px) {
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 800px) {
+            :root {
+                --sidebar-width: 70px;
+            }
+
+            .brand__name,
+            .brand__version,
+            .navigation__label,
+            .navigation__text {
+                display: none;
+            }
+
+            .sidebar__brand {
+                justify-content: center;
+                padding: 0;
+            }
+
+            .navigation__item {
+                justify-content: center;
+            }
+
+            .header {
+                padding: 0 20px;
+            }
+
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="app">
+
+        <!-- =======================================================
+       SIDEBAR
+       ======================================================= -->
+
+        <aside class="sidebar">
+
+            <div class="sidebar__brand">
+
+                <div class="brand__icon">
+                    B
+                </div>
+
+                <div>
+                    <div class="brand__name">
+                        Baitybites
+                    </div>
+
+                    <div class="brand__version">
+                        ORM
+                    </div>
+                </div>
+
+            </div>
+
+            <nav class="sidebar__navigation">
+
+                <div class="navigation__label">
+                    Main
+                </div>
+
+                <button class="navigation__item navigation__item--active">
+                    <span class="navigation__icon">⌂</span>
+                    <span class="navigation__text">Dashboard</span>
+                </button>
+
+                <button class="navigation__item">
+                    <span class="navigation__icon">♙</span>
+                    <span class="navigation__text">Residents</span>
+                </button>
+
+                <button class="navigation__item">
+                    <span class="navigation__icon">▣</span>
+                    <span class="navigation__text">Billing</span>
+                </button>
+
+                <button class="navigation__item">
+                    <span class="navigation__icon">◫</span>
+                    <span class="navigation__text">Reports</span>
+                </button>
+
+                <div class="navigation__label" style="margin-top:24px">
+                    Management
+                </div>
+
+                <button class="navigation__item">
+                    <span class="navigation__icon">⚙</span>
+                    <span class="navigation__text">Settings</span>
+                </button>
+
+            </nav>
+
+        </aside>
+
+
+        <!-- =======================================================
+       MAIN
+       ======================================================= -->
+
+        <main class="main">
+
+            <header class="header">
+
+                <h1 class="header__title">
+                    Dashboard
+                </h1>
+
+                <div class="header__right">
+
+                    <button class="header__notification">
+                        ♧
+                    </button>
+
+                    <div class="avatar">
+                        BS
+                    </div>
+
+                </div>
+
+            </header>
+
+
+            <section class="content">
+
+                <!-- PAGE HEADING -->
+
+                <div class="page-heading">
+
+                    <div>
+                        <h2 class="page-heading__title">
+                            Overview
+                        </h2>
+
+                        <p class="page-heading__description">
+                            Manage your community data and activities.
+                        </p>
+                    </div>
+
+                    <button class="button button--primary">
+                        + Add Resident
+                    </button>
+
+                </div>
+
+
+                <!-- STATISTICS -->
+
+                <div class="stats">
+
+                    <div class="card stat-card">
+                        <div class="stat-card__label">
+                            Total Residents
+                        </div>
+
+                        <div class="stat-card__value">
+                            248
+                        </div>
+
+                        <div class="stat-card__change">
+                            ↑ 4.2% this month
+                        </div>
+                    </div>
+
+
+                    <div class="card stat-card">
+                        <div class="stat-card__label">
+                            Active Residents
+                        </div>
+
+                        <div class="stat-card__value">
+                            231
+                        </div>
+
+                        <div class="stat-card__change">
+                            ↑ 2.8% this month
+                        </div>
+                    </div>
+
+
+                    <div class="card stat-card">
+                        <div class="stat-card__label">
+                            Monthly Collection
+                        </div>
+
+                        <div class="stat-card__value">
+                            Rp 46.2M
+                        </div>
+
+                        <div class="stat-card__change">
+                            ↑ 8.4% this month
+                        </div>
+                    </div>
+
+
+                    <div class="card stat-card">
+                        <div class="stat-card__label">
+                            Outstanding
+                        </div>
+
+                        <div class="stat-card__value">
+                            Rp 5.7M
+                        </div>
+
+                        <div class="stat-card__change">
+                            ↓ 3.1% this month
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <!-- RESIDENT TABLE -->
+
+                <div class="card table-card">
+
+                    <div class="table-card__header">
+
+                        <h3 class="table-card__title">
+                            Recent Residents
+                        </h3>
+
+                        <div class="filters">
+
+                            <input class="input" type="search" placeholder="Search resident..." />
+
+                            <button class="button button--outline">
+                                Filter
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="table-wrapper">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+                                    <th>Resident</th>
+                                    <th>House</th>
+                                    <th>Status</th>
+                                    <th>Monthly Fee</th>
+                                    <th>Last Payment</th>
+                                    <th></th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                <tr>
+
+                                    <td>
+
+                                        <div class="resident">
+
+                                            <div class="resident__avatar">
+                                                HS
+                                            </div>
+
+                                            <div>
+                                                <div class="resident__name">
+                                                    Herman Setiawan
+                                                </div>
+
+                                                <div class="resident__email">
+                                                    herman@example.com
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+
+                                    <td>
+                                        A-12
+                                    </td>
+
+                                    <td>
+                                        <span class="badge badge--active">
+                                            Active
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        Rp 200.000
+                                    </td>
+
+                                    <td>
+                                        02 Sep 2026
+                                    </td>
+
+                                    <td>
+                                        <button class="button button--ghost">
+                                            ⋮
+                                        </button>
+                                    </td>
+
+                                </tr>
+
+
+                                <tr>
+
+                                    <td>
+
+                                        <div class="resident">
+
+                                            <div class="resident__avatar">
+                                                AL
+                                            </div>
+
+                                            <div>
+                                                <div class="resident__name">
+                                                    Ali Rahman
+                                                </div>
+
+                                                <div class="resident__email">
+                                                    ali@example.com
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+
+                                    <td>
+                                        B-04
+                                    </td>
+
+                                    <td>
+                                        <span class="badge badge--active">
+                                            Active
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        Rp 200.000
+                                    </td>
+
+                                    <td>
+                                        31 Aug 2026
+                                    </td>
+
+                                    <td>
+                                        <button class="button button--ghost">
+                                            ⋮
+                                        </button>
+                                    </td>
+
+                                </tr>
+
+
+                                <tr>
+
+                                    <td>
+
+                                        <div class="resident">
+
+                                            <div class="resident__avatar">
+                                                DR
+                                            </div>
+
+                                            <div>
+                                                <div class="resident__name">
+                                                    Daries Rahman
+                                                </div>
+
+                                                <div class="resident__email">
+                                                    daries@example.com
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+
+                                    <td>
+                                        C-18
+                                    </td>
+
+                                    <td>
+                                        <span class="badge badge--warning">
+                                            Payment Due
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        Rp 200.000
+                                    </td>
+
+                                    <td>
+                                        04 Jul 2026
+                                    </td>
+
+                                    <td>
+                                        <button class="button button--ghost">
+                                            ⋮
+                                        </button>
+                                    </td>
+
+                                </tr>
+
+
+                                <tr>
+
+                                    <td>
+
+                                        <div class="resident">
+
+                                            <div class="resident__avatar">
+                                                AR
+                                            </div>
+
+                                            <div>
+                                                <div class="resident__name">
+                                                    Arsy Pratama
+                                                </div>
+
+                                                <div class="resident__email">
+                                                    arsy@example.com
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+
+                                    <td>
+                                        D-07
+                                    </td>
+
+                                    <td>
+                                        <span class="badge badge--inactive">
+                                            Inactive
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        —
+                                    </td>
+
+                                    <td>
+                                        —
+                                    </td>
+
+                                    <td>
+                                        <button class="button button--ghost">
+                                            ⋮
+                                        </button>
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+</body>
+
+</html>
