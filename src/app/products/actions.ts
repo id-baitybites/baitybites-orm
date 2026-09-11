@@ -2,26 +2,15 @@
 
 import { GoogleGenAI } from "@google/genai";
 
-export interface GeneratedProduct {
-  name: string;
-  description: string;
-  category: string;
-  price: number;
-  unit: string;
-  initialStock: number;
-}
-
-const CATEGORIES = [
-  "Risol Frozen",
-  "Risol Ready to Eat",
-  "Minuman Tradisional",
-  "Cendol Cup",
-  "Paket Hampers & Snack Box",
-];
-
-export async function generateProductWithAi(
-  promptHint?: string
-): Promise<{ success: boolean; data?: GeneratedProduct; error?: string }> {
+/**
+ * Memperbaiki (enhance) deskripsi produk yang ditulis oleh staf agar lebih menggoda selera,
+ * profesional, dan ringkas tanpa membebani AI untuk men-generate keseluruhan formulir.
+ */
+export async function enhanceDescriptionWithAi(params: {
+  productName?: string;
+  category?: string;
+  draftDescription: string;
+}): Promise<{ success: boolean; description?: string; error?: string }> {
   const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
@@ -31,54 +20,50 @@ export async function generateProductWithAi(
     };
   }
 
+  const { productName, category, draftDescription } = params;
+
+  if (!draftDescription || draftDescription.trim().length === 0) {
+    return {
+      success: false,
+      error: "Tuliskan deskripsi awal terlebih dahulu sebelum menggunakan AI Magic.",
+    };
+  }
+
   try {
     const ai = new GoogleGenAI({ apiKey });
 
-    const systemPrompt = `
-Kamu adalah spesialis chef kuliner dan branding copywriter untuk "Baitybites", brand kuliner yang memproduksi Risol Mayo/Gourmet premium dan minuman tradisional Cendol segar.
+    const prompt = `
+Kamu adalah copywriter kuliner profesional untuk brand "Baitybites" (spesialis Risol Mayo/Gourmet premium dan minuman tradisional Cendol).
 
 Tugasmu:
-Buatlah satu ide produk inovatif baru.
-${promptHint ? `Petunjuk atau ide awal dari user: "${promptHint}". Kembangkan ide ini.` : "Buatkan varian baru yang unik, kekinian, dan berpotensi laris manis."}
+Perbaiki dan poles teks deskripsi produk berikut agar terdengar lebih lezat, menggoda selera (appetizing), dan profesional, namun tetap mempertahankan inti poin bahan/rasa yang ditulis staf.
+Panjang hasil: maksimal 2 hingga 3 kalimat ringkas padat.
+Jangan tambahkan tanda kutip, jangan gunakan format bullet, dan jangan ada teks pengantar apapun. Langsung tuliskan teks deskripsi hasil polesan.
 
-Kategori yang valid HANYA salah satu dari:
-${CATEGORIES.map((c) => `- "${c}"`).join("\n")}
-
-Format output HARUS murni JSON valid tanpa backticks markdown atau penjelasan apapun di luar JSON:
-{
-  "name": "Nama produk menarik & appetizing (contoh: Risol Mayo Spicy Tuna Melt / Cendol Nangka Pandan)",
-  "description": "Deskripsi copywriting menggugah selera 2-3 kalimat yang menjelaskan kelezatan, isian/bahan premium, dan tekstur produk.",
-  "category": "Salah satu kategori di atas",
-  "price": 35000,
-  "unit": "Pack / Pcs / Cup",
-  "initialStock": 25
-}
+Informasi Produk:
+- Nama Produk: ${productName?.trim() || "Produk Baitybites"}
+- Kategori: ${category || "Kuliner"}
+- Draft dari Staf: "${draftDescription.trim()}"
 `;
 
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
-      contents: systemPrompt,
+      contents: prompt,
       config: {
-        responseMimeType: "application/json",
+        maxOutputTokens: 180,
+        temperature: 0.7,
       },
     });
 
-    const rawText = response.text || "";
-    const cleanedText = rawText.replace(/```json/gi, "").replace(/```/g, "").trim();
-    const parsedData: GeneratedProduct = JSON.parse(cleanedText);
-
-    // Pastikan kategori valid
-    if (!CATEGORIES.includes(parsedData.category)) {
-      parsedData.category = CATEGORIES[0];
-    }
+    const enhanced = (response.text || "").trim().replace(/^["']|["']$/g, "");
 
     return {
       success: true,
-      data: parsedData,
+      description: enhanced,
     };
   } catch (err: unknown) {
-    console.error("Gemini AI generation error:", err);
-    const message = err instanceof Error ? err.message : "Gagal generate dengan AI";
+    console.error("Gemini AI enhancement error:", err);
+    const message = err instanceof Error ? err.message : "Gagal memproses dengan AI";
     return {
       success: false,
       error: message,

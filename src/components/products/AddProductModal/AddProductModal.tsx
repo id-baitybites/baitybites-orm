@@ -10,7 +10,7 @@ import {
   Delete02Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { generateProductWithAi } from "@/app/products/actions";
+import { enhanceDescriptionWithAi } from "@/app/products/actions";
 import "./add-product-modal.scss";
 
 export interface NewProductData {
@@ -47,8 +47,10 @@ export function AddProductModal({ isOpen, onClose, onSubmit }: AddProductModalPr
   const [price, setPrice] = useState<number | "">("");
   const [unit, setUnit] = useState("Pack");
   const [initialStock, setInitialStock] = useState<number | "">(20);
-  const [isGeneratingAi, setIsGeneratingAi] = useState(false);
-  const [aiError, setAiError] = useState<string | null>(null);
+  const [isEnhancing, setIsEnhancing] = useState(false);
+  const [aiNotice, setAiNotice] = useState<{ type: "error" | "success"; message: string } | null>(
+    null
+  );
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -74,28 +76,45 @@ export function AddProductModal({ isOpen, onClose, onSubmit }: AddProductModalPr
     }
   };
 
-  const handleAiMagic = async () => {
-    setIsGeneratingAi(true);
-    setAiError(null);
+  const handleEnhanceDescription = async () => {
+    if (!description.trim()) {
+      setAiNotice({
+        type: "error",
+        message: "Tuliskan poin atau draf deskripsi terlebih dahulu sebelum klik AI Magic.",
+      });
+      return;
+    }
+
+    setIsEnhancing(true);
+    setAiNotice(null);
 
     try {
-      const res = await generateProductWithAi(name.trim() || undefined);
+      const res = await enhanceDescriptionWithAi({
+        productName: name,
+        category,
+        draftDescription: description,
+      });
 
-      if (res.success && res.data) {
-        setName(res.data.name);
-        setDescription(res.data.description);
-        setCategory(res.data.category);
-        setPrice(res.data.price);
-        setUnit(res.data.unit);
-        setInitialStock(res.data.initialStock);
+      if (res.success && res.description) {
+        setDescription(res.description);
+        setAiNotice({
+          type: "success",
+          message: "Deskripsi berhasil dipoles dan disempurnakan oleh AI!",
+        });
       } else {
-        setAiError(res.error || "Gagal menghasilkan produk dengan AI.");
+        setAiNotice({
+          type: "error",
+          message: res.error || "Gagal memoles deskripsi dengan AI.",
+        });
       }
     } catch (err: unknown) {
-      console.error("Failed to generate with AI:", err);
-      setAiError("Terjadi kendala saat menghubungi AI.");
+      console.error("Failed to enhance with AI:", err);
+      setAiNotice({
+        type: "error",
+        message: "Terjadi kendala saat menghubungi AI.",
+      });
     } finally {
-      setIsGeneratingAi(false);
+      setIsEnhancing(false);
     }
   };
 
@@ -149,18 +168,25 @@ export function AddProductModal({ isOpen, onClose, onSubmit }: AddProductModalPr
         {/* FORM */}
         <form className="product-modal__form" onSubmit={handleSubmit}>
           <div className="product-modal__body">
-            {aiError && (
+            {aiNotice && (
               <div
                 style={{
                   padding: "8px 12px",
                   borderRadius: "8px",
-                  background: "rgba(239, 68, 68, 0.1)",
-                  border: "1px solid rgba(239, 68, 68, 0.3)",
-                  color: "#ef4444",
+                  background:
+                    aiNotice.type === "error" ? "rgba(239, 68, 68, 0.1)" : "rgba(16, 185, 129, 0.1)",
+                  border: `1px solid ${
+                    aiNotice.type === "error" ? "rgba(239, 68, 68, 0.3)" : "rgba(16, 185, 129, 0.3)"
+                  }`,
+                  color: aiNotice.type === "error" ? "#ef4444" : "#10b981",
                   fontSize: "12px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
                 }}
               >
-                ⚠️ {aiError}
+                <span>{aiNotice.type === "error" ? "⚠️" : "✨"}</span>
+                <span>{aiNotice.message}</span>
               </div>
             )}
 
@@ -176,25 +202,39 @@ export function AddProductModal({ isOpen, onClose, onSubmit }: AddProductModalPr
                 name="name"
                 type="text"
                 className="form-input"
-                placeholder="Ketik ide nama (misal: risol ayam keju) lalu klik AI Magic..."
+                placeholder="Contoh: Risol Mayo Beef Double Cheese"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
               />
             </div>
 
-            {/* 2. Description */}
+            {/* 2. Description (dengan tombol AI Magic terintegrasi di labelnya) */}
             <div className="form-group">
               <label htmlFor="product-description">
                 <span>Description</span>
+                {/* 8. Button AI Magic (Enhance) */}
+                <button
+                  type="button"
+                  className="ai-magic-btn"
+                  onClick={handleEnhanceDescription}
+                  disabled={isEnhancing}
+                  title="Poles & percantik draft deskripsi yang Anda ketik dengan bantuan AI"
+                >
+                  <HugeiconsIcon icon={SparklesIcon} size={14} strokeWidth={2} />
+                  <span>{isEnhancing ? "Memoles teks..." : "AI Magic (Enhance)"}</span>
+                </button>
               </label>
               <textarea
                 id="product-description"
                 name="description"
                 className="form-textarea"
-                placeholder="Tuliskan deskripsi lengkap, komposisi, atau panduan penyajian..."
+                placeholder="Tuliskan draf singkat komposisi/rasa (contoh: isi beef mayo creamy lumer), lalu klik 'AI Magic' untuk memolesnya..."
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                onChange={(e) => {
+                  setDescription(e.target.value);
+                  if (aiNotice) setAiNotice(null);
+                }}
                 rows={3}
               />
             </div>
@@ -336,17 +376,9 @@ export function AddProductModal({ isOpen, onClose, onSubmit }: AddProductModalPr
 
           {/* FOOTER ACTIONS */}
           <footer className="product-modal__footer">
-            {/* 8. AI Magic Button */}
-            <button
-              type="button"
-              className="ai-magic-btn"
-              onClick={handleAiMagic}
-              disabled={isGeneratingAi}
-              title="Generate otomatis rincian produk rekomendasi AI"
-            >
-              <HugeiconsIcon icon={SparklesIcon} size={15} strokeWidth={2} />
-              <span>{isGeneratingAi ? "Generating AI..." : "AI Magic"}</span>
-            </button>
+            <span style={{ fontSize: "12px", color: "var(--text-muted)" }}>
+              Tip: Ketik draf poin di Description lalu klik tombol AI Magic di atas kolom.
+            </span>
 
             <div className="product-modal__footer-group">
               {/* 9. Cancel Button */}
