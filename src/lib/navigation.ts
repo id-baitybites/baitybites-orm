@@ -22,7 +22,7 @@ export type NavItem = {
 };
 
 export const navigation: NavItem[] = [
-  { label: "Dashboard", href: "/", icon: DashboardSquare01Icon },
+  { label: "Dashboard", href: "/dashboard", icon: DashboardSquare01Icon },
   { label: "Orders", href: "/orders", icon: ShoppingBag01Icon },
   { label: "Customers", href: "/customers", icon: UserGroupIcon },
   { label: "Products", href: "/products", icon: PackageIcon },
