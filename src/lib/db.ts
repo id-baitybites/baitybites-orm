@@ -13,7 +13,6 @@ const pool =
   globalForPrisma.pool ??
   new Pool({
     connectionString,
-    ssl: { rejectUnauthorized: false },
   });
 
 const adapter = new PrismaPg(pool);
