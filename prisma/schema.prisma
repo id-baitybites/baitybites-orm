@@ -1,0 +1,66 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum Channel {
+  WhatsApp
+  Tokopedia
+  Shopee
+  WalkIn
+
+  @@map("channel")
+}
+
+enum OrderStatus {
+  MENUNGGU
+  DIMASAK
+  SIAP_PICKUP
+
+  @@map("order_status")
+}
+
+enum Priority {
+  NORMAL
+  URGENT
+
+  @@map("priority")
+}
+
+// ─── Models ───────────────────────────────────────────────────────────────────
+
+model Order {
+  id            String      @id @default(cuid())
+  orderRef      String      @unique @map("order_ref")
+  customer      String
+  channel       Channel
+  status        OrderStatus @default(MENUNGGU)
+  priority      Priority    @default(NORMAL)
+  note          String?
+  createdAt     DateTime    @default(now()) @map("created_at")
+  cookStartedAt DateTime?   @map("cook_started_at")
+
+  items OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id      String  @id @default(cuid())
+  name    String
+  qty     Int
+  notes   String?
+  orderId String  @map("order_id")
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("order_items")
+}

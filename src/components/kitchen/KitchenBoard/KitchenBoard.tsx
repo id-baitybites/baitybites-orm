@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useTransition, useEffect } from "react";
 import {
   type ProductionOrder,
   type ProductionStatus,
-  INITIAL_ORDERS,
   STATUS_LABELS,
   STATUS_NEXT,
 } from "@/lib/kitchen-data";
@@ -19,6 +18,7 @@ import {
 import { HugeiconsIcon } from "@hugeicons/react";
 import { AppShell } from "@/components/layout/AppShell/AppShell";
 import { KitchenOrderCard } from "@/components/kitchen/KitchenOrderCard/KitchenOrderCard";
+import { advanceOrderStatus } from "@/app/kitchen/actions";
 import "./kitchen-board.scss";
 
 // ─── Column config ─────────────────────────────────────────────────────────────
@@ -94,13 +94,23 @@ function ConfirmModal({
 
 // ─── Board ────────────────────────────────────────────────────────────────────
 
-export function KitchenBoard() {
-  const [orders, setOrders] = useState<ProductionOrder[]>(INITIAL_ORDERS);
+interface KitchenBoardProps {
+  initialOrders?: ProductionOrder[];
+}
+
+export function KitchenBoard({ initialOrders = [] }: KitchenBoardProps) {
+  const [orders, setOrders] = useState<ProductionOrder[]>(initialOrders);
+  const [isPending, startTransition] = useTransition();
   const [pendingAdvance, setPendingAdvance] = useState<{
     id: string;
     next: ProductionStatus;
   } | null>(null);
   const [flashId, setFlashId] = useState<string | null>(null);
+
+  // Sync state with server changes
+  useEffect(() => {
+    setOrders(initialOrders);
+  }, [initialOrders]);
 
   // group by status
   const byStatus = (status: ProductionStatus) =>
@@ -116,6 +126,7 @@ export function KitchenBoard() {
 
   const doAdvance = useCallback(
     (id: string, nextStatus: ProductionStatus) => {
+      // Optimistic update
       setOrders((prev) =>
         prev.map((o) =>
           o.id === id
@@ -128,9 +139,21 @@ export function KitchenBoard() {
             : o
         )
       );
-      // brief flash highlight
+
+      // Flash highlight
       setFlashId(id);
       setTimeout(() => setFlashId(null), 800);
+
+      // Server mutation
+      if (nextStatus === "dimasak" || nextStatus === "siap_pickup") {
+        startTransition(async () => {
+          try {
+            await advanceOrderStatus(id, nextStatus);
+          } catch (err) {
+            console.error("Failed to advance order status:", err);
+          }
+        });
+      }
     },
     []
   );
@@ -167,7 +190,7 @@ export function KitchenBoard() {
             <p className="eyebrow">BAITYBITES OMS / KITCHEN</p>
             <h1>Kitchen Board</h1>
             <p className="kitchen-board__desc">
-              Layar kerja staf dapur — ketuk tombol untuk memperbarui status produksi.
+              Layar kerja staf dapur — ketuk tombol untuk memperbarui status produksi secara real-time.
             </p>
           </div>
 
@@ -198,7 +221,7 @@ export function KitchenBoard() {
               <HugeiconsIcon icon={ShoppingBag01Icon} size={20} strokeWidth={1.8} />
               <div>
                 <strong>{orders.length}</strong>
-                <span>Total Hari Ini</span>
+                <span>Total Pesanan</span>
               </div>
             </div>
             {urgentCount > 0 && (
