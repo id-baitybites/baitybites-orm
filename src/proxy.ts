@@ -21,7 +21,7 @@ const ADMIN_LOGIN_PATH = "/admin";
 // Rute yang membutuhkan autentikasi Pelanggan
 const CUSTOMER_PROTECTED_PATHS = ["/profile"];
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Lewati aset statis dan API internal Next.js
