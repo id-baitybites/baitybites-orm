@@ -42,7 +42,7 @@ export async function setCustomerSession(
     avatarUrl: info.avatarUrl ?? "",
   });
 
-  cookieStore.set(CUSTOMER_INFO_COOKIE, encodeURIComponent(clientInfo), {
+  cookieStore.set(CUSTOMER_INFO_COOKIE, clientInfo, {
     httpOnly: false,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
@@ -101,7 +101,17 @@ export async function getCustomerCookieInfo(): Promise<{
     const cookieStore = await cookies();
     const raw = cookieStore.get(CUSTOMER_INFO_COOKIE)?.value;
     if (!raw) return null;
-    return JSON.parse(decodeURIComponent(raw));
+    let val = raw;
+    while (val.includes("%")) {
+      try {
+        const decoded = decodeURIComponent(val);
+        if (decoded === val) break;
+        val = decoded;
+      } catch {
+        break;
+      }
+    }
+    return JSON.parse(val);
   } catch {
     return null;
   }

@@ -1,9 +1,14 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { db } from "@/lib/db";
-import { setCustomerSession } from "@/lib/customer-auth";
+import {
+  CUSTOMER_SESSION_COOKIE,
+  CUSTOMER_INFO_COOKIE,
+} from "@/lib/auth-constants";
 
 export const dynamic = "force-dynamic";
+
+const SESSION_MAX_AGE = 60 * 60 * 24 * 30; // 30 hari
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -73,7 +78,12 @@ export async function GET(request: NextRequest) {
       if (!tokenData.access_token) {
         console.error("Gagal mendapatkan access token Google:", tokenData);
         return NextResponse.redirect(
-          new URL("/login?error=Failed+to+exchange+Google+token", request.url)
+          new URL(
+            `/login?error=${encodeURIComponent(
+              tokenData.error_description || tokenData.error || "Gagal verifikasi token Google"
+            )}`,
+            request.url
+          )
         );
       }
 
@@ -86,14 +96,19 @@ export async function GET(request: NextRequest) {
       );
 
       const userInfo = await userInfoRes.json();
-      googleSub = userInfo.sub;
-      email = userInfo.email;
+      googleSub = userInfo.sub || "";
+      email = userInfo.email || "";
       name = userInfo.name || userInfo.email?.split("@")[0] || "Pelanggan Baitybites";
       avatarUrl = userInfo.picture || "";
     } catch (err) {
       console.error("Error saat fetch profil Google:", err);
       return NextResponse.redirect(
-        new URL("/login?error=Google+authentication+failed", request.url)
+        new URL(
+          `/login?error=${encodeURIComponent(
+            err instanceof Error ? err.message : "Gagal mengambil data profil Google"
+          )}`,
+          request.url
+        )
       );
     }
   } else {
@@ -104,14 +119,16 @@ export async function GET(request: NextRequest) {
 
   // Simpan / update data di PostgreSQL via Prisma
   try {
-    let customer = await db.customer.findFirst({
-      where: {
-        OR: [
-          ...(googleSub ? [{ googleId: googleSub }] : []),
-          ...(email ? [{ email }] : []),
-        ],
-      },
-    });
+    const orConditions: Array<{ googleId?: string; email?: string }> = [];
+    if (googleSub) orConditions.push({ googleId: googleSub });
+    if (email) orConditions.push({ email });
+
+    let customer =
+      orConditions.length > 0
+        ? await db.customer.findFirst({
+            where: { OR: orConditions },
+          })
+        : null;
 
     if (customer) {
       // Update info profil Google terbaru
@@ -136,21 +153,42 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Set cookie sesi pelanggan
-    await setCustomerSession(customer.id, {
-      name: customer.name,
-      email: customer.email,
-      avatarUrl: customer.avatarUrl,
-    });
-
-    // Redirect ke tujuan (misal /profile) dengan flag welcome
+    // Buat response redirect dengan cookie sesi pelanggan yang valid
     const targetUrl = new URL(returnTo, request.url);
     targetUrl.searchParams.set("loggedIn", "true");
-    return NextResponse.redirect(targetUrl);
+    const response = NextResponse.redirect(targetUrl);
+
+    // Set cookie sesi pelanggan (httpOnly)
+    response.cookies.set(CUSTOMER_SESSION_COOKIE, customer.id, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: SESSION_MAX_AGE,
+    });
+
+    // Set cookie info pelanggan untuk visual UI header (non-httpOnly)
+    const clientInfo = JSON.stringify({
+      id: customer.id,
+      name: customer.name,
+      email: customer.email ?? "",
+      avatarUrl: customer.avatarUrl ?? "",
+    });
+
+    response.cookies.set(CUSTOMER_INFO_COOKIE, clientInfo, {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: SESSION_MAX_AGE,
+    });
+
+    return response;
   } catch (err) {
     console.error("Gagal menyimpan sesi pelanggan Google:", err);
+    const message = err instanceof Error ? err.message : "Terjadi kesalahan saat menyimpan akun pelanggan";
     return NextResponse.redirect(
-      new URL("/login?error=Database+error+during+sign-in", request.url)
+      new URL(`/login?error=${encodeURIComponent(message)}`, request.url)
     );
   }
 }

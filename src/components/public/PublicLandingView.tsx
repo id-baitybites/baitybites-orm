@@ -164,7 +164,16 @@ const HERO_SLIDES = [
   },
 ];
 
-export function PublicLandingView() {
+interface PublicLandingViewProps {
+  initialCustomer?: {
+    id: string;
+    name: string;
+    email: string;
+    avatarUrl: string;
+  } | null;
+}
+
+export function PublicLandingView({ initialCustomer }: PublicLandingViewProps = {}) {
   // State Hero Carousel
   const [activeSlide, setActiveSlide] = useState(0);
 
@@ -225,7 +234,7 @@ export function PublicLandingView() {
   return (
     <div className="public-site">
       {/* ── HEADER ── */}
-      <PublicHeader isLoggedIn={true} />
+      <PublicHeader initialCustomer={initialCustomer} />
 
       {/* TOAST NOTIFIKASI */}
       {orderToast && (

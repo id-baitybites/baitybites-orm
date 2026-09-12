@@ -170,6 +170,7 @@ export function ProfileClient({ initialData, justLoggedIn }: ProfileClientProps)
                   height={88}
                   className="profile-avatar-img"
                   priority
+                  unoptimized
                 />
               ) : (
                 <div className="profile-avatar-fallback">

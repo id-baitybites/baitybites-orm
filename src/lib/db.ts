@@ -17,6 +17,16 @@ const pool =
 
 const adapter = new PrismaPg(pool);
 
+// Jika di dev mode instance lama belum punya googleId, force refresh
+if (process.env.NODE_ENV !== "production" && globalForPrisma.prisma) {
+  try {
+    // Invalidate stale singleton to pick up schema changes
+    globalForPrisma.prisma = undefined;
+  } catch {
+    // ignore
+  }
+}
+
 export const db =
   globalForPrisma.prisma ??
   new PrismaClient({

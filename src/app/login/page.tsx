@@ -34,7 +34,7 @@ function LoginFormInner() {
   const [securityPin, setSecurityPin] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(searchParams.get("error"));
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   const handleSubmitAdmin = async (e: React.FormEvent<HTMLFormElement>) => {

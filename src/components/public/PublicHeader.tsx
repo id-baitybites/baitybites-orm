@@ -22,30 +22,59 @@ interface CustomerInfo {
 
 interface PublicHeaderProps {
   isLoggedIn?: boolean;
+  initialCustomer?: CustomerInfo | null;
 }
 
-export function PublicHeader({ isLoggedIn }: PublicHeaderProps = {}) {
+export function PublicHeader({ initialCustomer }: PublicHeaderProps = {}) {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [customer, setCustomer] = useState<CustomerInfo | null>(null);
+  const [customer, setCustomer] = useState<CustomerInfo | null>(initialCustomer ?? null);
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    // Baca info customer dari cookie non-httpOnly bb_customer_info
-    const cookies = document.cookie.split("; ");
-    const infoCookie = cookies.find((c) => c.startsWith("bb_customer_info="));
-    if (infoCookie) {
+    if (initialCustomer) {
+      setCustomer(initialCustomer);
+    }
+
+    // 1. Baca info customer dari cookie non-httpOnly bb_customer_info via regex RFC-compliant
+    const match = document.cookie.match(/(?:^|;\s*)bb_customer_info=([^;]*)/);
+    if (match && match[1]) {
       try {
-        const val = decodeURIComponent(infoCookie.split("=")[1]);
+        let val = match[1];
+        // Buka URL-encoding hingga mendapatkan string JSON valid
+        while (val.includes("%")) {
+          try {
+            const decoded = decodeURIComponent(val);
+            if (decoded === val) break;
+            val = decoded;
+          } catch {
+            break;
+          }
+        }
+        if (val.startsWith('"') && val.endsWith('"') && val.length > 2 && val[1] === '{') {
+          val = val.slice(1, -1);
+        }
         setCustomer(JSON.parse(val));
-      } catch {
-        setCustomer(null);
+      } catch (err) {
+        console.error("Gagal parse cookie bb_customer_info:", err);
       }
     }
 
-    // Cek apakah admin login (bb_admin)
-    const adminCookie = cookies.find((c) => c.startsWith("bb_admin="));
-    setIsAdmin(Boolean(adminCookie));
-  }, []);
+    // 2. Sinkronisasi sesi real-time via API (mencegah desinkronisasi client cache)
+    fetch("/api/auth/customer/me")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data && data.authenticated && data.customer) {
+          setCustomer(data.customer);
+        } else if (data && !data.authenticated) {
+          setCustomer(null);
+        }
+      })
+      .catch(() => {});
+
+    // 3. Cek apakah admin login (bb_admin)
+    const adminMatch = document.cookie.match(/(?:^|;\s*)bb_admin=([^;]*)/);
+    setIsAdmin(Boolean(adminMatch));
+  }, [initialCustomer]);
 
   return (
     <header className="public-header">
@@ -84,6 +113,7 @@ export function PublicHeader({ isLoggedIn }: PublicHeaderProps = {}) {
                     width={26}
                     height={26}
                     className="customer-header-avatar"
+                    unoptimized
                   />
                 ) : (
                   <HugeiconsIcon icon={UserIcon} size={16} strokeWidth={2} />
