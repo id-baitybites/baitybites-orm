@@ -4,8 +4,8 @@ import * as bcrypt from "bcryptjs";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-export const SESSION_COOKIE = "bb_session";
-export const SESSION_ADMIN_COOKIE = "bb_admin";
+export { SESSION_COOKIE, SESSION_ADMIN_COOKIE } from "@/lib/auth-constants";
+import { SESSION_COOKIE, SESSION_ADMIN_COOKIE } from "@/lib/auth-constants";
 const SESSION_VALUE = "authenticated";
 /** 8 jam */
 const SESSION_MAX_AGE = 60 * 60 * 8;

@@ -3,8 +3,8 @@ import { db } from "@/lib/db";
 import type { Customer } from "@prisma/client";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-export const CUSTOMER_SESSION_COOKIE = "bb_customer_session";
-export const CUSTOMER_INFO_COOKIE = "bb_customer_info";
+export { CUSTOMER_SESSION_COOKIE, CUSTOMER_INFO_COOKIE } from "@/lib/auth-constants";
+import { CUSTOMER_SESSION_COOKIE, CUSTOMER_INFO_COOKIE } from "@/lib/auth-constants";
 
 /** Masa aktif session pelanggan: 30 hari */
 const SESSION_MAX_AGE = 60 * 60 * 24 * 30;

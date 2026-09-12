@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { SESSION_COOKIE } from "@/lib/auth";
-import { CUSTOMER_SESSION_COOKIE } from "@/lib/customer-auth";
+import { SESSION_COOKIE, CUSTOMER_SESSION_COOKIE } from "@/lib/auth-constants";
 
 // Rute yang membutuhkan autentikasi Superadmin (OMS)
 const ADMIN_PATHS = [
