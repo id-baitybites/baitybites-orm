@@ -15,6 +15,9 @@ const ADMIN_PATHS = [
   "/cms",
 ];
 
+// Rute login admin
+const ADMIN_LOGIN_PATH = "/admin";
+
 // Rute yang membutuhkan autentikasi Pelanggan
 const CUSTOMER_PROTECTED_PATHS = ["/profile"];
 
@@ -43,12 +46,16 @@ export function middleware(request: NextRequest) {
   const customerSession = request.cookies.get(CUSTOMER_SESSION_COOKIE)?.value;
   const isCustomerAuthenticated = Boolean(customerSession);
 
-  // Akses rute Admin tanpa login admin → redirect ke /login
+  // Akses rute Admin tanpa login admin → redirect ke /admin
   if (isAdminRoute && !isAdminAuthenticated) {
-    const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("tab", "admin");
+    const loginUrl = new URL(ADMIN_LOGIN_PATH, request.url);
     loginUrl.searchParams.set("from", pathname);
     return NextResponse.redirect(loginUrl);
+  }
+
+  // Admin sudah login tapi buka /admin → redirect ke /orders
+  if (isAdminAuthenticated && pathname === ADMIN_LOGIN_PATH) {
+    return NextResponse.redirect(new URL("/orders", request.url));
   }
 
   // Akses rute Pelanggan tanpa login pelanggan → redirect ke /login?tab=customer
@@ -59,7 +66,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // Sudah login admin tapi buka /login tanpa parameter tab=customer → redirect ke /orders
+  // (legacy) Sudah login admin tapi buka /login → redirect ke /orders jika tab bukan customer
   const tab = request.nextUrl.searchParams.get("tab");
   if (isAdminAuthenticated && pathname === "/login" && tab !== "customer") {
     return NextResponse.redirect(new URL("/orders", request.url));
