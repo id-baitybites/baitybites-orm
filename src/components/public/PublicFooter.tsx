@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import {
   CallIcon,
@@ -15,11 +16,13 @@ export function PublicFooter() {
           {/* BRAND & CONTACT */}
           <div className="footer-brand">
             <Link href="/" className="brand-logo">
-              <div className="brand-icon" aria-hidden="true">
-                <span />
-                <span />
-              </div>
-              <strong>Baitybites</strong>
+              <Image
+                src="/images/logos/baitybites-logo.png"
+                alt="Baitybites Logo"
+                width={150}
+                height={42}
+                style={{ height: "auto", width: "auto", maxHeight: "42px" }}
+              />
             </Link>
             <p>
               Menghadirkan Risol Mayo artisan &amp; kuliner Indonesia dengan bahan premium,

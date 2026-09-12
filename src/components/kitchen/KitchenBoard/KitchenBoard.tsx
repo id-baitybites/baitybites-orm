@@ -35,21 +35,21 @@ const COLUMNS: Array<{
     label: "Menunggu",
     sublabel: "Belum mulai dimasak",
     icon: Clock01Icon,
-    colorClass: "col--warning",
+    colorClass: "col--menunggu",
   },
   {
     status: "dimasak",
     label: "Sedang Dimasak",
     sublabel: "Di atas kompor sekarang",
     icon: FireIcon,
-    colorClass: "col--info",
+    colorClass: "col--dimasak",
   },
   {
     status: "siap_pickup",
     label: "Siap Pickup",
     sublabel: "Selesai, menunggu customer",
     icon: CheckmarkCircle02Icon,
-    colorClass: "col--success",
+    colorClass: "col--ready",
   },
 ];
 

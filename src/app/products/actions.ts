@@ -1,6 +1,9 @@
 "use server";
 
 import { GoogleGenAI } from "@google/genai";
+import { db } from "@/lib/db";
+import { uploadToCloudinary } from "@/lib/cloudinary";
+import { revalidatePath } from "next/cache";
 
 /**
  * Memperbaiki (enhance) deskripsi produk yang ditulis oleh staf agar lebih menggoda selera,
@@ -64,6 +67,156 @@ Informasi Produk:
   } catch (err: unknown) {
     console.error("Gemini AI enhancement error:", err);
     const message = err instanceof Error ? err.message : "Gagal memproses dengan AI";
+    return {
+      success: false,
+      error: message,
+    };
+  }
+}
+
+export interface CreateProductInput {
+  name: string;
+  description: string;
+  category: string;
+  price: number;
+  unit: string;
+  initialStock: number;
+  imageBase64?: string | null;
+}
+
+export interface ProductItemDisplay {
+  id: string;
+  title: string;
+  subtitle: string;
+  value: string;
+  status: "Tersedia" | "Menipis" | "Habis";
+  tone: "success" | "warning" | "danger";
+  imageUrl?: string | null;
+}
+
+/**
+ * Mengambil seluruh produk dari database PostgreSQL
+ */
+export async function getProductsAction(): Promise<ProductItemDisplay[]> {
+  try {
+    const products = await db.product.findMany({
+      include: { category: true },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return products.map((p) => {
+      const status: "Tersedia" | "Menipis" | "Habis" =
+        p.stock > 10 ? "Tersedia" : p.stock > 0 ? "Menipis" : "Habis";
+      const tone: "success" | "warning" | "danger" =
+        status === "Tersedia" ? "success" : status === "Menipis" ? "warning" : "danger";
+
+      return {
+        id: p.id,
+        title: p.name,
+        subtitle: `${p.code} / ${p.category.name} • Rp ${p.price.toLocaleString("id-ID")}`,
+        value: `${p.stock} ${p.unit}`,
+        status,
+        tone,
+        imageUrl: p.imageUrl,
+      };
+    });
+  } catch (err) {
+    console.error("Error getProductsAction:", err);
+    return [];
+  }
+}
+
+/**
+ * Membuat produk baru: upload foto ke Cloudinary dan simpan ke database PostgreSQL
+ */
+export async function createProductAction(input: CreateProductInput): Promise<{
+  success: boolean;
+  product?: ProductItemDisplay;
+  error?: string;
+}> {
+  try {
+    const { name, description, category: categoryName, price, unit, initialStock, imageBase64 } = input;
+
+    if (!name || !name.trim()) {
+      return { success: false, error: "Nama produk wajib diisi." };
+    }
+
+    // 1. Upload ke Cloudinary jika ada gambar
+    let uploadedImageUrl: string | null = null;
+    if (imageBase64 && imageBase64.startsWith("data:image")) {
+      const uploadRes = await uploadToCloudinary(imageBase64, "products");
+      if (uploadRes.success && uploadRes.url) {
+        uploadedImageUrl = uploadRes.url;
+      } else {
+        console.warn("Cloudinary upload failed, proceeding with null imageUrl:", uploadRes.error);
+      }
+    }
+
+    // 2. Cari atau buat Kategori yang sesuai
+    const categorySlug = categoryName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    let category = await db.category.findFirst({
+      where: {
+        OR: [{ name: categoryName }, { slug: categorySlug }],
+      },
+    });
+
+    if (!category) {
+      category = await db.category.create({
+        data: {
+          name: categoryName,
+          slug: categorySlug,
+          description: `Kategori ${categoryName}`,
+        },
+      });
+    }
+
+    // 3. Generate Kode SKU Produk
+    const productCount = await db.product.count();
+    const productCode = `PRD-${String(productCount + 1).padStart(3, "0")}`;
+    const productSlug = `${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${Date.now()}`;
+
+    // 4. Simpan ke database PostgreSQL via Prisma
+    const newProduct = await db.product.create({
+      data: {
+        categoryId: category.id,
+        code: productCode,
+        name: name.trim(),
+        slug: productSlug,
+        description: description?.trim() || null,
+        price: Number(price) || 0,
+        unit: unit || "Pack",
+        stock: Number(initialStock) || 0,
+        imageUrl: uploadedImageUrl,
+        isAvailable: Number(initialStock) > 0,
+      },
+      include: {
+        category: true,
+      },
+    });
+
+    const status: "Tersedia" | "Menipis" | "Habis" =
+      newProduct.stock > 10 ? "Tersedia" : newProduct.stock > 0 ? "Menipis" : "Habis";
+    const tone: "success" | "warning" | "danger" =
+      status === "Tersedia" ? "success" : status === "Menipis" ? "warning" : "danger";
+
+    revalidatePath("/products");
+    revalidatePath("/");
+
+    return {
+      success: true,
+      product: {
+        id: newProduct.id,
+        title: newProduct.name,
+        subtitle: `${newProduct.code} / ${newProduct.category.name} • Rp ${newProduct.price.toLocaleString("id-ID")}`,
+        value: `${newProduct.stock} ${newProduct.unit}`,
+        status,
+        tone,
+        imageUrl: newProduct.imageUrl,
+      },
+    };
+  } catch (err: unknown) {
+    console.error("createProductAction error:", err);
+    const message = err instanceof Error ? err.message : "Gagal menambahkan produk ke database.";
     return {
       success: false,
       error: message,

@@ -119,9 +119,9 @@
   /* top accent bar */
   border-top: 4px solid transparent;
 
-  &.col--warning { border-top-color: var(--color-warning); }
-  &.col--info    { border-top-color: var(--color-info); }
-  &.col--success { border-top-color: var(--color-success); }
+  &.col--menunggu { border-top-color: #2563eb; }
+  &.col--dimasak  { border-top-color: #059669; }
+  &.col--ready    { border-top-color: #f97316; }
 }
 
 /* column header */
@@ -141,9 +141,9 @@
   place-items: center;
   flex-shrink: 0;
 
-  .col--warning & { background: var(--color-warning-soft); color: var(--color-warning); }
-  .col--info    & { background: var(--color-info-soft);    color: var(--color-info); }
-  .col--success & { background: var(--color-success-soft); color: var(--color-success); }
+  .col--menunggu & { background: #eff6ff; color: #2563eb; }
+  .col--dimasak  & { background: #ecfdf5; color: #059669; }
+  .col--ready    & { background: #fff7ed; color: #f97316; }
 }
 
 .kitchen-col__label {
@@ -173,9 +173,9 @@
   border-radius: var(--radius-full);
   flex-shrink: 0;
 
-  .col--warning & { background: var(--color-warning-soft); color: var(--color-warning-contrast); }
-  .col--info    & { background: var(--color-info-soft);    color: var(--color-info); }
-  .col--success & { background: var(--color-success-soft); color: var(--color-success); }
+  .col--menunggu & { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+  .col--dimasak  & { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
+  .col--ready    & { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
 }
 
 /* ── Cards area ── */

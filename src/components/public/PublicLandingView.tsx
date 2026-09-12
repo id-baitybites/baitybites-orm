@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import Image from "next/image";
+import { useState, useEffect } from "react";
 import {
   Search01Icon,
   ShoppingBag01Icon,
   ArrowRight01Icon,
+  ArrowLeft01Icon,
   CheckmarkCircle02Icon,
   SparklesIcon,
   FireIcon,
@@ -130,7 +132,42 @@ const TESTIMONIALS = [
   },
 ];
 
+// Data Slide Hero Highlight Produk
+const HERO_SLIDES = [
+  {
+    id: "risol-mayo",
+    badge: "Highlight Spesial",
+    title: "Sensasi Risol Mayo Meleleh",
+    titleAccent: "Double Cheese & Smoked Beef",
+    description:
+      "Dibuat dari bahan-bahan pilihan dengan isian daging asap premium, keju mozarella melimpah, dan racikan saus mayo creamy gurih yang memanjakan lidah di setiap gigitan.",
+    image: "/images/backgrounds/hero-risol.jpg",
+    rating: "4.9 / 5.0",
+    reviewCount: "2.400+ Ulasan",
+    salesCount: "18.500+ Pcs Terjual",
+    featuredProduct: "Risol Mayo Beef Double Cheese",
+    themeColor: "#ff7a00",
+  },
+  {
+    id: "cendol-matcha",
+    badge: "Menu Kesegaran Baru",
+    title: "Artisan Minuman Cendol &",
+    titleAccent: "Matcha Latte Segar Autentik",
+    description:
+      "Racikan sari pandan suji murni berpadu santan gurih, gula aren organik, dan sensasi creamy dingin menyegarkan — teman sempurna risol hangat Anda.",
+    image: "/images/backgrounds/hero-matcha.jpg",
+    rating: "5.0 / 5.0",
+    reviewCount: "1.850+ Ulasan",
+    salesCount: "12.200+ Cup Terjual",
+    featuredProduct: "Signature Ice Cendol & Matcha Series",
+    themeColor: "#10b981",
+  },
+];
+
 export function PublicLandingView() {
+  // State Hero Carousel
+  const [activeSlide, setActiveSlide] = useState(0);
+
   // State Order Catalog
   const [selectedCategory, setSelectedCategory] = useState("Semua");
   const [searchQuery, setSearchQuery] = useState("");
@@ -216,83 +253,150 @@ export function PublicLandingView() {
         </div>
       )}
 
-      {/* ── 1. HERO SECTION ── */}
-      <section id="hero" className="hero-section">
-        <div className="hero-section__inner">
-          <div className="hero-section__content">
-            <span className="hero-badge">
-              <HugeiconsIcon icon={SparklesIcon} size={14} strokeWidth={2} />
-              Artisan Risol &amp; Cendol Premium
-            </span>
-
-            <h1>
-              Sensasi Risol Mayo Meleleh &amp;{" "}
-              <span className="highlight">Cendol Segar Autentik</span>
-            </h1>
-
-            <p className="lead">
-              Dibuat dari bahan-bahan pilihan dengan isian daging asap premium, keju melimpah, dan racikan saus gurih creamy yang memanjakan lidah di setiap gigitan.
-            </p>
-
-            <div className="hero-actions">
-              <a href="#order" className="btn-primary">
-                <HugeiconsIcon icon={ShoppingBag01Icon} size={18} strokeWidth={2} />
-                <span>Pesan Sekarang</span>
-              </a>
-              <a href="#tracking" className="btn-secondary">
-                <HugeiconsIcon icon={Clock01Icon} size={18} strokeWidth={2} />
-                <span>Lacak Pesanan</span>
-              </a>
-            </div>
-
-            <div className="hero-features">
-              <div className="hero-features-item">
-                <HugeiconsIcon icon={CheckmarkCircle02Icon} size={18} strokeWidth={2} />
-                <span>100% Bahan Halal &amp; Higienis</span>
-              </div>
-              <div className="hero-features-item">
-                <HugeiconsIcon icon={CheckmarkCircle02Icon} size={18} strokeWidth={2} />
-                <span>Freshly Fried &amp; Frozen Pack</span>
-              </div>
-              <div className="hero-features-item">
-                <HugeiconsIcon icon={CheckmarkCircle02Icon} size={18} strokeWidth={2} />
-                <span>Pengiriman Instan Se-Jabodetabek</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="hero-section__visual">
-            <div className="hero-card-banner">
-              <span className="banner-tag">Paling Banyak Dipesan</span>
-              <h3>Risol Mayo Beef Double Cheese</h3>
-              <p>
-                Paduan gurih daging asap premium, renyahnya kulit lumpia homemade, dan lelehan keju mozarella berpadu mayones spesial Baitybites.
-              </p>
-
-              <div className="banner-stats">
-                <div className="stat-box">
-                  <strong>4.9 / 5.0</strong>
-                  <span>Rating 2.400+ Ulasan</span>
+      {/* ── 1. FULLSCREEN HERO SECTION ── */}
+      {(() => {
+        const slide = HERO_SLIDES[activeSlide];
+        return (
+          <section id="hero" className="hero-fullscreen">
+            {/* BACKGROUND IMAGES CAROUSEL */}
+            <div className="hero-fullscreen__bg-track">
+              {HERO_SLIDES.map((s, idx) => (
+                <div
+                  key={s.id}
+                  className={`hero-fullscreen__bg-slide ${idx === activeSlide ? "is-active" : ""}`}
+                >
+                  <Image
+                    src={s.image}
+                    alt={s.title}
+                    fill
+                    priority={idx === 0}
+                    className="hero-fullscreen__bg-image"
+                    sizes="100vw"
+                  />
                 </div>
-                <div className="stat-box">
-                  <strong>18.500+</strong>
-                  <span>Pcs Terjual Bulan Ini</span>
+              ))}
+            </div>
+
+            {/* DARK LUXURY OVERLAY VIGNETTE */}
+            <div className="hero-fullscreen__overlay" />
+
+            {/* HERO CONTENT WRAPPER */}
+            <div className="hero-fullscreen__inner">
+              <div className="hero-fullscreen__content">
+                <span className="hero-badge">
+                  <HugeiconsIcon icon={SparklesIcon} size={14} strokeWidth={2} />
+                  {slide.badge}
+                </span>
+
+                <h1>
+                  {slide.title}{" "}
+                  <span className="highlight">{slide.titleAccent}</span>
+                </h1>
+
+                <p className="lead">{slide.description}</p>
+
+                <div className="hero-actions">
+                  <a href="#order" className="btn-primary">
+                    <HugeiconsIcon icon={ShoppingBag01Icon} size={18} strokeWidth={2} />
+                    <span>Pesan Sekarang</span>
+                  </a>
+                  <a href="#tracking" className="btn-secondary">
+                    <HugeiconsIcon icon={Clock01Icon} size={18} strokeWidth={2} />
+                    <span>Lacak Pesanan</span>
+                  </a>
+                </div>
+
+                <div className="hero-features">
+                  <div className="hero-features-item">
+                    <HugeiconsIcon icon={CheckmarkCircle02Icon} size={18} strokeWidth={2} />
+                    <span>100% Halal &amp; Higienis</span>
+                  </div>
+                  <div className="hero-features-item">
+                    <HugeiconsIcon icon={CheckmarkCircle02Icon} size={18} strokeWidth={2} />
+                    <span>Fresh Fried &amp; Frozen Pack</span>
+                  </div>
+                  <div className="hero-features-item">
+                    <HugeiconsIcon icon={CheckmarkCircle02Icon} size={18} strokeWidth={2} />
+                    <span>Pengiriman Cepat Se-Jabodetabek</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* FLOATING HIGHLIGHT PRODUCT CARD */}
+              <div className="hero-fullscreen__visual">
+                <div className="hero-card-banner">
+                  <span className="banner-tag">Highlight Produk Unggulan</span>
+                  <h3>{slide.featuredProduct}</h3>
+                  <p>
+                    Kelezatan autentik dengan racikan bahan kualitas tertinggi. Disajikan selalu segar untuk momen bersantap terbaik Anda.
+                  </p>
+
+                  <div className="banner-stats">
+                    <div className="stat-box">
+                      <strong>{slide.rating}</strong>
+                      <span>{slide.reviewCount}</span>
+                    </div>
+                    <div className="stat-box">
+                      <strong>{slide.salesCount}</strong>
+                      <span>Reputasi Konsisten</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="floating-badge">
+                  <div className="badge-icon">
+                    <HugeiconsIcon icon={FireIcon} size={20} strokeWidth={2} />
+                  </div>
+                  <div>
+                    <strong>Sensasi Hangat &amp; Nikmat</strong>
+                    <small>Dibuat fresh setiap hari</small>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="floating-badge">
-              <div className="badge-icon">
-                <HugeiconsIcon icon={FireIcon} size={20} strokeWidth={2} />
+            {/* SLIDE NAVIGATION CONTROLS */}
+            <div className="hero-fullscreen__controls">
+              <div className="hero-fullscreen__dots">
+                {HERO_SLIDES.map((s, idx) => (
+                  <button
+                    key={s.id}
+                    type="button"
+                    className={`hero-dot ${idx === activeSlide ? "is-active" : ""}`}
+                    onClick={() => setActiveSlide(idx)}
+                    aria-label={`Slide ${idx + 1}: ${s.featuredProduct}`}
+                  >
+                    <span className="dot-label">{s.featuredProduct}</span>
+                  </button>
+                ))}
               </div>
-              <div>
-                <strong>Selalu Hangat &amp; Renyah</strong>
-                <small>Produksi dapur berkala setiap jam</small>
+
+              <div className="hero-fullscreen__arrows">
+                <button
+                  type="button"
+                  className="hero-arrow-btn"
+                  onClick={() =>
+                    setActiveSlide((prev) => (prev === 0 ? HERO_SLIDES.length - 1 : prev - 1))
+                  }
+                  aria-label="Slide sebelumnya"
+                >
+                  <HugeiconsIcon icon={ArrowLeft01Icon} size={20} strokeWidth={2} />
+                </button>
+                <button
+                  type="button"
+                  className="hero-arrow-btn"
+                  onClick={() =>
+                    setActiveSlide((prev) => (prev === HERO_SLIDES.length - 1 ? 0 : prev + 1))
+                  }
+                  aria-label="Slide berikutnya"
+                >
+                  <HugeiconsIcon icon={ArrowRight01Icon} size={20} strokeWidth={2} />
+                </button>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
+          </section>
+        );
+      })()}
 
       {/* ── 2. GALLERY SECTION ── */}
       <section id="gallery" className="gallery-section">

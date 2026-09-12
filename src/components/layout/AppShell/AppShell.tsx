@@ -2,10 +2,12 @@
 
 import { Logout01Icon, Menu01Icon, Cancel01Icon, ArrowDown01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useTransition } from "react";
 import { navigation, type NavItem } from "@/lib/navigation";
+import { logoutAction } from "@/app/login/actions";
 import "./app-shell.scss";
 
 function NavGroupItem({
@@ -78,7 +80,14 @@ function NavGroupItem({
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const activePath = pathname.startsWith("/orders/") ? "/orders" : pathname;
+
+  function handleLogout() {
+    startTransition(async () => {
+      await logoutAction();
+    });
+  }
 
   // All items for mobile nav (flatten children)
   const mobileNavItems = navigation.flatMap((item) =>
@@ -91,15 +100,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <header className="app-shell__header">
         <div className="app-shell__header-inner">
           <Link href="/" className="app-shell__brand">
-            <div className="app-shell__mark" aria-hidden="true">
-              <span />
-              <span />
-              <span />
-            </div>
-            <div className="app-shell__brand-text">
-              <strong>Baitybites</strong>
-              <small>BITE THE BEST</small>
-            </div>
+            <Image
+              src="/images/logos/baitybites-logo.png"
+              alt="Baitybites Logo"
+              width={140}
+              height={38}
+              className="app-shell__brand-logo"
+              priority
+            />
           </Link>
 
           <nav className="app-shell__nav" aria-label="Navigasi utama">
@@ -120,9 +128,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </nav>
 
           <div className="app-shell__actions">
-            <button className="app-shell__logout" type="button" aria-label="Keluar dari sistem">
+            <button
+              className="app-shell__logout"
+              type="button"
+              aria-label="Keluar dari sistem"
+              onClick={handleLogout}
+              disabled={isPending}
+              aria-busy={isPending}
+            >
               <HugeiconsIcon icon={Logout01Icon} size={16} strokeWidth={1.8} />
-              <span>Logout</span>
+              <span>{isPending ? "Keluar..." : "Logout"}</span>
             </button>
 
             <button
@@ -155,10 +170,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <button
                 className="app-shell__mobile-logout"
                 type="button"
-                onClick={() => setMenuOpen(false)}
+                onClick={() => {
+                  setMenuOpen(false);
+                  handleLogout();
+                }}
+                disabled={isPending}
               >
                 <HugeiconsIcon icon={Logout01Icon} size={17} strokeWidth={1.8} />
-                <span>Logout</span>
+                <span>{isPending ? "Keluar..." : "Logout"}</span>
               </button>
             </div>
           </nav>
@@ -172,15 +191,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <footer className="app-shell__footer">
         <div className="app-shell__footer-inner">
           <div className="app-shell__footer-brand">
-            <div className="app-shell__mark" aria-hidden="true">
-              <span />
-              <span />
-              <span />
-            </div>
-            <div>
-              <strong>Baitybites</strong>
-              <small>BITE THE BEST</small>
-            </div>
+            <Image
+              src="/images/logos/baitybites-logo.png"
+              alt="Baitybites Logo"
+              width={140}
+              height={38}
+              style={{ height: "auto", width: "auto", maxHeight: "38px" }}
+            />
           </div>
 
           <div className="app-shell__footer-description">

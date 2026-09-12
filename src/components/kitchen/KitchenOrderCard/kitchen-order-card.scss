@@ -32,10 +32,10 @@
     transform: translateY(-1px);
   }
 
-  /* status accent colors */
-  &--menunggu::before    { background: var(--color-warning); }
-  &--dimasak::before     { background: var(--color-info); }
-  &--siap_pickup::before { background: var(--color-success); }
+  /* status accent colors sesuai standar sistem */
+  &--menunggu::before    { background: #2563eb; }
+  &--dimasak::before     { background: #059669; }
+  &--siap_pickup::before { background: #f97316; }
 
   /* overdue = red accent */
   &--overdue {
@@ -237,22 +237,22 @@
   margin-top: auto;
 
   &--dimasak {
-    background: var(--color-info);
-    color: var(--color-info-contrast);
+    background: #059669;
+    color: #ffffff;
 
     &:hover {
-      background: #2568d8;
-      box-shadow: 0 4px 12px rgba(52, 120, 246, 0.35);
+      background: #047857;
+      box-shadow: 0 4px 12px rgba(5, 150, 105, 0.35);
     }
   }
 
   &--siap_pickup {
-    background: var(--color-success);
-    color: var(--color-success-contrast);
+    background: #f97316;
+    color: #ffffff;
 
     &:hover {
-      background: var(--color-success-hover);
-      box-shadow: 0 4px 12px rgba(0, 184, 135, 0.35);
+      background: #ea580c;
+      box-shadow: 0 4px 12px rgba(249, 115, 22, 0.35);
     }
   }
 

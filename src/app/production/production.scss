@@ -1,0 +1,428 @@
+.production-page {
+  flex: 1;
+
+  &__container {
+    width: min(100% - (var(--container-padding-x) * 2), var(--container-max-width));
+    margin: 0 auto;
+    padding: var(--space-6) 0 var(--space-16);
+  }
+
+  /* --------------------------------------------------
+     PAGE HEADER
+  -------------------------------------------------- */
+  &__header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-5);
+    margin-bottom: var(--space-6);
+
+    .eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+      color: var(--color-primary, #f97316);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text-primary, #0f172a);
+    letter-spacing: -0.02em;
+  }
+
+  &__description {
+    margin-top: 4px;
+    color: var(--text-secondary, #64748b);
+    font-size: 14px;
+  }
+
+  /* --------------------------------------------------
+     STATS BAR (KPI)
+  -------------------------------------------------- */
+  &__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .stat-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 14px 18px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+
+    &__label {
+      font-size: 12px;
+      color: #64748b;
+      font-weight: 500;
+    }
+
+    &__value {
+      font-size: 24px;
+      font-weight: 700;
+      color: #0f172a;
+      margin: 4px 0 2px;
+    }
+
+    &__hint {
+      font-size: 11px;
+      color: #10b981;
+      font-weight: 500;
+    }
+  }
+
+  /* --------------------------------------------------
+     CARD TABLE CONTAINER
+  -------------------------------------------------- */
+  &__card {
+    background: #ffffff;
+    border: 1px solid #edf2f7;
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+    overflow: hidden;
+  }
+
+  &__card-title {
+    padding: 20px 24px 16px;
+    font-size: 20px;
+    font-weight: 700;
+    color: #1e293b;
+    border-bottom: 1px solid #f1f5f9;
+    margin: 0;
+  }
+
+  /* --------------------------------------------------
+     FILTER TABS
+  -------------------------------------------------- */
+  &__tabs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: #fafafa;
+    border-bottom: 1px solid #f1f5f9;
+    overflow-x: auto;
+
+    button {
+      background: transparent;
+      border: 1px solid transparent;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #64748b;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 150ms ease;
+
+      &:hover {
+        color: #0f172a;
+        background: #f1f5f9;
+      }
+
+      &.is-active {
+        background: #0f172a;
+        color: #ffffff;
+        font-weight: 600;
+      }
+    }
+  }
+
+  /* --------------------------------------------------
+     TABLE LAYOUT (SESUAI GAMBAR REFERENSI)
+  -------------------------------------------------- */
+  .prod-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .prod-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+
+    thead {
+      background: #fafbfd;
+      border-bottom: 1px solid #f1f5f9;
+
+      th {
+        padding: 12px 20px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        color: #64748b;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+    }
+
+    tbody {
+      tr {
+        border-bottom: 1px solid #f1f5f9;
+        transition: background-color 150ms ease;
+
+        &:hover {
+          background-color: #fbfcfe;
+        }
+
+        &:last-child {
+          border-bottom: none;
+        }
+      }
+
+      td {
+        padding: 18px 20px;
+        vertical-align: middle;
+        font-size: 13px;
+        color: #334155;
+      }
+    }
+
+    /* KOLOM 1: ORDER # */
+    &__cell-order {
+      font-size: 14px;
+      font-weight: 700;
+      color: #0f172a;
+      white-space: nowrap;
+    }
+
+    /* KOLOM 2: PRODUCT */
+    &__cell-product {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 220px;
+
+      .prod-name {
+        font-weight: 500;
+        color: #475569;
+      }
+
+      .prod-badge-qty {
+        color: #f97316;
+        font-weight: 700;
+        font-size: 13px;
+        margin-left: 6px;
+      }
+    }
+
+    /* KOLOM 3: TOTAL QTY */
+    &__cell-qty {
+      font-weight: 600;
+      color: #334155;
+    }
+
+    /* KOLOM 4: STATUS BADGE */
+    &__cell-status {
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        white-space: nowrap;
+
+        &--ready {
+          background-color: #d1fae5;
+          color: #065f46;
+          border: 1px solid #a7f3d0;
+        }
+
+        &--dimasak {
+          background-color: #ffedd5;
+          color: #9a3412;
+          border: 1px solid #fed7aa;
+        }
+
+        &--menunggu {
+          background-color: #e2e8f0;
+          color: #475569;
+          border: 1px solid #cbd5e1;
+        }
+
+        &--selesai {
+          background-color: #e0e7ff;
+          color: #3730a3;
+          border: 1px solid #c7d2fe;
+        }
+      }
+    }
+
+    /* KOLOM 5: UPDATE STATUS & ESTIMASI (HERO DESIGN DARI GAMBAR) */
+    &__cell-action {
+      min-width: 320px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+
+      .action-left {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        flex: 1;
+      }
+
+      /* KOTAK ESTIMASI ORANGE DENGAN TARGET BADGE */
+      .time-box {
+        background: #fffdfa;
+        border: 1px solid #fde68a;
+        border-left: 3px solid #f59e0b;
+        border-radius: 6px;
+        padding: 8px 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+
+        &__top {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 8px;
+        }
+
+        &__duration {
+          font-size: 14px;
+          font-weight: 700;
+          color: #92400e;
+        }
+
+        &__target {
+          background: #ffedd5;
+          color: #ea580c;
+          font-size: 10px;
+          font-weight: 700;
+          padding: 2px 8px;
+          border-radius: 10px;
+          letter-spacing: 0.04em;
+        }
+
+        &__breakdown {
+          font-size: 11px;
+          color: #78716c;
+        }
+      }
+
+      /* BADGE ICON TIMELINE (KERANJANG, API, BOX) */
+      .timeline-icons {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        .time-step-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          padding: 4px 8px;
+          border-radius: 6px;
+          font-size: 11px;
+          font-weight: 600;
+          color: #475569;
+
+          &--cart {
+            color: #475569;
+          }
+
+          &--fire {
+            color: #dc2626;
+            background: #fff5f5;
+            border-color: #fed7aa;
+          }
+
+          &--box {
+            color: #ea580c;
+            background: #fff7ed;
+            border-color: #ffedd5;
+          }
+
+          &--disabled {
+            opacity: 0.4;
+          }
+        }
+      }
+
+      /* TOMBOL AKSI BERBAGAI STATUS */
+      .btn-status-action {
+        color: #ffffff;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 18px;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: all 150ms ease;
+
+        /* STATUS: READY TO SHIP (Selesai Kirim) - Oranye Khas Sesuai Gambar Referensi */
+        &--ready {
+          background: #f97316;
+          box-shadow: 0 2px 5px rgba(249, 115, 22, 0.28);
+
+          &:hover:not(:disabled) {
+            background: #ea580c;
+            transform: translateY(-1px);
+          }
+        }
+
+        /* STATUS: SEDANG DIMASAK (Tandai Siap) - Hijau Emerald */
+        &--dimasak {
+          background: #059669;
+          box-shadow: 0 2px 5px rgba(5, 150, 105, 0.25);
+
+          &:hover:not(:disabled) {
+            background: #047857;
+            transform: translateY(-1px);
+          }
+        }
+
+        /* STATUS: MENUNGGU (Mulai Masak) - Biru Navy / Indigo */
+        &--menunggu {
+          background: #2563eb;
+          box-shadow: 0 2px 5px rgba(37, 99, 235, 0.25);
+
+          &:hover:not(:disabled) {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+          }
+        }
+
+        /* STATUS: SELESAI */
+        &--selesai {
+          background: #64748b;
+          box-shadow: none;
+        }
+
+        &:active:not(:disabled) {
+          transform: translateY(0);
+        }
+
+        &:disabled {
+          background: #cbd5e1;
+          color: #64748b;
+          cursor: not-allowed;
+          box-shadow: none;
+        }
+      }
+    }
+  }
+
+  /* EMPTY STATE */
+  &__empty {
+    padding: 48px 24px;
+    text-align: center;
+    color: #94a3b8;
+    font-size: 14px;
+  }
+}

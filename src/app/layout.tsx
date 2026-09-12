@@ -33,6 +33,15 @@ export const metadata: Metadata = {
     locale: "id_ID",
     type: "website",
   },
+  icons: {
+    icon: [
+      { url: "/favicon.png", type: "image/png" },
+      { url: "/images/icons/favicon.png", type: "image/png" },
+    ],
+    shortcut: "/favicon.png",
+    apple: "/images/icons/baitybites-pwa-logo.png",
+  },
+  manifest: "/manifest.webmanifest",
 };
 
 export const viewport: Viewport = {

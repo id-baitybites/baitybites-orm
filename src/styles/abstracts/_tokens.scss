@@ -59,29 +59,44 @@
   --color-secondary-contrast: #ffffff;
 
   /* --------------------------------
-     SEMANTIC
+     SEMANTIC & SYSTEM STATUS
   -------------------------------- */
 
-  --color-success: #00b887;
-  --color-success-hover: #00a377;
-  --color-success-soft: #e9fbf5;
+  --color-success: #059669;
+  --color-success-hover: #047857;
+  --color-success-soft: #ecfdf5;
+  --color-success-border: #a7f3d0;
   --color-success-contrast: #ffffff;
 
-  --color-warning: #f4a900;
-  --color-warning-soft: #fff6d9;
-  --color-warning-contrast: #7a4600;
+  --color-warning: #f97316;
+  --color-warning-hover: #ea580c;
+  --color-warning-soft: #fff7ed;
+  --color-warning-border: #fed7aa;
+  --color-warning-contrast: #ffffff;
 
-  --color-danger: #ef4b4b;
-  --color-danger-soft: #fff0f0;
+  --color-danger: #dc2626;
+  --color-danger-hover: #b91c1c;
+  --color-danger-soft: #fef2f2;
+  --color-danger-border: #fecaca;
   --color-danger-contrast: #ffffff;
 
-  --color-info: #3478f6;
-  --color-info-soft: #edf4ff;
+  --color-info: #2563eb;
+  --color-info-hover: #1d4ed8;
+  --color-info-soft: #eff6ff;
+  --color-info-border: #bfdbfe;
   --color-info-contrast: #ffffff;
 
-  --color-purple: #8655e8;
-  --color-purple-soft: #f4effe;
+  --color-purple: #7c3aed;
+  --color-purple-hover: #6d28d9;
+  --color-purple-soft: #f5f3ff;
+  --color-purple-border: #ddd6fe;
   --color-purple-contrast: #ffffff;
+
+  --color-neutral: #475569;
+  --color-neutral-hover: #334155;
+  --color-neutral-soft: #f1f5f9;
+  --color-neutral-border: #cbd5e1;
+  --color-neutral-contrast: #ffffff;
 
   /* --------------------------------
      SURFACE

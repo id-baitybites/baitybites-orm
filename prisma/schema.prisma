@@ -16,14 +16,19 @@ enum Channel {
   Tokopedia
   Shopee
   WalkIn
+  Website
 
   @@map("channel")
 }
 
 enum OrderStatus {
   MENUNGGU
+  DIKONFIRMASI
   DIMASAK
   SIAP_PICKUP
+  DIKIRIM
+  SELESAI
+  DIBATALKAN
 
   @@map("order_status")
 }
@@ -35,32 +40,247 @@ enum Priority {
   @@map("priority")
 }
 
-// ─── Models ───────────────────────────────────────────────────────────────────
+enum CustomerType {
+  REGULAR
+  VIP
+  WHOLESALE
+
+  @@map("customer_type")
+}
+
+enum PaymentMethod {
+  BANK_TRANSFER
+  QRIS
+  CASH
+  COD
+  EWALLET
+
+  @@map("payment_method")
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+
+  @@map("payment_status")
+}
+
+enum GalleryCategory {
+  PRODUK
+  PROSES_DAPUR
+  EVENT_HAMPERS
+  TESTIMONI
+
+  @@map("gallery_category")
+}
+
+// ─── 1. Modul Pelanggan ────────────────────────────────────────────────────────
+
+model Customer {
+  id           String       @id @default(cuid())
+  googleId     String?      @unique @map("google_id")
+  email        String?      @unique
+  name         String
+  phone        String?      @unique
+  avatarUrl    String?      @map("avatar_url")
+  address      String?
+  district     String?      // Kecamatan / Kelurahan
+  city         String?      @default("Jakarta")
+  postalCode   String?      @map("postal_code")
+  customerType CustomerType @default(REGULAR) @map("customer_type")
+  notes        String?      // Catatan pengiriman / instruksi kurir default
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+
+  orders       Order[]
+
+  @@map("customers")
+}
+
+// ─── 2. Modul Produk & Kategori ───────────────────────────────────────────────
+
+model Category {
+  id           String    @id @default(cuid())
+  name         String    @unique
+  slug         String    @unique
+  description  String?
+  displayOrder Int       @default(0) @map("display_order")
+  isActive     Boolean   @default(true) @map("is_active")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  products     Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id           String      @id @default(cuid())
+  categoryId   String      @map("category_id")
+  code         String      @unique
+  name         String
+  slug         String      @unique
+  description  String?
+  price        Float
+  unit         String      @default("Pack")
+  stock        Int         @default(0)
+  imageUrl     String?     @map("image_url")
+  badgeTag     String?     @map("badge_tag")
+  isBestSeller Boolean     @default(false) @map("is_best_seller")
+  isAvailable  Boolean     @default(true) @map("is_available")
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+
+  category     Category    @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  orderItems   OrderItem[]
+
+  @@map("products")
+}
+
+// ─── 3. Modul Pemesanan & Transaksi Lengkap ────────────────────────────────────
 
 model Order {
-  id            String      @id @default(cuid())
-  orderRef      String      @unique @map("order_ref")
-  customer      String
-  channel       Channel
-  status        OrderStatus @default(MENUNGGU)
-  priority      Priority    @default(NORMAL)
+  id            String               @id @default(cuid())
+  orderRef      String               @unique @map("order_ref")
+  customerId    String?              @map("customer_id")
+  customer      String               // Snapshot nama pelanggan (kompatibilitas backward)
+  customerPhone String?              @map("customer_phone")
+  customerEmail String?              @map("customer_email")
+  deliveryAddr  String?              @map("delivery_address")
+  channel       Channel              @default(WhatsApp)
+  status        OrderStatus          @default(MENUNGGU)
+  priority      Priority             @default(NORMAL)
+  subtotal      Float                @default(0)
+  deliveryFee   Float                @default(0) @map("delivery_fee")
+  discount      Float                @default(0)
+  totalAmount   Float                @default(0) @map("total_amount")
   note          String?
-  createdAt     DateTime    @default(now()) @map("created_at")
-  cookStartedAt DateTime?   @map("cook_started_at")
+  createdAt     DateTime             @default(now()) @map("created_at")
+  cookStartedAt DateTime?            @map("cook_started_at")
+  completedAt   DateTime?            @map("completed_at")
+  updatedAt     DateTime             @updatedAt @map("updated_at")
 
-  items OrderItem[]
+  clientRef     Customer?            @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  items         OrderItem[]
+  payments      Payment[]
+  statusHistory OrderStatusHistory[]
 
   @@map("orders")
 }
 
 model OrderItem {
-  id      String  @id @default(cuid())
-  name    String
-  qty     Int
-  notes   String?
-  orderId String  @map("order_id")
+  id        String   @id @default(cuid())
+  orderId   String   @map("order_id")
+  productId String?  @map("product_id")
+  name      String   // Snapshot nama produk
+  price     Float    @default(0)
+  qty       Int      @default(1)
+  subtotal  Float    @default(0)
+  notes     String?
 
-  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
 
   @@map("order_items")
 }
+
+model Payment {
+  id            String        @id @default(cuid())
+  orderId       String        @map("order_id")
+  paymentMethod PaymentMethod @default(BANK_TRANSFER) @map("payment_method")
+  paymentStatus PaymentStatus @default(PENDING) @map("payment_status")
+  amount        Float
+  paidAt        DateTime?     @map("paid_at")
+  proofUrl      String?       @map("proof_url")
+  referenceCode String?       @map("reference_code")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  order         Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("payments")
+}
+
+model OrderStatusHistory {
+  id        String      @id @default(cuid())
+  orderId   String      @map("order_id")
+  status    OrderStatus
+  note      String?
+  actor     String?     @default("SYSTEM")
+  createdAt DateTime    @default(now()) @map("created_at")
+
+  order     Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("order_status_history")
+}
+
+// ─── 4. Modul CMS: Tema Web Publik, Gallery, & Testimoni ──────────────────────
+
+model WebThemeSetting {
+  id               String   @id @default(cuid())
+  brandName        String   @default("Baitybites") @map("brand_name")
+  tagline          String   @default("Bite The Best")
+  heroTitle        String   @default("Sensasi Risol Mayo Meleleh") @map("hero_title")
+  heroTitleAccent  String   @default("Double Cheese & Smoked Beef") @map("hero_title_accent")
+  heroDescription  String   @map("hero_description")
+  heroImage        String   @default("/images/backgrounds/hero-risol.jpg") @map("hero_image")
+  primaryColor     String   @default("#F97316") @map("primary_color")
+  accentColor      String   @default("#10B981") @map("accent_color")
+  whatsappNumber   String   @default("+62 812 0000 0000") @map("whatsapp_number")
+  instagramUrl     String?  @default("https://instagram.com/baitybites") @map("instagram_url")
+  announcementText String?  @map("announcement_text")
+  isActive         Boolean  @default(true) @map("is_active")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  @@map("web_theme_settings")
+}
+
+model GalleryItem {
+  id           String          @id @default(cuid())
+  title        String
+  description  String?
+  imageUrl     String          @map("image_url")
+  category     GalleryCategory @default(PRODUK)
+  displayOrder Int             @default(0) @map("display_order")
+  isActive     Boolean         @default(true) @map("is_active")
+  createdAt    DateTime        @default(now()) @map("created_at")
+  updatedAt    DateTime        @updatedAt @map("updated_at")
+
+  @@map("gallery_items")
+}
+
+model CustomerTestimonial {
+  id           String   @id @default(cuid())
+  author       String
+  role         String?  @default("Pelanggan Setia")
+  city         String?  @default("Jakarta")
+  quote        String
+  rating       Int      @default(5)
+  avatarUrl    String?  @map("avatar_url")
+  isFeatured   Boolean  @default(true) @map("is_featured")
+  displayOrder Int      @default(0) @map("display_order")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("customer_testimonials")
+}
+
+// ─── 5. Modul Admin ────────────────────────────────────────────────────────────
+
+model Admin {
+  id           String    @id @default(cuid())
+  username     String    @unique
+  displayName  String    @map("display_name")
+  passwordHash String    @map("password_hash")
+  pinHash      String?   @map("pin_hash")
+  isActive     Boolean   @default(true) @map("is_active")
+  lastLoginAt  DateTime? @map("last_login_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  createdBy    String?   @map("created_by") // username promotor
+
+  @@map("admins")
+}
+

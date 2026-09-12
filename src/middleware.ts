@@ -1,0 +1,75 @@
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { SESSION_COOKIE } from "@/lib/auth";
+import { CUSTOMER_SESSION_COOKIE } from "@/lib/customer-auth";
+
+// Rute yang membutuhkan autentikasi Superadmin (OMS)
+const ADMIN_PATHS = [
+  "/dashboard",
+  "/orders",
+  "/products",
+  "/kitchen",
+  "/customers",
+  "/production",
+  "/reports",
+  "/settings",
+  "/cms",
+];
+
+// Rute yang membutuhkan autentikasi Pelanggan
+const CUSTOMER_PROTECTED_PATHS = ["/profile"];
+
+export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  // Lewati aset statis dan API internal Next.js
+  if (
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/api") ||
+    pathname.includes(".") // file statis (favicon, gambar, dll)
+  ) {
+    return NextResponse.next();
+  }
+
+  const isAdminRoute = ADMIN_PATHS.some(
+    (p) => pathname === p || pathname.startsWith(p + "/")
+  );
+  const isCustomerRoute = CUSTOMER_PROTECTED_PATHS.some(
+    (p) => pathname === p || pathname.startsWith(p + "/")
+  );
+
+  const adminSession = request.cookies.get(SESSION_COOKIE)?.value;
+  const isAdminAuthenticated = adminSession === "authenticated";
+
+  const customerSession = request.cookies.get(CUSTOMER_SESSION_COOKIE)?.value;
+  const isCustomerAuthenticated = Boolean(customerSession);
+
+  // Akses rute Admin tanpa login admin → redirect ke /login
+  if (isAdminRoute && !isAdminAuthenticated) {
+    const loginUrl = new URL("/login", request.url);
+    loginUrl.searchParams.set("tab", "admin");
+    loginUrl.searchParams.set("from", pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  // Akses rute Pelanggan tanpa login pelanggan → redirect ke /login?tab=customer
+  if (isCustomerRoute && !isCustomerAuthenticated) {
+    const loginUrl = new URL("/login", request.url);
+    loginUrl.searchParams.set("tab", "customer");
+    loginUrl.searchParams.set("from", pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  // Sudah login admin tapi buka /login tanpa parameter tab=customer → redirect ke /orders
+  const tab = request.nextUrl.searchParams.get("tab");
+  if (isAdminAuthenticated && pathname === "/login" && tab !== "customer") {
+    return NextResponse.redirect(new URL("/orders", request.url));
+  }
+
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|images|manifest).*)"],
+};
+

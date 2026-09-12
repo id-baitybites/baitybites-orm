@@ -27,7 +27,8 @@ export interface NewProductData {
 interface AddProductModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (product: NewProductData) => void;
+  onSubmit: (product: NewProductData) => Promise<void> | void;
+  isSubmitting?: boolean;
 }
 
 const CATEGORIES = [
@@ -38,7 +39,12 @@ const CATEGORIES = [
   "Paket Hampers & Snack Box",
 ];
 
-export function AddProductModal({ isOpen, onClose, onSubmit }: AddProductModalProps) {
+export function AddProductModal({
+  isOpen,
+  onClose,
+  onSubmit,
+  isSubmitting = false,
+}: AddProductModalProps) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState(CATEGORIES[0]);
@@ -382,14 +388,24 @@ export function AddProductModal({ isOpen, onClose, onSubmit }: AddProductModalPr
 
             <div className="product-modal__footer-group">
               {/* 9. Cancel Button */}
-              <button type="button" className="btn-cancel" onClick={onClose}>
+              <button
+                type="button"
+                className="btn-cancel"
+                onClick={onClose}
+                disabled={isSubmitting}
+              >
                 Cancel
               </button>
 
               {/* 10. Save Product (Submit Button) */}
-              <button type="submit" className="btn-submit">
+              <button
+                type="submit"
+                className="btn-submit"
+                disabled={isSubmitting}
+                style={{ opacity: isSubmitting ? 0.75 : 1, cursor: isSubmitting ? "not-allowed" : "pointer" }}
+              >
                 <HugeiconsIcon icon={CheckmarkCircle02Icon} size={16} strokeWidth={2} />
-                <span>Save Product</span>
+                <span>{isSubmitting ? "Menyimpan ke Database..." : "Save Product"}</span>
               </button>
             </div>
           </footer>

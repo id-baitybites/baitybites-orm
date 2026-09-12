@@ -1,72 +1,63 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { WorkspacePage } from "@/components/layout/WorkspacePage/WorkspacePage";
 import {
   AddProductModal,
   type NewProductData,
 } from "@/components/products/AddProductModal/AddProductModal";
-
-const initialProducts = [
-  {
-    title: "Risol Mayo Beef Double Cheese",
-    subtitle: "RB-001 / Frozen",
-    value: "48 unit",
-    status: "Tersedia",
-    tone: "success",
-  },
-  {
-    title: "Risol Beef Mushroom",
-    subtitle: "RB-002 / Frozen",
-    value: "32 unit",
-    status: "Menipis",
-    tone: "warning",
-  },
-  {
-    title: "Cendol Coffee",
-    subtitle: "CD-001 / Ready to serve",
-    value: "18 unit",
-    status: "Tersedia",
-    tone: "success",
-  },
-  {
-    title: "Cendol Matcha",
-    subtitle: "CD-002 / Ready to serve",
-    value: "0 unit",
-    status: "Habis",
-    tone: "danger",
-  },
-];
+import {
+  getProductsAction,
+  createProductAction,
+  type ProductItemDisplay,
+} from "@/app/products/actions";
 
 export default function ProductsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [productList, setProductList] = useState(initialProducts);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [productList, setProductList] = useState<ProductItemDisplay[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleAddProduct = (newProduct: NewProductData) => {
-    const code = `PRD-${String(productList.length + 1).padStart(3, "0")}`;
-    const status =
-      newProduct.initialStock > 10
-        ? "Tersedia"
-        : newProduct.initialStock > 0
-        ? "Menipis"
-        : "Habis";
-    const tone =
-      status === "Tersedia"
-        ? "success"
-        : status === "Menipis"
-        ? "warning"
-        : "danger";
+  // Ambil data produk langsung dari PostgreSQL saat halaman dimuat
+  useEffect(() => {
+    async function loadProducts() {
+      try {
+        const data = await getProductsAction();
+        setProductList(data);
+      } catch (err) {
+        console.error("Gagal memuat produk dari DB:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadProducts();
+  }, []);
 
-    setProductList((prev) => [
-      {
-        title: newProduct.name,
-        subtitle: `${code} / ${newProduct.category} • Rp ${newProduct.price.toLocaleString("id-ID")}`,
-        value: `${newProduct.initialStock} ${newProduct.unit}`,
-        status,
-        tone,
-      },
-      ...prev,
-    ]);
+  const handleAddProduct = async (newProduct: NewProductData) => {
+    setIsSubmitting(true);
+    try {
+      const res = await createProductAction({
+        name: newProduct.name,
+        description: newProduct.description,
+        category: newProduct.category,
+        price: newProduct.price,
+        unit: newProduct.unit,
+        initialStock: newProduct.initialStock,
+        imageBase64: newProduct.imagePreview,
+      });
+
+      if (res.success && res.product) {
+        setProductList((prev) => [res.product!, ...prev]);
+        setIsModalOpen(false);
+      } else {
+        alert(res.error || "Gagal menyimpan produk ke database.");
+      }
+    } catch (err: unknown) {
+      console.error("Gagal menyimpan produk:", err);
+      alert("Terjadi kesalahan saat menyimpan produk.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const totalStock = productList.reduce((acc, p) => {
@@ -82,45 +73,46 @@ export default function ProductsPage() {
       <WorkspacePage
         eyebrow="BAITYBITES OMS / PRODUCTS"
         title="Products"
-        description="Atur katalog risol & minuman, varian harga, serta ketersediaan stok produk."
+        description="Atur katalog risol & minuman, varian harga, serta ketersediaan stok produk langsung dari database."
         action="Tambah Produk"
         onAction={() => setIsModalOpen(true)}
         stats={[
           {
             label: "Produk aktif",
-            value: productList.length.toString(),
+            value: loading ? "..." : productList.length.toString(),
             change: "Katalog update",
             tone: "orange",
           },
           {
             label: "Stok aman",
-            value: safeStockCount.toString(),
-            change: `${Math.round((safeStockCount / productList.length) * 100 || 0)}% dari katalog`,
+            value: loading ? "..." : safeStockCount.toString(),
+            change: `${Math.round((safeStockCount / (productList.length || 1)) * 100)}% dari katalog`,
             tone: "green",
           },
           {
             label: "Stok menipis",
-            value: lowStockCount.toString(),
+            value: loading ? "..." : lowStockCount.toString(),
             change: "Perlu restock",
             tone: "blue",
           },
           {
             label: "Total unit stok",
-            value: `${totalStock} unit`,
+            value: loading ? "..." : `${totalStock} unit`,
             change: "Inventaris terkini",
             tone: "purple",
           },
         ]}
         tabs={["Semua", "Risol", "Cendol", "Menipis"]}
         rows={productList}
-        rowHeading="Katalog produk"
+        rowHeading="Katalog produk database"
       />
 
       {/* MODAL TAMBAH PRODUK */}
       <AddProductModal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={() => !isSubmitting && setIsModalOpen(false)}
         onSubmit={handleAddProduct}
+        isSubmitting={isSubmitting}
       />
     </>
   );
