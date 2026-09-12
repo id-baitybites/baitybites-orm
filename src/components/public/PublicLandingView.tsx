@@ -108,13 +108,21 @@ const MENU_PRODUCTS = [
 ];
 
 // ─── Testimoni Pelanggan ────────────────────────────────────────────────────────
-const TESTIMONIALS = [
+const TESTIMONIALS: Array<{
+  author: string;
+  city: string | null;
+  role: string | null;
+  quote: string;
+  rating: number;
+  avatarUrl: string | null;
+}> = [
   {
     author: "Adelwy Saputri",
     city: "Jakarta Selatan",
     role: "Pelanggan Setia (12x Repeat Order)",
     quote: "Risol Mayo Double Cheese-nya beneran juara! Kulitnya super crispy dan mayonya melimpah gak pelit sama sekali. Buat stok sarapan di rumah selalu order yang frozen.",
     rating: 5,
+    avatarUrl: null,
   },
   {
     author: "Bintang Wijaya",
@@ -122,6 +130,7 @@ const TESTIMONIALS = [
     role: "Food Enthusiast",
     quote: "Cendol Coffee-nya unik banget dan nyegerin. Gula arennya harum asli, gak bikin enek. Pas banget buat teman ngemil Risol Beef Mushroom hangat.",
     rating: 5,
+    avatarUrl: null,
   },
   {
     author: "Merlin Oktaviana",
@@ -129,6 +138,7 @@ const TESTIMONIALS = [
     role: "Event Organizer",
     quote: "Kemarin pesan 100 pcs untuk snack box acara kantor, semuanya hangat dan packagingnya sangat rapi berkelas. Fitur tracking statusnya juga sangat membantu!",
     rating: 5,
+    avatarUrl: null,
   },
 ];
 
@@ -171,9 +181,32 @@ interface PublicLandingViewProps {
     email: string;
     avatarUrl: string;
   } | null;
+  initialTestimonials?: Array<{
+    author: string;
+    city: string | null;
+    role: string | null;
+    quote: string;
+    rating: number;
+    avatarUrl?: string | null;
+  }>;
+  initialTheme?: {
+    brandName?: string;
+    tagline?: string;
+    heroTitle?: string;
+    heroTitleAccent?: string;
+    heroDescription?: string;
+    heroImage?: string;
+    announcementText?: string | null;
+    primaryColor?: string;
+    whatsappNumber?: string;
+  } | null;
 }
 
-export function PublicLandingView({ initialCustomer }: PublicLandingViewProps = {}) {
+export function PublicLandingView({
+  initialCustomer,
+  initialTestimonials,
+  initialTheme,
+}: PublicLandingViewProps = {}) {
   // State Hero Carousel
   const [activeSlide, setActiveSlide] = useState(0);
 
@@ -233,6 +266,30 @@ export function PublicLandingView({ initialCustomer }: PublicLandingViewProps = 
 
   return (
     <div className="public-site">
+      {/* ── BANNER PENGUMUMAN / PROMO CMS ── */}
+      {initialTheme?.announcementText && (
+        <div
+          style={{
+            background: initialTheme.primaryColor || "#ea580c",
+            color: "#ffffff",
+            padding: "8px 16px",
+            textAlign: "center",
+            fontSize: "12px",
+            fontWeight: 600,
+            letterSpacing: "0.02em",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "8px",
+            zIndex: 50,
+            position: "relative",
+          }}
+        >
+          <HugeiconsIcon icon={SparklesIcon} size={15} strokeWidth={2} />
+          <span>{initialTheme.announcementText}</span>
+        </div>
+      )}
+
       {/* ── HEADER ── */}
       <PublicHeader initialCustomer={initialCustomer} />
 
@@ -466,7 +523,7 @@ export function PublicLandingView({ initialCustomer }: PublicLandingViewProps = 
           </div>
 
           <div className="testimony-grid">
-            {TESTIMONIALS.map((t, idx) => (
+            {(initialTestimonials && initialTestimonials.length > 0 ? initialTestimonials : TESTIMONIALS).map((t, idx) => (
               <article className="testimony-card" key={idx}>
                 <div>
                   <div className="stars">
@@ -478,7 +535,19 @@ export function PublicLandingView({ initialCustomer }: PublicLandingViewProps = 
                 </div>
 
                 <div className="author-info">
-                  <div className="author-avatar">{t.author.charAt(0)}</div>
+                  <div className="author-avatar">
+                    {t.avatarUrl ? (
+                      <Image
+                        src={t.avatarUrl}
+                        alt={t.author}
+                        width={40}
+                        height={40}
+                        style={{ borderRadius: "50%", objectFit: "cover" }}
+                      />
+                    ) : (
+                      t.author.charAt(0)
+                    )}
+                  </div>
                   <div>
                     <strong>{t.author}</strong>
                     <span>
