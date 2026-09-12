@@ -1,12 +1,11 @@
 /* ================================================================
    ADMIN LOGIN PAGE — /admin
    Dark premium design, isolated from customer login
+   Font: Ubuntu (via next/font/google in layout.tsx — no @import needed)
    ================================================================ */
 
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
-
 .admin-login {
-  font-family: "Inter", -apple-system, sans-serif;
+  font-family: var(--font-ubuntu, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
   min-height: 100vh;
   display: flex;
   flex-direction: column;

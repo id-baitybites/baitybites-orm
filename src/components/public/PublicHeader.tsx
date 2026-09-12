@@ -86,6 +86,7 @@ export function PublicHeader({ initialCustomer }: PublicHeaderProps = {}) {
             alt="Baitybites Logo"
             width={140}
             height={38}
+            style={{ height: "auto" }}
             className="public-header__brand-logo"
             priority
           />
