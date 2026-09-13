@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -18,6 +18,7 @@ import {
   Note01Icon,
   Home01Icon,
   Clock01Icon,
+  Cancel01Icon,
 } from "@hugeicons/core-free-icons";
 import {
   updateCustomerProfileAction,
@@ -71,11 +72,17 @@ export function ProfileClient({ initialData, justLoggedIn }: ProfileClientProps)
       : null
   );
 
-  const showToast = (type: "success" | "error", message: string) => {
-    setToast({ type, message });
-    setTimeout(() => {
+  // Auto-dismiss toast setelah 4 detik (baik dari login awal maupun aksi simpan)
+  useEffect(() => {
+    if (!toast) return;
+    const timer = setTimeout(() => {
       setToast(null);
     }, 4000);
+    return () => clearTimeout(timer);
+  }, [toast]);
+
+  const showToast = (type: "success" | "error", message: string) => {
+    setToast({ type, message });
   };
 
   const handleSave = (e: React.FormEvent) => {
@@ -136,6 +143,24 @@ export function ProfileClient({ initialData, justLoggedIn }: ProfileClientProps)
             size={20}
           />
           <span>{toast.message}</span>
+          <button
+            type="button"
+            onClick={() => setToast(null)}
+            style={{
+              background: "transparent",
+              border: "none",
+              color: "currentColor",
+              cursor: "pointer",
+              padding: "2px",
+              marginLeft: "8px",
+              display: "flex",
+              alignItems: "center",
+              opacity: 0.7,
+            }}
+            title="Tutup notifikasi"
+          >
+            <HugeiconsIcon icon={Cancel01Icon} size={14} strokeWidth={2.5} />
+          </button>
         </div>
       )}
 

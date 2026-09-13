@@ -550,7 +550,9 @@ export function CmsClient({
                       <span className={`tag-category tag-category--${item.category}`}>
                         {GALLERY_CATEGORIES.find((c) => c.value === item.category)?.label || item.category}
                       </span>
-                      <span className="gallery-admin-card__order-badge">Urutan #{item.displayOrder}</span>
+                      <span className="gallery-admin-card__order-badge" style={{ fontSize: "10px" }}>
+                        {new Date(item.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}
+                      </span>
                     </div>
                   </div>
 
@@ -1093,15 +1095,15 @@ export function CmsClient({
                 </div>
 
                 <div className="form-group">
-                  <label>Pilih File Foto (Otomatis ke Cloudinary: Folder Gallery)</label>
+                  <label>Unggah Berkas Foto (Penyimpanan Cloudinary: Folder Gallery)</label>
                   <div
                     style={{
-                      border: "2px dashed var(--color-border)",
+                      border: "2px dashed var(--color-border, #cbd5e1)",
                       borderRadius: "var(--radius-md)",
-                      padding: "14px",
+                      padding: "16px",
                       textAlign: "center",
                       cursor: "pointer",
-                      background: "var(--color-surface-hover)",
+                      background: "var(--color-surface-hover, #f8fafc)",
                       position: "relative",
                       transition: "all 0.15s ease",
                     }}
@@ -1120,12 +1122,12 @@ export function CmsClient({
                         height: "100%",
                       }}
                     />
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
-                      <HugeiconsIcon icon={ImageAdd01Icon} size={24} style={{ color: "var(--color-primary)" }} />
-                      <span style={{ fontSize: "12px", fontWeight: 600, color: "var(--color-text-primary)" }}>
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px" }}>
+                      <HugeiconsIcon icon={ImageAdd01Icon} size={28} style={{ color: "var(--color-primary)" }} />
+                      <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--text-primary, #0f172a)" }}>
                         Klik atau pilih file gambar foto
                       </span>
-                      <span style={{ fontSize: "11px", color: "var(--color-text-muted)" }}>
+                      <span style={{ fontSize: "11px", color: "var(--text-muted, #64748b)" }}>
                         Format PNG, JPG, JPEG, WEBP • Disimpan di folder <strong>Gallery</strong>
                       </span>
                     </div>
@@ -1137,10 +1139,10 @@ export function CmsClient({
                     style={{
                       position: "relative",
                       width: "100%",
-                      height: "160px",
+                      height: "170px",
                       borderRadius: "var(--radius-md)",
                       overflow: "hidden",
-                      border: "1px solid var(--color-border)",
+                      border: "1px solid var(--color-border, #e2e8f0)",
                       background: "#f1f5f9",
                     }}
                   >
@@ -1148,7 +1150,7 @@ export function CmsClient({
                       src={galleryImagePreview}
                       alt="Preview Galeri"
                       fill
-                      sizes="400px"
+                      sizes="500px"
                       style={{ objectFit: "cover" }}
                     />
                     <div
@@ -1159,7 +1161,7 @@ export function CmsClient({
                         background: "rgba(15, 23, 42, 0.85)",
                         backdropFilter: "blur(4px)",
                         color: "#34d399",
-                        fontSize: "10px",
+                        fontSize: "11px",
                         fontWeight: 600,
                         padding: "3px 8px",
                         borderRadius: "4px",
@@ -1168,8 +1170,33 @@ export function CmsClient({
                         gap: "4px",
                       }}
                     >
-                      <span>☁️ Cloudinary: Folder Gallery</span>
+                      <span>Preview Foto Galeri</span>
                     </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setGalleryImagePreview("");
+                        setGalleryImageBase64("");
+                      }}
+                      style={{
+                        position: "absolute",
+                        top: "8px",
+                        right: "8px",
+                        background: "rgba(15, 23, 42, 0.75)",
+                        border: "none",
+                        color: "#ffffff",
+                        padding: "4px 8px",
+                        borderRadius: "6px",
+                        fontSize: "11px",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "4px",
+                      }}
+                    >
+                      <HugeiconsIcon icon={Cancel01Icon} size={12} strokeWidth={2} />
+                      <span>Hapus</span>
+                    </button>
                   </div>
                 )}
 
@@ -1205,32 +1232,22 @@ export function CmsClient({
                   />
                 </div>
 
-                <div className="form-row">
-                  <div className="form-group">
-                    <label htmlFor="galOrder">Urutan Tampilan</label>
+                <div className="form-group" style={{ marginTop: "6px" }}>
+                  <label style={{ display: "inline-flex", alignItems: "center", gap: "10px", cursor: "pointer", userSelect: "none" }}>
                     <input
-                      id="galOrder"
-                      name="displayOrder"
-                      type="number"
-                      defaultValue={editingGallery?.displayOrder ?? 1}
-                      min={0}
+                      type="checkbox"
+                      name="isActive"
+                      value="true"
+                      defaultChecked={editingGallery ? editingGallery.isActive : true}
+                      style={{ width: "18px", height: "18px", accentColor: "var(--color-primary)" }}
                     />
-                  </div>
-
-                  <div className="form-group" style={{ justifyContent: "center" }}>
-                    <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", marginTop: "18px" }}>
-                      <input
-                        type="checkbox"
-                        name="isActive"
-                        value="true"
-                        defaultChecked={editingGallery ? editingGallery.isActive : true}
-                        style={{ width: "18px", height: "18px" }}
-                      />
-                      <span style={{ fontSize: "var(--font-size-sm)", fontWeight: 500 }}>
-                        Publikasikan Foto (Aktif)
-                      </span>
-                    </label>
-                  </div>
+                    <span style={{ fontSize: "var(--font-size-sm)", fontWeight: 600, color: "var(--text-primary, #0f172a)" }}>
+                      Publikasikan Foto (Aktif di Website)
+                    </span>
+                  </label>
+                  <span className="form-help" style={{ marginTop: "4px" }}>
+                    Foto akan otomatis ditampilkan di awal galeri website publik secara FIFO (foto terbaru selalu di depan).
+                  </span>
                 </div>
               </div>
 
@@ -1243,6 +1260,7 @@ export function CmsClient({
                   Batal
                 </button>
                 <button type="submit" className="btn-primary" disabled={isPending}>
+                  <HugeiconsIcon icon={CheckmarkCircle02Icon} size={16} strokeWidth={2} />
                   <span>{isPending ? "Menyimpan..." : "Simpan Foto"}</span>
                 </button>
               </div>
@@ -1314,9 +1332,9 @@ export function CmsClient({
                       name="rating"
                       defaultValue={editingTesti?.rating || 5}
                     >
-                      <option value="5">⭐⭐⭐⭐⭐ (5 - Sempurna)</option>
-                      <option value="4">⭐⭐⭐⭐ (4 - Sangat Puas)</option>
-                      <option value="3">⭐⭐⭐ (3 - Cukup Baik)</option>
+                      <option value="5">5 Bintang — Sangat Puas (Sempurna)</option>
+                      <option value="4">4 Bintang — Puas</option>
+                      <option value="3">3 Bintang — Cukup</option>
                     </select>
                   </div>
                 </div>

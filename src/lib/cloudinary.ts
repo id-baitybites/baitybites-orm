@@ -48,9 +48,9 @@ export async function uploadToCloudinary(
       publicId: result.public_id,
     };
   } catch (error: unknown) {
-    console.error("Cloudinary upload error:", error);
     const message =
       error instanceof Error ? error.message : "Gagal mengupload gambar ke Cloudinary";
+    console.error("Cloudinary upload error:", message);
     return {
       success: false,
       error: message,

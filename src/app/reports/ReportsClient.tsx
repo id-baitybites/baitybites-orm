@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useMemo } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   ChartUpIcon,
@@ -12,7 +12,6 @@ import {
   UserGroupIcon,
   Store01Icon,
   Clock01Icon,
-  SparklesIcon,
 } from "@hugeicons/core-free-icons";
 import type { ReportsData, ReportTimeRange } from "./actions";
 import { getReportsDataAction } from "./actions";
@@ -30,6 +29,19 @@ const PERIOD_LABELS: { key: ReportTimeRange; label: string }[] = [
   { key: "all", label: "Semua Waktu" },
 ];
 
+// Nama bulan dalam Bahasa Indonesia (dihoisting ke module-level agar tidak dibuat ulang setiap render)
+const INDONESIAN_MONTHS = [
+  "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+  "Juli", "Agustus", "September", "Oktober", "November", "Desember",
+];
+
+const TAB_LABELS: Record<string, string> = {
+  overview: "Ringkasan Eksekutif & Omzet",
+  products: "Performa Penjualan Produk & Menu",
+  channels: "Distribusi Saluran & Pembayaran",
+  customers: "Analisis Pelanggan & Riwayat Transaksi",
+};
+
 export function ReportsClient({ initialData }: ReportsClientProps) {
   const [data, setData] = useState<ReportsData>(initialData);
   const [activeRange, setActiveRange] = useState<ReportTimeRange>(initialData.timeRange);
@@ -45,74 +57,42 @@ export function ReportsClient({ initialData }: ReportsClientProps) {
     });
   };
 
-  // Helper membuat format nama file sesuai pola spesifikasi:
-  // Baitybites-report-{mmyy} | {startDate-endDate-mmyy} | {yyyy} | {dd-mmmm-yyyy}.pdf
-  const getStandardizedReportMetadata = () => {
+  // Metadata laporan — dihitung ulang hanya ketika activeRange atau activeTab berubah.
+  // Pola nama berkas: Baitybites-report-{mmyy | startDate-endDate-mmyy | yyyy | dd-mmmm-yyyy}
+  const currentMeta = useMemo(() => {
     const now = new Date();
     const pad = (n: number) => String(n).padStart(2, "0");
     const yyyy = String(now.getFullYear());
     const yy = yyyy.slice(-2);
     const mm = pad(now.getMonth() + 1);
     const dd = pad(now.getDate());
-
-    const indonesianMonths = [
-      "januari",
-      "februari",
-      "maret",
-      "april",
-      "mei",
-      "juni",
-      "juli",
-      "agustus",
-      "september",
-      "oktober",
-      "november",
-      "desember",
-    ];
-    const mmmm = indonesianMonths[now.getMonth()];
+    const mmmm = INDONESIAN_MONTHS[now.getMonth()].toLowerCase();
 
     let dynamicPart = "";
     let periodLabelText = "";
 
     if (activeRange === "this_month") {
-      // Bulan Ini = {mmyy}
       dynamicPart = `${mm}${yy}`;
-      periodLabelText = `Bulan Ini (${mmmm} ${yyyy})`;
+      periodLabelText = `Bulan Ini (${INDONESIAN_MONTHS[now.getMonth()]} ${yyyy})`;
     } else if (activeRange === "7d") {
-      // 7 Hari Terakhir = {startDate-endDate-mmyy}
       const start = new Date(now);
       start.setDate(start.getDate() - 7);
-      const startDd = pad(start.getDate());
-      const endDd = dd;
-      dynamicPart = `${startDd}-${endDd}-${mm}${yy}`;
+      dynamicPart = `${pad(start.getDate())}-${dd}-${mm}${yy}`;
       periodLabelText = "7 Hari Terakhir";
     } else if (activeRange === "30d") {
-      // 30 Hari Terakhir = {startDate-endDate-mmyy}
       const start = new Date(now);
       start.setDate(start.getDate() - 30);
-      const startDd = pad(start.getDate());
-      const endDd = dd;
-      dynamicPart = `${startDd}-${endDd}-${mm}${yy}`;
+      dynamicPart = `${pad(start.getDate())}-${dd}-${mm}${yy}`;
       periodLabelText = "30 Hari Terakhir";
     } else if (activeRange === "today") {
-      // Hari Ini = {dd-mmmm-yyyy}
       dynamicPart = `${dd}-${mmmm}-${yyyy}`;
-      periodLabelText = `Hari Ini (${dd} ${mmmm} ${yyyy})`;
+      periodLabelText = `Hari Ini (${dd} ${INDONESIAN_MONTHS[now.getMonth()]} ${yyyy})`;
     } else {
-      // Semua Waktu = {yyyy}
-      dynamicPart = `${yyyy}`;
+      dynamicPart = yyyy;
       periodLabelText = "Semua Waktu";
     }
 
-    // Pola nama berkas: Baitybites-report-{variabel}
     const baseFileName = `Baitybites-report-${dynamicPart}`;
-
-    const tabMap: Record<string, string> = {
-      overview: "Ringkasan Eksekutif & Omzet",
-      products: "Performa Penjualan Produk & Menu",
-      channels: "Distribusi Saluran & Pembayaran",
-      customers: "Analisis Pelanggan & Riwayat Transaksi",
-    };
 
     const formattedGeneratedTime = `${now.toLocaleDateString("id-ID", {
       day: "numeric",
@@ -123,19 +103,17 @@ export function ReportsClient({ initialData }: ReportsClientProps) {
     return {
       baseFileName,
       periodLabelText,
-      tabLabelText: tabMap[activeTab] || "Laporan Analitik Bisnis",
+      tabLabelText: TAB_LABELS[activeTab] ?? "Laporan Analitik Bisnis",
       formattedGeneratedTime,
     };
-  };
+  }, [activeRange, activeTab]);
 
-  // CSV Export
+  // CSV Export — menggunakan currentMeta (tidak perlu panggil ulang)
   const handleExportCSV = () => {
     if (data.recentTransactions.length === 0) {
       alert("Tidak ada data transaksi untuk diekspor pada periode ini.");
       return;
     }
-
-    const meta = getStandardizedReportMetadata();
 
     const headers = [
       "No Referensi",
@@ -165,33 +143,25 @@ export function ReportsClient({ initialData }: ReportsClientProps) {
       "data:text/csv;charset=utf-8,\uFEFF" +
       [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
 
-    const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `${meta.baseFileName}.csv`);
+    link.setAttribute("href", encodeURI(csvContent));
+    link.setAttribute("download", `${currentMeta.baseFileName}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
-  // Print Report (Mengarahkan default nama file PDF browser ke nama file yang tegas & jelas)
+  // Print Report — set document.title agar browser menggunakan nama file PDF yang tepat
   const handlePrint = () => {
-    const meta = getStandardizedReportMetadata();
     const originalTitle = document.title;
-
-    // Ubah document.title sebelum window.print() agar browser (Chrome/Edge/Firefox)
-    // otomatis menggunakan format nama file PDF yang spesifik dan jelas saat "Save as PDF"
-    document.title = meta.baseFileName;
-
+    document.title = currentMeta.baseFileName;
     window.print();
-
-    // Kembalikan document.title ke semula setelah dialog cetak ditutup
+    // Kembalikan title setelah dialog cetak ditutup
     setTimeout(() => {
       document.title = originalTitle;
     }, 1500);
   };
 
-  const currentMeta = getStandardizedReportMetadata();
   const totalQtySold = data.products.reduce((acc, p) => acc + p.totalQtySold, 0);
 
   return (
@@ -218,7 +188,7 @@ export function ReportsClient({ initialData }: ReportsClientProps) {
             <strong>Cakupan Periode:</strong> {currentMeta.periodLabelText}
           </span>
           <span>
-            <strong>Waktu Laporan Digenerate:</strong> {currentMeta.formattedGeneratedTime}
+            <strong>Waktu Pembuatan Dokumen:</strong> {currentMeta.formattedGeneratedTime}
           </span>
         </div>
       </div>
@@ -228,7 +198,7 @@ export function ReportsClient({ initialData }: ReportsClientProps) {
           <span className="reports-header__eyebrow">BAITYBITES OMS / REPORTS</span>
           <h1 className="reports-header__title">Laporan Analitik Bisnis</h1>
           <p className="reports-header__desc">
-            Pantau pertumbuhan omzet penjualan, kinerja produk terlaris, efisiensi saluran pesan, dan profil belanja pelanggan langsung dari data transaksi PostgreSQL.
+            Pantau pertumbuhan omzet penjualan, kinerja produk terlaris, efisiensi saluran pemesanan, dan profil belanja pelanggan secara real-time.
           </p>
         </div>
 
@@ -682,7 +652,10 @@ export function ReportsClient({ initialData }: ReportsClientProps) {
           <div className="reports-card">
             <div className="reports-card__header">
               <h3>Pelanggan Teratas (Top Spenders)</h3>
-              <span>Berdasarkan akumulasi nilai pesanan</span>
+              <span>
+                {data.totalCustomerCount > 0 ? `${data.totalCustomerCount} Pelanggan Terdaftar • ` : ""}
+                Berdasarkan akumulasi nilai pesanan
+              </span>
             </div>
 
             <div className="reports-table-wrap" style={{ border: "none", boxShadow: "none" }}>

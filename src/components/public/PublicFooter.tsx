@@ -31,7 +31,15 @@ export function PublicFooter() {
             <div className="brand-contacts">
               <span>
                 <HugeiconsIcon icon={Location01Icon} size={15} strokeWidth={2} />
-                Jl. Kuliner No. 18, Jakarta Selatan
+                <a
+                  href="https://www.google.com/maps?q=-6.385874561302349,106.761898"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: "inherit", textDecoration: "none" }}
+                  title="Lihat Lokasi Toko di Google Maps"
+                >
+                  Jl. Amsar No.RT 01/06, Sawangan, Kec. Sawangan, Kota Depok, Jawa Barat 16511
+                </a>
               </span>
               <span>
                 <HugeiconsIcon icon={CallIcon} size={15} strokeWidth={2} />

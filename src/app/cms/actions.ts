@@ -50,15 +50,20 @@ export interface ThemeSettingData {
   updatedAt: Date;
 }
 
+function logActionError(action: string, error: unknown) {
+  const msg = error instanceof Error ? error.message : "Unknown error";
+  console.error(`CMS Error [${action}]:`, msg);
+}
+
 // ─── 1. GALLERY ACTIONS ─────────────────────────────────────────────────────
 
 export async function getGalleryItemsAction(): Promise<GalleryItemData[]> {
   try {
     return await db.galleryItem.findMany({
-      orderBy: [{ displayOrder: "asc" }, { createdAt: "desc" }],
+      orderBy: { createdAt: "desc" },
     });
   } catch (error) {
-    console.error("Error fetching gallery items:", error);
+    logActionError("getGalleryItems", error);
     return [];
   }
 }
@@ -82,7 +87,7 @@ async function uploadGalleryImage(formData: FormData): Promise<{ url?: string; e
       }
       return { url: uploadRes.url };
     } catch (err) {
-      console.error("Error reading uploaded file:", err);
+      logActionError("uploadGalleryImage:readFile", err);
       return { error: "Gagal memproses file foto yang diunggah." };
     }
   }
@@ -161,7 +166,7 @@ export async function createGalleryItemAction(formData: FormData): Promise<{
     revalidatePath("/");
     return { success: true, data: item };
   } catch (error) {
-    console.error("Error creating gallery item:", error);
+    logActionError("createGalleryItem", error);
     return { success: false, error: "Gagal menambahkan foto galeri. Periksa input data." };
   }
 }
@@ -217,7 +222,7 @@ export async function updateGalleryItemAction(
     revalidatePath("/");
     return { success: true, data: item };
   } catch (error) {
-    console.error("Error updating gallery item:", error);
+    logActionError("updateGalleryItem", error);
     return { success: false, error: "Gagal memperbarui foto galeri." };
   }
 }
@@ -232,7 +237,7 @@ export async function deleteGalleryItemAction(id: string): Promise<{
     revalidatePath("/");
     return { success: true };
   } catch (error) {
-    console.error("Error deleting gallery item:", error);
+    logActionError("deleteGalleryItem", error);
     return { success: false, error: "Gagal menghapus foto galeri." };
   }
 }
@@ -250,7 +255,7 @@ export async function toggleGalleryActiveAction(
     revalidatePath("/");
     return { success: true };
   } catch (error) {
-    console.error("Error toggling gallery status:", error);
+    logActionError("toggleGalleryActive", error);
     return { success: false, error: "Gagal mengubah status galeri." };
   }
 }
@@ -263,7 +268,7 @@ export async function getTestimonialsAction(): Promise<TestimonialData[]> {
       orderBy: [{ displayOrder: "asc" }, { createdAt: "desc" }],
     });
   } catch (error) {
-    console.error("Error fetching testimonials:", error);
+    logActionError("getTestimonials", error);
     return [];
   }
 }
@@ -304,7 +309,7 @@ export async function createTestimonialAction(formData: FormData): Promise<{
     revalidatePath("/");
     return { success: true, data: item };
   } catch (error) {
-    console.error("Error creating testimonial:", error);
+    logActionError("createTestimonial", error);
     return { success: false, error: "Gagal menambahkan ulasan testimoni." };
   }
 }
@@ -345,7 +350,7 @@ export async function updateTestimonialAction(
     revalidatePath("/");
     return { success: true, data: item };
   } catch (error) {
-    console.error("Error updating testimonial:", error);
+    logActionError("updateTestimonial", error);
     return { success: false, error: "Gagal memperbarui ulasan testimoni." };
   }
 }
@@ -360,7 +365,7 @@ export async function deleteTestimonialAction(id: string): Promise<{
     revalidatePath("/");
     return { success: true };
   } catch (error) {
-    console.error("Error deleting testimonial:", error);
+    logActionError("deleteTestimonial", error);
     return { success: false, error: "Gagal menghapus ulasan testimoni." };
   }
 }
@@ -378,7 +383,7 @@ export async function toggleTestimonialFeaturedAction(
     revalidatePath("/");
     return { success: true };
   } catch (error) {
-    console.error("Error toggling testimonial featured status:", error);
+    logActionError("toggleTestimonialFeatured", error);
     return { success: false, error: "Gagal mengubah status publikasi testimoni." };
   }
 }
@@ -400,7 +405,7 @@ export async function getThemeSettingAction(): Promise<ThemeSettingData | null> 
 
     return setting;
   } catch (error) {
-    console.error("Error fetching theme setting:", error);
+    logActionError("getThemeSetting", error);
     return null;
   }
 }
@@ -445,7 +450,7 @@ export async function updateThemeSettingAction(
     revalidatePath("/");
     return { success: true, data: updated };
   } catch (error) {
-    console.error("Error updating theme setting:", error);
+    logActionError("updateThemeSetting", error);
     return { success: false, error: "Gagal menyimpan pengaturan konten web." };
   }
 }

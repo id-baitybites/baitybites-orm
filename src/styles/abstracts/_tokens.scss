@@ -129,6 +129,25 @@
   --border-focus: var(--color-primary);
 
   /* --------------------------------
+     SEMANTIC COMPATIBILITY ALIASES
+  -------------------------------- */
+
+  --color-surface: var(--surface-primary);
+  --color-surface-hover: var(--surface-hover);
+  --color-surface-secondary: var(--surface-secondary);
+  --color-surface-page: var(--surface-page);
+
+  --color-border: var(--border-default);
+  --color-border-subtle: var(--border-subtle);
+  --color-border-strong: var(--border-strong);
+  --color-border-hover: #cbd5e1;
+
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-text-disabled: var(--text-disabled);
+
+  /* --------------------------------
      NAVIGATION
   -------------------------------- */
 

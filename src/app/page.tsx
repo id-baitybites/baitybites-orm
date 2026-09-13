@@ -25,7 +25,7 @@ export default async function HomePage() {
     }
   }
 
-  // 2. Baca data dinamis dari CMS (Testimoni terkurasi & Tema Web)
+  // 2. Baca data dinamis dari CMS (Testimoni terkurasi, Tema Web, dan Galeri Foto)
   let testimonials: Array<{
     author: string;
     city: string | null;
@@ -47,8 +47,28 @@ export default async function HomePage() {
     whatsappNumber?: string;
   } | null = null;
 
+  let galleryItems: Array<{
+    id: string;
+    title: string;
+    description: string | null;
+    imageUrl: string;
+    category: string;
+  }> = [];
+
+  let pendingTestimoni: {
+    id: string;
+    author: string;
+    role: string | null;
+    city: string | null;
+    quote: string;
+    rating: number;
+    avatarUrl: string | null;
+    createdAt: Date;
+    isFeatured: boolean;
+  } | null = null;
+
   try {
-    const [dbTestimonials, dbTheme] = await Promise.all([
+    const [dbTestimonials, dbTheme, dbGallery, dbPending] = await Promise.all([
       db.customerTestimonial.findMany({
         where: { isFeatured: true },
         orderBy: [{ displayOrder: "asc" }, { createdAt: "desc" }],
@@ -76,10 +96,44 @@ export default async function HomePage() {
           whatsappNumber: true,
         },
       }),
+      db.galleryItem.findMany({
+        where: { isActive: true },
+        orderBy: { createdAt: "desc" }, // FIFO: selalu tampilkan yang terbaru di awal
+        take: 8, // Batasi maksimal 4 item x 2 baris
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          imageUrl: true,
+          category: true,
+        },
+      }),
+      customerInfo?.name
+        ? db.customerTestimonial.findFirst({
+            where: {
+              author: customerInfo.name,
+              isFeatured: false,
+            },
+            orderBy: { createdAt: "desc" },
+            select: {
+              id: true,
+              author: true,
+              role: true,
+              city: true,
+              quote: true,
+              rating: true,
+              avatarUrl: true,
+              createdAt: true,
+              isFeatured: true,
+            },
+          })
+        : Promise.resolve(null),
     ]);
 
     testimonials = dbTestimonials;
     themeSetting = dbTheme;
+    galleryItems = dbGallery;
+    pendingTestimoni = dbPending;
   } catch (err) {
     console.error("Gagal load CMS data untuk homepage:", err);
   }
@@ -89,6 +143,8 @@ export default async function HomePage() {
       initialCustomer={customerInfo}
       initialTestimonials={testimonials}
       initialTheme={themeSetting}
+      initialGallery={galleryItems}
+      initialPendingTestimoni={pendingTestimoni}
     />
   );
 }

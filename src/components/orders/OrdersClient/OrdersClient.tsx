@@ -16,6 +16,7 @@ import {
 import { HugeiconsIcon } from "@hugeicons/react";
 import type { IconSvgElement } from "@hugeicons/react";
 import { AppShell } from "@/components/layout/AppShell/AppShell";
+import { NewOrderModal } from "@/components/orders/NewOrderModal/NewOrderModal";
 import type { OrderListItem, OrderStats } from "@/app/orders/actions";
 import type { OrderStatus } from "@prisma/client";
 import "@/app/orders/orders.scss";
@@ -79,6 +80,7 @@ interface Props {
 export function OrdersClient({ orders, stats }: Props) {
   const [activeFilter, setActiveFilter] = useState<FilterValue>("ALL");
   const [query, setQuery] = useState("");
+  const [showNewOrder, setShowNewOrder] = useState(false);
 
   const filteredOrders = useMemo(() => {
     return orders.filter((order) => {
@@ -112,7 +114,11 @@ export function OrdersClient({ orders, stats }: Props) {
                 real-time dari database.
               </p>
             </div>
-            <button className="orders-page__new" type="button">
+            <button
+              className="orders-page__new"
+              type="button"
+              onClick={() => setShowNewOrder(true)}
+            >
               <HugeiconsIcon icon={Add01Icon} size={18} strokeWidth={1.8} />
               <span>Order Baru</span>
             </button>
@@ -270,6 +276,11 @@ export function OrdersClient({ orders, stats }: Props) {
           </footer>
         </div>
       </div>
+
+      {/* New Order Modal */}
+      {showNewOrder && (
+        <NewOrderModal onClose={() => setShowNewOrder(false)} />
+      )}
     </AppShell>
   );
 }

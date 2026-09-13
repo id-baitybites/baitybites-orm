@@ -23,9 +23,11 @@ interface CustomerInfo {
 interface PublicHeaderProps {
   isLoggedIn?: boolean;
   initialCustomer?: CustomerInfo | null;
+  cartCount?: number;
+  onCartOpen?: () => void;
 }
 
-export function PublicHeader({ initialCustomer }: PublicHeaderProps = {}) {
+export function PublicHeader({ initialCustomer, cartCount = 0, onCartOpen }: PublicHeaderProps = {}) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [customer, setCustomer] = useState<CustomerInfo | null>(initialCustomer ?? null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -155,8 +157,26 @@ export function PublicHeader({ initialCustomer }: PublicHeaderProps = {}) {
                   fill="#EA4335"
                 />
               </svg>
-              <span>Masuk Google</span>
+              <span>Masuk</span>
             </a>
+          )}
+
+          {/* Cart Icon Button */}
+          {onCartOpen && (
+            <button
+              type="button"
+              className={`btn-cart-header ${cartCount > 0 ? "has-items" : ""}`}
+              onClick={onCartOpen}
+              aria-label={`Keranjang belanja${cartCount > 0 ? ` (${cartCount} item)` : ""}`}
+              title="Buka Keranjang Belanja"
+            >
+              <HugeiconsIcon icon={ShoppingBag01Icon} size={18} strokeWidth={2} />
+              {cartCount > 0 && (
+                <span className="cart-badge">
+                  {cartCount > 99 ? "99+" : cartCount}
+                </span>
+              )}
+            </button>
           )}
 
           {/* Akses Admin OMS jika admin login */}

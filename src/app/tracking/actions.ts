@@ -1,6 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
+import { getPaxelTrackingUrl } from "@/lib/paxel";
 
 export interface TrackedOrderItem {
   name: string;
@@ -19,6 +20,10 @@ export interface TrackedOrderResult {
   cookStartedAt?: string | null;
   items: TrackedOrderItem[];
   note?: string | null;
+  deliveryAddr?: string | null;
+  paxelAwb?: string | null;
+  paxelTrackingUrl?: string | null;
+  courierName?: string | null;
 }
 
 export async function trackOrderAction(
@@ -49,6 +54,19 @@ export async function trackOrderAction(
     });
 
     if (foundInDb) {
+      // Ekstrak nomor resi Paxel AWB jika tersimpan di deliveryAddr atau note
+      const awbMatch =
+        foundInDb.deliveryAddr?.match(/PXL-[A-Z0-9-]+/i)?.[0] ||
+        foundInDb.note?.match(/PXL-[A-Z0-9-]+/i)?.[0] ||
+        null;
+
+      const paxelAwb = awbMatch ? awbMatch.toUpperCase() : null;
+      const isPaxelDelivery = Boolean(
+        paxelAwb ||
+        foundInDb.note?.includes("PAXEL") ||
+        foundInDb.deliveryAddr?.includes("Paxel")
+      );
+
       return {
         success: true,
         data: {
@@ -61,6 +79,10 @@ export async function trackOrderAction(
           createdAt: foundInDb.createdAt.toISOString(),
           cookStartedAt: foundInDb.cookStartedAt ? foundInDb.cookStartedAt.toISOString() : null,
           note: foundInDb.note,
+          deliveryAddr: foundInDb.deliveryAddr,
+          paxelAwb,
+          paxelTrackingUrl: paxelAwb ? getPaxelTrackingUrl(paxelAwb) : null,
+          courierName: isPaxelDelivery ? "Paxel Official Logistics (Cold Chain)" : undefined,
           items: foundInDb.items.map((i) => ({
             name: i.name,
             qty: i.qty,
@@ -73,6 +95,7 @@ export async function trackOrderAction(
     // Mock fallback jika user memasukkan nomor sample seperti #WA-DIR-8908, #WA-DIR-0230, dsb
     const normalized = cleanNumber.toUpperCase();
     if (normalized.includes("8908")) {
+      const mockAwb = "PXL-DEP-8908-4122";
       return {
         success: true,
         data: {
@@ -84,6 +107,10 @@ export async function trackOrderAction(
           priority: "NORMAL",
           createdAt: new Date(Date.now() - 25 * 60000).toISOString(),
           cookStartedAt: new Date(Date.now() - 15 * 60000).toISOString(),
+          deliveryAddr: "Jl. Tebet Barat Dalam Raya No. 12, Jakarta Selatan",
+          paxelAwb: mockAwb,
+          paxelTrackingUrl: getPaxelTrackingUrl(mockAwb),
+          courierName: "Paxel Official Logistics (Cold Chain)",
           items: [
             { name: "Risol Mayo Beef Double Cheese", qty: 5 },
             { name: "Risol Spicy Tuna", qty: 3 },
@@ -93,6 +120,7 @@ export async function trackOrderAction(
     }
 
     if (normalized.includes("0230")) {
+      const mockAwb = "PXL-DEP-0230-7719";
       return {
         success: true,
         data: {
@@ -103,6 +131,10 @@ export async function trackOrderAction(
           status: "MENUNGGU",
           priority: "NORMAL",
           createdAt: new Date(Date.now() - 5 * 60000).toISOString(),
+          deliveryAddr: "Jl. Margonda Raya No. 45, Beji, Kota Depok",
+          paxelAwb: mockAwb,
+          paxelTrackingUrl: getPaxelTrackingUrl(mockAwb),
+          courierName: "Paxel Official Logistics (Cold Chain)",
           items: [
             { name: "Risol Mayo Beef Double Cheese", qty: 4 },
             { name: "Risol Sayur Original", qty: 2 },
@@ -112,6 +144,7 @@ export async function trackOrderAction(
     }
 
     if (normalized.includes("3319")) {
+      const mockAwb = "PXL-DEP-3319-9021";
       return {
         success: true,
         data: {
@@ -123,6 +156,10 @@ export async function trackOrderAction(
           priority: "NORMAL",
           createdAt: new Date(Date.now() - 60 * 60000).toISOString(),
           cookStartedAt: new Date(Date.now() - 40 * 60000).toISOString(),
+          deliveryAddr: "Jl. Amsar No.RT 01/06, Sawangan, Kota Depok (Self Pickup)",
+          paxelAwb: mockAwb,
+          paxelTrackingUrl: getPaxelTrackingUrl(mockAwb),
+          courierName: "Ambil di Toko Baitybites Sawangan",
           items: [
             { name: "Risol Sayur Original", qty: 4 },
             { name: "Cendol Matcha Cup", qty: 2 },
@@ -133,7 +170,7 @@ export async function trackOrderAction(
 
     return {
       success: false,
-      error: `Pesanan dengan nomor "${cleanNumber}" tidak ditemukan. Pastikan format nomor order sudah benar (contoh: #WA-DIR-8908).`,
+      error: `Pesanan dengan nomor "${cleanNumber}" tidak ditemukan. Pastikan format nomor order sudah benar (contoh: #WA-DIR-8908 atau #WB-DIR-4821).`,
     };
   } catch (err) {
     console.error("Tracking order error:", err);

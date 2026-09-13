@@ -283,3 +283,188 @@ export async function updateOrderStatusAction(
     return { success: false, error: "Gagal update status order." };
   }
 }
+
+// ─── Cart helpers ─────────────────────────────────────────────────────────────
+
+export interface CartProduct {
+  id: string;
+  code: string;
+  name: string;
+  price: number;
+  unit: string;
+  stock: number;
+  imageUrl: string | null;
+  category: string;
+  isAvailable: boolean;
+}
+
+/**
+ * Ambil daftar produk yang tersedia untuk dimasukkan ke keranjang pesanan baru
+ */
+export async function getProductsForCartAction(): Promise<{
+  products: CartProduct[];
+  error?: string;
+}> {
+  try {
+    const products = await db.product.findMany({
+      where: { isAvailable: true },
+      include: { category: { select: { name: true } } },
+      orderBy: [{ category: { name: "asc" } }, { name: "asc" }],
+    });
+
+    return {
+      products: products.map((p) => ({
+        id: p.id,
+        code: p.code,
+        name: p.name,
+        price: p.price,
+        unit: p.unit,
+        stock: p.stock,
+        imageUrl: p.imageUrl,
+        category: p.category.name,
+        isAvailable: p.isAvailable,
+      })),
+    };
+  } catch (err) {
+    console.error("getProductsForCartAction error:", err);
+    return { products: [], error: "Gagal memuat produk." };
+  }
+}
+
+// ─── Create Order ─────────────────────────────────────────────────────────────
+
+export interface CartItem {
+  productId: string;
+  name: string;
+  price: number;
+  qty: number;
+  notes?: string;
+}
+
+export interface CreateOrderInput {
+  customer: string;
+  customerPhone?: string;
+  customerEmail?: string;
+  deliveryAddr?: string;
+  channel: string;
+  priority?: "NORMAL" | "URGENT";
+  note?: string;
+  deliveryFee?: number;
+  discount?: number;
+  paymentMethod: string;
+  items: CartItem[];
+}
+
+/**
+ * Buat order baru dari keranjang belanja:
+ * - Generate orderRef unik
+ * - Hitung subtotal & totalAmount
+ * - Simpan Order + OrderItem[] + Payment + StatusHistory dalam satu transaksi
+ */
+export async function createOrderAction(
+  input: CreateOrderInput
+): Promise<{ success: boolean; orderRef?: string; error?: string }> {
+  try {
+    const {
+      customer,
+      customerPhone,
+      customerEmail,
+      deliveryAddr,
+      channel,
+      priority = "NORMAL",
+      note,
+      deliveryFee = 0,
+      discount = 0,
+      paymentMethod,
+      items,
+    } = input;
+
+    if (!customer?.trim()) {
+      return { success: false, error: "Nama pelanggan wajib diisi." };
+    }
+    if (!items || items.length === 0) {
+      return { success: false, error: "Keranjang masih kosong." };
+    }
+
+    // Generate orderRef unik: #CH-XXX-NNNN
+    const channelCode: Record<string, string> = {
+      WhatsApp: "WA",
+      Tokopedia: "TOK",
+      Shopee: "SHP",
+      WalkIn: "WLK",
+      Website: "WEB",
+    };
+    const prefix = channelCode[channel] ?? "ORD";
+    const count = await db.order.count();
+    const seq = String(count + 1).padStart(4, "0");
+    const orderRef = `#${prefix}-${seq}`;
+
+    const subtotal = items.reduce((sum, it) => sum + it.price * it.qty, 0);
+    const totalAmount = subtotal + deliveryFee - discount;
+
+    // Cast channel/priority/paymentMethod as Prisma enums
+    const channelEnum = channel as import("@prisma/client").Channel;
+    const priorityEnum = priority as import("@prisma/client").Priority;
+    const paymentMethodEnum =
+      paymentMethod as import("@prisma/client").PaymentMethod;
+
+    const order = await db.$transaction(async (tx) => {
+      const newOrder = await tx.order.create({
+        data: {
+          orderRef,
+          customer: customer.trim(),
+          customerPhone: customerPhone?.trim() || null,
+          customerEmail: customerEmail?.trim() || null,
+          deliveryAddr: deliveryAddr?.trim() || null,
+          channel: channelEnum,
+          priority: priorityEnum,
+          note: note?.trim() || null,
+          subtotal,
+          deliveryFee,
+          discount,
+          totalAmount,
+          status: "MENUNGGU",
+          items: {
+            create: items.map((it) => ({
+              productId: it.productId,
+              name: it.name,
+              price: it.price,
+              qty: it.qty,
+              subtotal: it.price * it.qty,
+              notes: it.notes?.trim() || null,
+            })),
+          },
+          payments: {
+            create: [
+              {
+                paymentMethod: paymentMethodEnum,
+                paymentStatus: "PENDING",
+                amount: totalAmount,
+              },
+            ],
+          },
+          statusHistory: {
+            create: [
+              {
+                status: "MENUNGGU",
+                note: "Order baru dibuat oleh admin.",
+                actor: "ADMIN",
+              },
+            ],
+          },
+        },
+      });
+      return newOrder;
+    });
+
+    revalidatePath("/orders");
+    revalidatePath("/dashboard");
+    revalidatePath("/kitchen");
+
+    return { success: true, orderRef: order.orderRef };
+  } catch (err) {
+    console.error("createOrderAction error:", err);
+    const msg = err instanceof Error ? err.message : "Gagal membuat pesanan.";
+    return { success: false, error: msg };
+  }
+}

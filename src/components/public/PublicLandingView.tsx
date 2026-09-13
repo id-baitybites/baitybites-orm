@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState, useCallback, useEffect, useTransition } from "react";
 import {
   Search01Icon,
   ShoppingBag01Icon,
@@ -14,11 +14,15 @@ import {
   ThumbsUpIcon,
   StarIcon,
   Loading03Icon,
+  Add01Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { PublicHeader } from "@/components/public/PublicHeader";
 import { PublicFooter } from "@/components/public/PublicFooter";
+import { CartDrawer } from "@/components/public/CartDrawer";
 import { trackOrderAction, type TrackedOrderResult } from "@/app/tracking/actions";
+import type { CheckoutItem } from "@/app/actions/checkout";
+import { submitTestimoniAction } from "@/app/actions/testimoni";
 import "@/components/public/public-site.scss";
 
 // ─── Data Produk Katalog ────────────────────────────────────────────────────────
@@ -200,20 +204,141 @@ interface PublicLandingViewProps {
     primaryColor?: string;
     whatsappNumber?: string;
   } | null;
+  initialGallery?: Array<{
+    id: string;
+    title: string;
+    description: string | null;
+    imageUrl: string;
+    category: string;
+  }>;
+  initialPendingTestimoni?: {
+    id: string;
+    author: string;
+    role: string | null;
+    city: string | null;
+    quote: string;
+    rating: number;
+    avatarUrl: string | null;
+    createdAt?: Date;
+    isFeatured?: boolean;
+  } | null;
 }
 
 export function PublicLandingView({
   initialCustomer,
   initialTestimonials,
   initialTheme,
+  initialGallery,
+  initialPendingTestimoni,
 }: PublicLandingViewProps = {}) {
+  // ── TESTIMONI FORM & PREVIEW STATE ─────────────────────
+  const [pendingTestimoni, setPendingTestimoni] = useState(initialPendingTestimoni ?? null);
+  const [testimoniRating, setTestimoniRating] = useState(5);
+  const [testimoniHoverRating, setTestimoniHoverRating] = useState(0);
+  const [testimoniQuote, setTestimoniQuote] = useState("");
+  const [testimoniStatus, setTestimoniStatus] = useState<"idle" | "success" | "error">("idle");
+  const [testimoniError, setTestimoniError] = useState<string | null>(null);
+  const [isTestimoniPending, startTestimoniTransition] = useTransition();
+
+  const handleSubmitTestimoni = () => {
+    setTestimoniError(null);
+    startTestimoniTransition(async () => {
+      const res = await submitTestimoniAction({ quote: testimoniQuote, rating: testimoniRating });
+      if (res.success) {
+        setTestimoniStatus("success");
+        if (res.data) {
+          setPendingTestimoni(res.data);
+        } else {
+          setPendingTestimoni({
+            id: "temp-" + Date.now(),
+            author: initialCustomer?.name || "Pelanggan",
+            role: "Pelanggan Setia",
+            city: "Indonesia",
+            quote: testimoniQuote,
+            rating: testimoniRating,
+            avatarUrl: initialCustomer?.avatarUrl || null,
+          });
+        }
+        setTestimoniQuote("");
+        setTestimoniRating(5);
+      } else {
+        setTestimoniStatus("error");
+        setTestimoniError(res.error || "Gagal mengirim ulasan.");
+      }
+    });
+  };
+
   // State Hero Carousel
   const [activeSlide, setActiveSlide] = useState(0);
 
-  // State Order Catalog
+  // ── CART STATE (persisted ke localStorage) ──────────────
+  const [cartItems, setCartItems] = useState<CheckoutItem[]>([]);
+  const [isMounted, setIsMounted] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+
+  // Ambil dari localStorage setelah client mount untuk mencegah hydration mismatch
+  useEffect(() => {
+    setIsMounted(true);
+    try {
+      const saved = localStorage.getItem("baitybites_cart");
+      if (saved) {
+        setCartItems(JSON.parse(saved) as CheckoutItem[]);
+      }
+    } catch {
+      // Abaikan jika parse error
+    }
+  }, []);
+
+  // Simpan ke localStorage setiap kali cartItems berubah (hanya setelah mounted)
+  useEffect(() => {
+    if (!isMounted) return;
+    try {
+      localStorage.setItem("baitybites_cart", JSON.stringify(cartItems));
+    } catch {
+      // Abaikan jika storage penuh
+    }
+  }, [cartItems, isMounted]);
+
+  // totalCartItems hanya dihitung ketika isMounted bernilai true agar SSR dan First Client Render identik
+  const totalCartItems = isMounted ? cartItems.reduce((s, it) => s + it.qty, 0) : 0;
+
+  const handleAddToCart = useCallback((product: { id: string; name: string; price: number; unit?: string; category?: string }) => {
+    setCartItems((prev) => {
+      const existing = prev.find((x) => x.id === product.id);
+      if (existing) {
+        return prev.map((x) => x.id === product.id ? { ...x, qty: x.qty + 1 } : x);
+      }
+      return [...prev, { id: product.id, name: product.name, price: product.price, qty: 1, unit: product.unit, category: product.category }];
+    });
+    // Cart drawer hanya dibuka melalui klik tombol cart, bukan saat tambah produk
+  }, []);
+
+  const handleUpdateQty = useCallback((id: string, delta: number) => {
+    setCartItems((prev) =>
+      prev
+        .map((x) => x.id === id ? { ...x, qty: x.qty + delta } : x)
+        .filter((x) => x.qty > 0)
+    );
+  }, []);
+
+  const handleUpdateNotes = useCallback((id: string, notes: string) => {
+    setCartItems((prev) => prev.map((x) => x.id === id ? { ...x, notes } : x));
+  }, []);
+
+  const handleRemoveItem = useCallback((id: string) => {
+    setCartItems((prev) => prev.filter((x) => x.id !== id));
+  }, []);
+
+  const handleClearCart = useCallback(() => {
+    setCartItems([]);
+    setIsCartOpen(false);
+    // Bersihkan localStorage setelah checkout berhasil
+    try { localStorage.removeItem("baitybites_cart"); } catch { /* noop */ }
+  }, []);
+
+  // ── ORDER CATALOG STATE ────────────────────────────────
   const [selectedCategory, setSelectedCategory] = useState("Semua");
   const [searchQuery, setSearchQuery] = useState("");
-  const [orderToast, setOrderToast] = useState<string | null>(null);
 
   // State Tracking Order
   const [trackingInput, setTrackingInput] = useState("");
@@ -229,12 +354,6 @@ export function PublicLandingView({
       product.description.toLowerCase().includes(searchQuery.toLowerCase());
     return matchCategory && matchQuery;
   });
-
-  // Handler Tambah ke Pesanan (Simulasi Cart)
-  const handleAddToCart = (productName: string) => {
-    setOrderToast(`"${productName}" berhasil ditambahkan ke keranjang pesanan!`);
-    setTimeout(() => setOrderToast(null), 3500);
-  };
 
   // Handler Tracking Order
   const handleSearchTracking = async (e?: React.FormEvent, customNumber?: string) => {
@@ -291,33 +410,11 @@ export function PublicLandingView({
       )}
 
       {/* ── HEADER ── */}
-      <PublicHeader initialCustomer={initialCustomer} />
-
-      {/* TOAST NOTIFIKASI */}
-      {orderToast && (
-        <div
-          style={{
-            position: "fixed",
-            bottom: "24px",
-            right: "24px",
-            zIndex: 1000,
-            background: "#0f172a",
-            color: "#ffffff",
-            padding: "14px 20px",
-            borderRadius: "12px",
-            boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
-            display: "flex",
-            alignItems: "center",
-            gap: "10px",
-            fontSize: "13px",
-            fontWeight: 500,
-            border: "1px solid #334155",
-          }}
-        >
-          <HugeiconsIcon icon={CheckmarkCircle02Icon} size={18} color="#00b887" />
-          <span>{orderToast}</span>
-        </div>
-      )}
+      <PublicHeader
+        initialCustomer={initialCustomer}
+        cartCount={totalCartItems}
+        onCartOpen={() => setIsCartOpen(true)}
+      />
 
       {/* ── 1. FULLSCREEN HERO SECTION ── */}
       {(() => {
@@ -476,37 +573,82 @@ export function PublicLandingView({
           </div>
 
           <div className="gallery-grid">
-            {MENU_PRODUCTS.slice(0, 6).map((item) => (
-              <article className="gallery-card" key={item.id}>
-                <div className="gallery-card__visual">
-                  <span className="product-tag">{item.tag}</span>
-                  <div className="product-graphic">
-                    <HugeiconsIcon
-                      icon={item.category.includes("Cendol") ? SparklesIcon : FireIcon}
-                      size={36}
-                      strokeWidth={1.8}
-                    />
+            {(initialGallery && initialGallery.length > 0
+              ? initialGallery.slice(0, 8)
+              : MENU_PRODUCTS.slice(0, 8)
+            ).map((item) => {
+              const isGalleryItem = "imageUrl" in item;
+              const title = isGalleryItem ? item.title : (item as any).name;
+              const desc = isGalleryItem ? item.description : (item as any).description;
+              const imgUrl = isGalleryItem ? item.imageUrl : null;
+              const categoryLabel = isGalleryItem
+                ? (item.category === "PRODUK"
+                    ? "Menu & Produk"
+                    : item.category === "PROSES_DAPUR"
+                    ? "Proses Dapur"
+                    : "Event & Hampers")
+                : (item as any).tag || (item as any).category;
+
+              return (
+                <article className="gallery-card" key={item.id}>
+                  <div className="gallery-card__visual">
+                    {categoryLabel && <span className="product-tag">{categoryLabel}</span>}
+                    {imgUrl ? (
+                      <Image
+                        src={imgUrl}
+                        alt={title}
+                        fill
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                        style={{ objectFit: "cover" }}
+                      />
+                    ) : (
+                      <div className="product-graphic">
+                        <HugeiconsIcon
+                          icon={(item as any).category?.includes("Cendol") ? SparklesIcon : FireIcon}
+                          size={36}
+                          strokeWidth={1.8}
+                        />
+                      </div>
+                    )}
                   </div>
-                </div>
-                <div className="gallery-card__body">
-                  <h3>{item.name}</h3>
-                  <p>{item.description}</p>
-                  <div className="card-footer">
-                    <span className="price">
-                      Rp {item.price.toLocaleString("id-ID")} <small>/ {item.unit}</small>
-                    </span>
-                    <button
-                      type="button"
-                      className="order-btn"
-                      onClick={() => handleAddToCart(item.name)}
-                    >
-                      <span>Tambah</span>
-                      <HugeiconsIcon icon={ArrowRight01Icon} size={14} strokeWidth={2} />
-                    </button>
+                  <div className="gallery-card__body">
+                    <h3>{title}</h3>
+                    {desc && <p>{desc}</p>}
+                    <div className="card-footer">
+                      {isGalleryItem ? (
+                        <button
+                          type="button"
+                          className="order-btn"
+                          style={{ width: "100%", justifyContent: "center" }}
+                          onClick={() => {
+                            const el = document.getElementById("order");
+                            if (el) el.scrollIntoView({ behavior: "smooth" });
+                          }}
+                        >
+                          <span>Pesan Menu</span>
+                          <HugeiconsIcon icon={ArrowRight01Icon} size={14} strokeWidth={2} />
+                        </button>
+                      ) : (
+                        <>
+                          <span className="price">
+                            Rp {(item as any).price.toLocaleString("id-ID")}{" "}
+                            <small>/ {(item as any).unit}</small>
+                          </span>
+                          <button
+                            type="button"
+                            className="order-btn"
+                            onClick={() => handleAddToCart((item as any).name)}
+                          >
+                            <span>Tambah</span>
+                            <HugeiconsIcon icon={ArrowRight01Icon} size={14} strokeWidth={2} />
+                          </button>
+                        </>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </article>
-            ))}
+                </article>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -523,6 +665,50 @@ export function PublicLandingView({
           </div>
 
           <div className="testimony-grid">
+            {/* ── PREVIEW TESTIMONI PRIBADI (Hanya terlihat oleh pembuatnya sebelum disetujui moderator) ── */}
+            {initialCustomer && pendingTestimoni && (
+              <article className="testimony-card testimony-card--pending-preview">
+                <div className="pending-badge-wrap">
+                  <span className="pending-badge">
+                    <HugeiconsIcon icon={Clock01Icon} size={13} strokeWidth={2} />
+                    Menunggu Moderasi
+                  </span>
+                  <span className="pending-hint">Hanya terlihat oleh Anda</span>
+                </div>
+
+                <div>
+                  <div className="stars">
+                    {Array.from({ length: pendingTestimoni.rating }).map((_, i) => (
+                      <HugeiconsIcon key={i} icon={StarIcon} size={16} strokeWidth={2} />
+                    ))}
+                  </div>
+                  <blockquote>&ldquo;{pendingTestimoni.quote}&rdquo;</blockquote>
+                </div>
+
+                <div className="author-info">
+                  <div className="author-avatar">
+                    {pendingTestimoni.avatarUrl ? (
+                      <Image
+                        src={pendingTestimoni.avatarUrl}
+                        alt={pendingTestimoni.author}
+                        width={40}
+                        height={40}
+                        style={{ borderRadius: "50%", objectFit: "cover" }}
+                      />
+                    ) : (
+                      pendingTestimoni.author.charAt(0)
+                    )}
+                  </div>
+                  <div>
+                    <strong>{pendingTestimoni.author}</strong>
+                    <span>
+                      {pendingTestimoni.city || "Indonesia"} &bull; {pendingTestimoni.role || "Pelanggan Setia"}
+                    </span>
+                  </div>
+                </div>
+              </article>
+            )}
+
             {(initialTestimonials && initialTestimonials.length > 0 ? initialTestimonials : TESTIMONIALS).map((t, idx) => (
               <article className="testimony-card" key={idx}>
                 <div>
@@ -557,6 +743,128 @@ export function PublicLandingView({
                 </div>
               </article>
             ))}
+          </div>
+
+          {/* ── FORM TESTIMONI (hanya untuk pelanggan yang sudah login) ── */}
+          <div className="testimony-form-wrap">
+            {!initialCustomer ? (
+              // Guest: tampilkan ajakan login
+              <div className="testimony-login-prompt">
+                <div className="prompt-icon">⭐</div>
+                <div>
+                  <strong>Punya pengalaman dengan Baitybites?</strong>
+                  <p>Masuk dengan akun Google untuk meninggalkan ulasan dan membantu pelanggan lain.</p>
+                </div>
+                <a href="/api/auth/google?returnTo=/" className="btn-login-testimony">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style={{ flexShrink: 0 }}>
+                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                  </svg>
+                  <span>Masuk via Google untuk Menulis Ulasan</span>
+                </a>
+              </div>
+            ) : pendingTestimoni ? (
+              // Sudah memiliki ulasan yang menunggu moderasi
+              <div className="testimony-pending-status-card">
+                <div className="status-header">
+                  <span className="pending-badge">
+                    <HugeiconsIcon icon={Clock01Icon} size={15} strokeWidth={2} />
+                    Menunggu Moderasi
+                  </span>
+                  <span className="status-timestamp">Ulasan Anda sedang ditinjau</span>
+                </div>
+                <div className="status-body">
+                  <strong>Terima kasih atas ulasan Anda, {initialCustomer.name.split(" ")[0]}!</strong>
+                  <p>
+                    Ulasan Anda telah kami terima dan saat ini sedang dalam proses verifikasi oleh tim moderator Baitybites. 
+                    Preview ulasan di atas hanya dapat dilihat oleh Anda sampai ulasan disetujui untuk tampil di beranda utama.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              // Form Testimoni
+              <div className="testimony-form">
+                <div className="form-header">
+                  <div className="author-avatar-sm">
+                    {initialCustomer.avatarUrl ? (
+                      <Image
+                        src={initialCustomer.avatarUrl}
+                        alt={initialCustomer.name}
+                        width={40}
+                        height={40}
+                        style={{ borderRadius: "50%", objectFit: "cover" }}
+                      />
+                    ) : (
+                      <span>{initialCustomer.name.charAt(0)}</span>
+                    )}
+                  </div>
+                  <div>
+                    <strong>Tulis Ulasan Anda</strong>
+                    <span>sebagai {initialCustomer.name}</span>
+                  </div>
+                </div>
+
+                {/* Bintang Rating */}
+                <div className="star-rating-input">
+                  <span className="rating-label">Rating:</span>
+                  <div className="stars-interactive">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        className={`star-btn ${
+                          (testimoniHoverRating || testimoniRating) >= star ? "is-active" : ""
+                        }`}
+                        onClick={() => setTestimoniRating(star)}
+                        onMouseEnter={() => setTestimoniHoverRating(star)}
+                        onMouseLeave={() => setTestimoniHoverRating(0)}
+                        aria-label={`Beri rating ${star} bintang`}
+                      >
+                        <HugeiconsIcon icon={StarIcon} size={22} strokeWidth={2} />
+                      </button>
+                    ))}
+                  </div>
+                  <span className="rating-text">
+                    {["Buruk", "Cukup", "Baik", "Bagus", "Sempurna!"][(testimoniHoverRating || testimoniRating) - 1]}
+                  </span>
+                </div>
+
+                {/* Textarea ulasan */}
+                <textarea
+                  className="testimony-textarea"
+                  rows={4}
+                  placeholder="Ceritakan pengalaman Anda memesan di Baitybites — rasa, pelayanan, pengiriman, atau apapun yang berkesan..."
+                  value={testimoniQuote}
+                  onChange={(e) => setTestimoniQuote(e.target.value)}
+                  maxLength={500}
+                />
+                <div className="textarea-meta">
+                  <span className="char-count">{testimoniQuote.length} / 500 karakter</span>
+                  {testimoniError && <span className="form-error">{testimoniError}</span>}
+                </div>
+
+                <button
+                  type="button"
+                  className="btn-submit-testimony"
+                  onClick={handleSubmitTestimoni}
+                  disabled={isTestimoniPending || testimoniQuote.trim().length < 10}
+                >
+                  {isTestimoniPending ? (
+                    <>
+                      <HugeiconsIcon icon={Loading03Icon} size={16} className="spinner-icon" />
+                      <span>Mengirim...</span>
+                    </>
+                  ) : (
+                    <>
+                      <HugeiconsIcon icon={StarIcon} size={16} strokeWidth={2} />
+                      <span>Kirim Ulasan</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -618,12 +926,12 @@ export function PublicLandingView({
                   </div>
                   <button
                     type="button"
-                    className="btn-add-cart"
-                    onClick={() => handleAddToCart(p.name)}
-                    aria-label={`Pesan ${p.name}`}
+                    className={`btn-add-cart${cartItems.find((x) => x.id === p.id) ? " is-in-cart" : ""}`}
+                    onClick={() => handleAddToCart(p)}
+                    aria-label={`Tambah ${p.name} ke keranjang`}
                   >
-                    <HugeiconsIcon icon={ShoppingBag01Icon} size={14} strokeWidth={2} />
-                    <span>Pesan</span>
+                    <HugeiconsIcon icon={cartItems.find((x) => x.id === p.id) ? CheckmarkCircle02Icon : Add01Icon} size={14} strokeWidth={2} />
+                    <span>{cartItems.find((x) => x.id === p.id) ? `×${cartItems.find((x) => x.id === p.id)!.qty} di keranjang` : "Tambah"}</span>
                   </button>
                 </div>
               </div>
@@ -801,6 +1109,61 @@ export function PublicLandingView({
                     ))}
                   </ul>
                 </div>
+
+                {/* Info Ekspedisi Resmi Paxel */}
+                {trackResult.paxelAwb && (
+                  <div
+                    style={{
+                      marginTop: "16px",
+                      padding: "12px 14px",
+                      background: "#faf5ff",
+                      border: "1.5px solid #d8b4fe",
+                      borderRadius: "10px",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "8px",
+                    }}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <span style={{ fontSize: "11px", fontWeight: 800, color: "#6b21a8", letterSpacing: "0.04em", textTransform: "uppercase" }}>
+                        ❄️ Ekspedisi Resmi: Paxel Cold Chain
+                      </span>
+                      <span style={{ fontSize: "10px", fontWeight: 700, color: "#059669", background: "#ecfdf5", padding: "2px 8px", borderRadius: "9999px" }}>
+                        Manifest Siap
+                      </span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <span style={{ fontSize: "12px", color: "#475569" }}>No. Resi Paxel:</span>
+                      <strong style={{ fontFamily: "monospace", fontSize: "14px", color: "#3b0764", letterSpacing: "0.05em" }}>
+                        {trackResult.paxelAwb}
+                      </strong>
+                    </div>
+                    {trackResult.paxelTrackingUrl && (
+                      <a
+                        href={trackResult.paxelTrackingUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: "6px",
+                          marginTop: "4px",
+                          padding: "8px 12px",
+                          background: "#5c2d91",
+                          color: "#ffffff",
+                          fontSize: "12px",
+                          fontWeight: 700,
+                          borderRadius: "6px",
+                          textDecoration: "none",
+                        }}
+                      >
+                        <span>Lacak Posisi Kurir Paxel Live</span>
+                        <HugeiconsIcon icon={ArrowRight01Icon} size={14} />
+                      </a>
+                    )}
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -809,6 +1172,92 @@ export function PublicLandingView({
 
       {/* ── 6. FOOTER ── */}
       <PublicFooter />
+
+      {/* ── FLOATING CART BUTTON ── */}
+      {totalCartItems > 0 && !isCartOpen && (
+        <button
+          type="button"
+          onClick={() => setIsCartOpen(true)}
+          aria-label={`Buka keranjang (${totalCartItems} item)`}
+          style={{
+            position: "fixed",
+            bottom: "28px",
+            right: "28px",
+            zIndex: 9000,
+            width: "58px",
+            height: "58px",
+            borderRadius: "50%",
+            border: "none",
+            background: "linear-gradient(135deg, #ff7a00 0%, #ff9d3a 100%)",
+            color: "#fff",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            boxShadow: "0 6px 24px rgba(255, 122, 0, 0.45)",
+            cursor: "pointer",
+            transition: "transform 150ms ease, box-shadow 150ms ease",
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.transform = "scale(1.08)";
+            (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 8px 32px rgba(255,122,0,0.55)";
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.transform = "scale(1)";
+            (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 6px 24px rgba(255,122,0,0.45)";
+          }}
+        >
+          <HugeiconsIcon icon={ShoppingBag01Icon} size={24} strokeWidth={2} />
+          <span
+            style={{
+              position: "absolute",
+              top: "-4px",
+              right: "-4px",
+              minWidth: "22px",
+              height: "22px",
+              padding: "0 5px",
+              background: "#fff",
+              color: "#ff7a00",
+              borderRadius: "9999px",
+              fontSize: "11px",
+              fontWeight: 800,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+              lineHeight: 1,
+            }}
+          >
+            {totalCartItems}
+          </span>
+        </button>
+      )}
+
+      {/* ── CART DRAWER ── */}
+      <CartDrawer
+        isOpen={isCartOpen}
+        onClose={() => setIsCartOpen(false)}
+        items={cartItems}
+        onUpdateQty={handleUpdateQty}
+        onUpdateNotes={handleUpdateNotes}
+        onRemoveItem={handleRemoveItem}
+        onClearCart={handleClearCart}
+        customer={initialCustomer ? {
+          id: initialCustomer.id,
+          name: initialCustomer.name,
+          email: initialCustomer.email,
+          avatarUrl: initialCustomer.avatarUrl,
+        } : null}
+        whatsappNumber={initialTheme?.whatsappNumber}
+        onTrackOrder={(orderRef) => {
+          setIsCartOpen(false);
+          setTrackingInput(orderRef);
+          handleSearchTracking(undefined, orderRef);
+          const el = document.getElementById("tracking");
+          if (el) {
+            el.scrollIntoView({ behavior: "smooth" });
+          }
+        }}
+      />
     </div>
   );
 }

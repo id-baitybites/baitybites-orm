@@ -391,7 +391,7 @@ export async function getReportsDataAction(
       totalCustomerCount: customerCount,
     };
   } catch (error) {
-    console.error("Error generating reports data:", error);
+    console.error("Error generating reports data:", error instanceof Error ? error.message : "Unknown error");
     return {
       timeRange: range,
       financial: {
