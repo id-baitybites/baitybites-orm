@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { SparklesIcon, CheckmarkCircle02Icon } from "@hugeicons/core-free-icons";
+import { SparklesIcon, CheckmarkCircle02Icon, ShoppingBag01Icon } from "@hugeicons/core-free-icons";
 
 export interface CatalogProduct {
   id: string;
@@ -151,16 +151,24 @@ export function ProductCard({ product, onAddToCart, inCartQty = 0 }: ProductCard
             className={`btn-order-action ${selectedQty > 0 && !isOutOfStock ? "is-active" : "is-disabled"} ${isAddedFeedback ? "is-success" : ""}`}
             onClick={handleAdd}
             disabled={selectedQty <= 0 || isOutOfStock}
+            aria-label={isAddedFeedback ? "Produk masuk ke keranjang" : "Tambahkan produk ke keranjang"}
+            title={isAddedFeedback ? "Produk masuk ke keranjang" : "Tambahkan ke keranjang"}
           >
             {isAddedFeedback ? (
               <>
                 <HugeiconsIcon icon={CheckmarkCircle02Icon} size={15} strokeWidth={2.5} />
-                <span>Masuk!</span>
+                <span className="btn-order-action__label">Masuk!</span>
               </>
             ) : selectedQty > 0 ? (
-              <span>Tambahkan</span>
+              <>
+                <HugeiconsIcon icon={ShoppingBag01Icon} size={16} strokeWidth={2.2} />
+                <span className="btn-order-action__label">Tambahkan</span>
+              </>
             ) : (
-              <span>Order</span>
+              <>
+                <HugeiconsIcon icon={ShoppingBag01Icon} size={16} strokeWidth={2.2} />
+                <span className="btn-order-action__label">Order</span>
+              </>
             )}
           </button>
         </div>
