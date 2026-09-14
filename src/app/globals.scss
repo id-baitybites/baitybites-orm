@@ -6,3 +6,9 @@
   --icon-size-sm: 15px;
   --icon-size-md: 17px;
 }
+
+div[class*="elfsight-app-"] {
+  .eapps-widget-toolbar {
+    display: none;
+  }
+}

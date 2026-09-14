@@ -33,10 +33,6 @@ export function PublicHeader({ initialCustomer, cartCount = 0, onCartOpen }: Pub
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    if (initialCustomer) {
-      setCustomer(initialCustomer);
-    }
-
     // 1. Baca info customer dari cookie non-httpOnly bb_customer_info via regex RFC-compliant
     const match = document.cookie.match(/(?:^|;\s*)bb_customer_info=([^;]*)/);
     if (match && match[1]) {
@@ -55,7 +51,8 @@ export function PublicHeader({ initialCustomer, cartCount = 0, onCartOpen }: Pub
         if (val.startsWith('"') && val.endsWith('"') && val.length > 2 && val[1] === '{') {
           val = val.slice(1, -1);
         }
-        setCustomer(JSON.parse(val));
+        const cookieCustomer = JSON.parse(val) as CustomerInfo;
+        queueMicrotask(() => setCustomer(cookieCustomer));
       } catch (err) {
         console.error("Gagal parse cookie bb_customer_info:", err);
       }
@@ -75,7 +72,7 @@ export function PublicHeader({ initialCustomer, cartCount = 0, onCartOpen }: Pub
 
     // 3. Cek apakah admin login (bb_admin)
     const adminMatch = document.cookie.match(/(?:^|;\s*)bb_admin=([^;]*)/);
-    setIsAdmin(Boolean(adminMatch));
+    queueMicrotask(() => setIsAdmin(Boolean(adminMatch)));
   }, [initialCustomer]);
 
   return (
@@ -96,11 +93,11 @@ export function PublicHeader({ initialCustomer, cartCount = 0, onCartOpen }: Pub
 
         {/* NAV MENU */}
         <nav className="public-header__nav" aria-label="Navigasi publik">
-          <a href="#hero">Beranda</a>
-          <a href="#gallery">Katalog &amp; Menu</a>
-          <a href="#order">Pesan Online</a>
-          <a href="#tracking">Tracking Order</a>
-          <a href="#testimony">Testimoni</a>
+          <Link href="/">Beranda</Link>
+          <Link href="/#gallery">Menu Unggulan</Link>
+          <Link href="/order" className="nav-link-highlight">Pesan Online</Link>
+          <Link href="/tracking">Tracking Order</Link>
+          <Link href="/#testimony">Testimoni</Link>
         </nav>
 
         {/* ACTIONS: LOGIN / PROFIL BUTTON */}
@@ -205,11 +202,11 @@ export function PublicHeader({ initialCustomer, cartCount = 0, onCartOpen }: Pub
 
       {/* MOBILE DRAWER */}
       <div className={`public-header__mobile-drawer ${mobileOpen ? "is-open" : ""}`}>
-        <a href="#hero" onClick={() => setMobileOpen(false)}>Beranda</a>
-        <a href="#gallery" onClick={() => setMobileOpen(false)}>Katalog &amp; Menu</a>
-        <a href="#order" onClick={() => setMobileOpen(false)}>Pesan Online</a>
-        <a href="#tracking" onClick={() => setMobileOpen(false)}>Tracking Order</a>
-        <a href="#testimony" onClick={() => setMobileOpen(false)}>Testimoni</a>
+        <Link href="/" onClick={() => setMobileOpen(false)}>Beranda</Link>
+        <Link href="/#gallery" onClick={() => setMobileOpen(false)}>Menu Unggulan</Link>
+        <Link href="/order" onClick={() => setMobileOpen(false)} style={{ color: "var(--color-primary, #ff7a00)", fontWeight: 700 }}>Pesan Online</Link>
+        <Link href="/tracking" onClick={() => setMobileOpen(false)}>Tracking Order</Link>
+        <Link href="/#testimony" onClick={() => setMobileOpen(false)}>Testimoni</Link>
 
         <div className="mobile-auth">
           {customer ? (

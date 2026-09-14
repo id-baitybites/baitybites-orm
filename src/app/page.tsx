@@ -68,7 +68,7 @@ export default async function HomePage() {
   } | null = null;
 
   try {
-    const [dbTestimonials, dbTheme, dbGallery, dbPending] = await Promise.all([
+    const [r0, r1, r2, r3] = await Promise.allSettled([
       db.customerTestimonial.findMany({
         where: { isFeatured: true },
         orderBy: [{ displayOrder: "asc" }, { createdAt: "desc" }],
@@ -130,10 +130,17 @@ export default async function HomePage() {
         : Promise.resolve(null),
     ]);
 
-    testimonials = dbTestimonials;
-    themeSetting = dbTheme;
-    galleryItems = dbGallery;
-    pendingTestimoni = dbPending;
+    if (r0.status === "fulfilled") testimonials = r0.value;
+    else console.error("Gagal load testimonials:", r0.reason);
+
+    if (r1.status === "fulfilled") themeSetting = r1.value;
+    else console.error("Gagal load theme setting:", r1.reason);
+
+    if (r2.status === "fulfilled") galleryItems = r2.value;
+    else console.error("Gagal load gallery:", r2.reason);
+
+    if (r3.status === "fulfilled") pendingTestimoni = r3.value;
+    else console.error("Gagal load pending testimoni:", r3.reason);
   } catch (err) {
     console.error("Gagal load CMS data untuk homepage:", err);
   }

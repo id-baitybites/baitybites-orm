@@ -56,11 +56,11 @@ export function PublicFooter() {
           <div className="footer-col">
             <h4>Menu Favorit</h4>
             <ul>
-              <li><a href="#order">Risol Mayo Beef Double Cheese</a></li>
-              <li><a href="#order">Risol Smoked Beef Mozzarella</a></li>
-              <li><a href="#order">Risol Spicy Tuna Melt</a></li>
-              <li><a href="#order">Cendol Coffee Signature</a></li>
-              <li><a href="#order">Paket Frozen Family Pack</a></li>
+              <li><Link href="/order">Risol Mayo Beef Double Cheese</Link></li>
+              <li><Link href="/order">Risol Beef Mushroom Truffle</Link></li>
+              <li><Link href="/order">Risol Spicy Tuna Melt</Link></li>
+              <li><Link href="/order">Cendol Coffee Signature</Link></li>
+              <li><Link href="/order">Paket Frozen Family Pack</Link></li>
             </ul>
           </div>
 
@@ -68,9 +68,9 @@ export function PublicFooter() {
           <div className="footer-col">
             <h4>Layanan Pelanggan</h4>
             <ul>
-              <li><a href="#tracking">Cek Status Pesanan (Tracking)</a></li>
-              <li><a href="#gallery">Katalog &amp; Varian Rasa</a></li>
-              <li><a href="#testimony">Ulasan &amp; Testimoni</a></li>
+              <li><Link href="/tracking">Cek Status Pesanan (Tracking)</Link></li>
+              <li><Link href="/order">Katalog &amp; Pemesanan Online</Link></li>
+              <li><Link href="/#testimony">Ulasan &amp; Testimoni</Link></li>
               <li><Link href="/kitchen">Akses Kitchen Display (Staff)</Link></li>
               <li><Link href="/orders">Portal Admin OMS</Link></li>
             </ul>

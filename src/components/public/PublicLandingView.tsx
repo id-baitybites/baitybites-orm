@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useCallback, useEffect, useTransition } from "react";
+import Link from "next/link";
+import { useState, useCallback, useEffect, useSyncExternalStore, useTransition } from "react";
 import {
   Search01Icon,
   ShoppingBag01Icon,
@@ -24,6 +25,8 @@ import { trackOrderAction, type TrackedOrderResult } from "@/app/tracking/action
 import type { CheckoutItem } from "@/app/actions/checkout";
 import { submitTestimoniAction } from "@/app/actions/testimoni";
 import "@/components/public/public-site.scss";
+
+const emptySubscribe = () => () => {};
 
 // ─── Data Produk Katalog ────────────────────────────────────────────────────────
 const CATEGORIES = ["Semua", "Risol Frozen", "Risol Ready to Eat", "Minuman Cendol", "Paket Box"];
@@ -120,31 +123,31 @@ const TESTIMONIALS: Array<{
   rating: number;
   avatarUrl: string | null;
 }> = [
-  {
-    author: "Adelwy Saputri",
-    city: "Jakarta Selatan",
-    role: "Pelanggan Setia (12x Repeat Order)",
-    quote: "Risol Mayo Double Cheese-nya beneran juara! Kulitnya super crispy dan mayonya melimpah gak pelit sama sekali. Buat stok sarapan di rumah selalu order yang frozen.",
-    rating: 5,
-    avatarUrl: null,
-  },
-  {
-    author: "Bintang Wijaya",
-    city: "Tangerang",
-    role: "Food Enthusiast",
-    quote: "Cendol Coffee-nya unik banget dan nyegerin. Gula arennya harum asli, gak bikin enek. Pas banget buat teman ngemil Risol Beef Mushroom hangat.",
-    rating: 5,
-    avatarUrl: null,
-  },
-  {
-    author: "Merlin Oktaviana",
-    city: "Depok",
-    role: "Event Organizer",
-    quote: "Kemarin pesan 100 pcs untuk snack box acara kantor, semuanya hangat dan packagingnya sangat rapi berkelas. Fitur tracking statusnya juga sangat membantu!",
-    rating: 5,
-    avatarUrl: null,
-  },
-];
+    {
+      author: "Adelwy Saputri",
+      city: "Jakarta Selatan",
+      role: "Pelanggan Setia (12x Repeat Order)",
+      quote: "Risol Mayo Double Cheese-nya beneran juara! Kulitnya super crispy dan mayonya melimpah gak pelit sama sekali. Buat stok sarapan di rumah selalu order yang frozen.",
+      rating: 5,
+      avatarUrl: null,
+    },
+    {
+      author: "Bintang Wijaya",
+      city: "Tangerang",
+      role: "Food Enthusiast",
+      quote: "Cendol Coffee-nya unik banget dan nyegerin. Gula arennya harum asli, gak bikin enek. Pas banget buat teman ngemil Risol Beef Mushroom hangat.",
+      rating: 5,
+      avatarUrl: null,
+    },
+    {
+      author: "Merlin Oktaviana",
+      city: "Depok",
+      role: "Event Organizer",
+      quote: "Kemarin pesan 100 pcs untuk snack box acara kantor, semuanya hangat dan packagingnya sangat rapi berkelas. Fitur tracking statusnya juga sangat membantu!",
+      rating: 5,
+      avatarUrl: null,
+    },
+  ];
 
 // Data Slide Hero Highlight Produk
 const HERO_SLIDES = [
@@ -273,20 +276,26 @@ export function PublicLandingView({
 
   // ── CART STATE (persisted ke localStorage) ──────────────
   const [cartItems, setCartItems] = useState<CheckoutItem[]>([]);
-  const [isMounted, setIsMounted] = useState(false);
+  const isMounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
   // Ambil dari localStorage setelah client mount untuk mencegah hydration mismatch
   useEffect(() => {
-    setIsMounted(true);
+    let cancelled = false;
     try {
       const saved = localStorage.getItem("baitybites_cart");
       if (saved) {
-        setCartItems(JSON.parse(saved) as CheckoutItem[]);
+        const savedItems = JSON.parse(saved) as CheckoutItem[];
+        queueMicrotask(() => {
+          if (!cancelled) setCartItems(savedItems);
+        });
       }
     } catch {
       // Abaikan jika parse error
     }
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // Simpan ke localStorage setiap kali cartItems berubah (hanya setelah mounted)
@@ -578,20 +587,20 @@ export function PublicLandingView({
               : MENU_PRODUCTS.slice(0, 8)
             ).map((item) => {
               const isGalleryItem = "imageUrl" in item;
-              const title = isGalleryItem ? item.title : (item as any).name;
-              const desc = isGalleryItem ? item.description : (item as any).description;
+              const title = isGalleryItem ? item.title : item.name;
               const imgUrl = isGalleryItem ? item.imageUrl : null;
               const categoryLabel = isGalleryItem
                 ? (item.category === "PRODUK"
-                    ? "Menu & Produk"
-                    : item.category === "PROSES_DAPUR"
+                  ? "Menu & Produk"
+                  : item.category === "PROSES_DAPUR"
                     ? "Proses Dapur"
                     : "Event & Hampers")
-                : (item as any).tag || (item as any).category;
+                : item.tag || item.category;
 
               return (
                 <article className="gallery-card" key={item.id}>
                   <div className="gallery-card__visual">
+
                     {categoryLabel && <span className="product-tag">{categoryLabel}</span>}
                     {imgUrl ? (
                       <Image
@@ -604,7 +613,7 @@ export function PublicLandingView({
                     ) : (
                       <div className="product-graphic">
                         <HugeiconsIcon
-                          icon={(item as any).category?.includes("Cendol") ? SparklesIcon : FireIcon}
+                          icon={item.category.includes("Cendol") ? SparklesIcon : FireIcon}
                           size={36}
                           strokeWidth={1.8}
                         />
@@ -612,38 +621,17 @@ export function PublicLandingView({
                     )}
                   </div>
                   <div className="gallery-card__body">
-                    <h3>{title}</h3>
-                    {desc && <p>{desc}</p>}
-                    <div className="card-footer">
-                      {isGalleryItem ? (
-                        <button
-                          type="button"
-                          className="order-btn"
-                          style={{ width: "100%", justifyContent: "center" }}
-                          onClick={() => {
-                            const el = document.getElementById("order");
-                            if (el) el.scrollIntoView({ behavior: "smooth" });
-                          }}
-                        >
-                          <span>Pesan Menu</span>
-                          <HugeiconsIcon icon={ArrowRight01Icon} size={14} strokeWidth={2} />
-                        </button>
-                      ) : (
-                        <>
-                          <span className="price">
-                            Rp {(item as any).price.toLocaleString("id-ID")}{" "}
-                            <small>/ {(item as any).unit}</small>
-                          </span>
-                          <button
-                            type="button"
-                            className="order-btn"
-                            onClick={() => handleAddToCart((item as any).name)}
-                          >
-                            <span>Tambah</span>
-                            <HugeiconsIcon icon={ArrowRight01Icon} size={14} strokeWidth={2} />
-                          </button>
-                        </>
-                      )}
+                    <div className="gallery-content">
+                      <div className="gallery-title">
+                        {title}
+                      </div>
+                      <Link
+                        href="/order"
+                        className="order-btn"
+                      >
+                        <HugeiconsIcon icon={ArrowRight01Icon} size={14} strokeWidth={2} />
+                      </Link>
+
                     </div>
                   </div>
                 </article>
@@ -757,10 +745,10 @@ export function PublicLandingView({
                 </div>
                 <a href="/api/auth/google?returnTo=/" className="btn-login-testimony">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style={{ flexShrink: 0 }}>
-                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
                   </svg>
                   <span>Masuk via Google untuk Menulis Ulasan</span>
                 </a>
@@ -778,7 +766,7 @@ export function PublicLandingView({
                 <div className="status-body">
                   <strong>Terima kasih atas ulasan Anda, {initialCustomer.name.split(" ")[0]}!</strong>
                   <p>
-                    Ulasan Anda telah kami terima dan saat ini sedang dalam proses verifikasi oleh tim moderator Baitybites. 
+                    Ulasan Anda telah kami terima dan saat ini sedang dalam proses verifikasi oleh tim moderator Baitybites.
                     Preview ulasan di atas hanya dapat dilihat oleh Anda sampai ulasan disetujui untuk tampil di beranda utama.
                   </p>
                 </div>
@@ -814,9 +802,8 @@ export function PublicLandingView({
                       <button
                         key={star}
                         type="button"
-                        className={`star-btn ${
-                          (testimoniHoverRating || testimoniRating) >= star ? "is-active" : ""
-                        }`}
+                        className={`star-btn ${(testimoniHoverRating || testimoniRating) >= star ? "is-active" : ""
+                          }`}
                         onClick={() => setTestimoniRating(star)}
                         onMouseEnter={() => setTestimoniHoverRating(star)}
                         onMouseLeave={() => setTestimoniHoverRating(0)}
@@ -869,308 +856,62 @@ export function PublicLandingView({
         </div>
       </section>
 
-      {/* ── 4. ORDER SECTION (Search & Filter Bar Kategori) ── */}
-      <section id="order" className="order-section">
-        <div className="order-section__inner">
-          <div className="section-header">
-            <span className="section-eyebrow">Pemesanan Online</span>
-            <h2>Pilih &amp; Pesan Menu Favorit Anda</h2>
-            <p>Gunakan filter kategori dan pencarian untuk menemukan menu yang Anda inginkan dengan mudah.</p>
-          </div>
+      {/* ── 4. CTA EKSPLORASI MENU & ORDER ONLINE ── */}
+      <section className="order-cta-section">
+        <div className="order-cta-section__inner">
+          <div className="cta-banner-card">
+            <div className="cta-content">
+              <span className="cta-eyebrow">
+                <HugeiconsIcon icon={SparklesIcon} size={14} strokeWidth={2.2} />
+                Pemesanan Online Terintegrasi
+              </span>
+              <h2>Siap Menikmati Risol Mayo Artisan &amp; Cendol Signature?</h2>
+              <p>
+                Jelajahi seluruh varian menu favorit, pilih ukuran pack atau satuan, dan nikmati pengiriman ekspres dingin terjamin dengan kurir resmi <strong>Paxel Cold-Chain</strong>.
+              </p>
 
-          {/* FILTER BAR & SEARCH TOOLBAR */}
-          <div className="order-toolbar">
-            <div className="search-input-wrap">
-              <HugeiconsIcon icon={Search01Icon} size={18} strokeWidth={2} />
-              <input
-                type="search"
-                placeholder="Cari risol mayo, cendol, keju, hampers..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                aria-label="Cari produk"
-              />
+              <div className="cta-action-group">
+                <Link href="/order" className="btn-cta-primary">
+                  <HugeiconsIcon icon={ShoppingBag01Icon} size={18} strokeWidth={2} />
+                  <span>Buka Katalog &amp; Pesan Online</span>
+                  <HugeiconsIcon icon={ArrowRight01Icon} size={16} strokeWidth={2} />
+                </Link>
+
+                <Link href="/tracking" className="btn-cta-secondary">
+                  <HugeiconsIcon icon={Search01Icon} size={16} strokeWidth={2} />
+                  <span>Lacak Pesanan Aktif</span>
+                </Link>
+              </div>
             </div>
 
-            <div className="category-tabs" role="tablist" aria-label="Filter kategori produk">
-              {CATEGORIES.map((cat) => (
-                <button
-                  type="button"
-                  key={cat}
-                  className={selectedCategory === cat ? "is-active" : ""}
-                  onClick={() => setSelectedCategory(cat)}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* GRID PRODUK */}
-          <div className="order-products-grid">
-            {filteredProducts.map((p) => (
-              <div className="product-item-card" key={p.id}>
+            <div className="cta-features">
+              <div className="feature-item">
+                <span className="feat-icon">❄️</span>
                 <div>
-                  <div className="item-top">
-                    <span className="category-badge">{p.category}</span>
-                    <span className="stock-status">
-                      <HugeiconsIcon icon={CheckmarkCircle02Icon} size={12} strokeWidth={2} /> {p.stock}
-                    </span>
-                  </div>
-                  <h4>{p.name}</h4>
-                  <p className="item-desc">{p.description}</p>
-                </div>
-
-                <div className="item-bottom">
-                  <div className="item-price">
-                    Rp {p.price.toLocaleString("id-ID")} <small>/ {p.unit}</small>
-                  </div>
-                  <button
-                    type="button"
-                    className={`btn-add-cart${cartItems.find((x) => x.id === p.id) ? " is-in-cart" : ""}`}
-                    onClick={() => handleAddToCart(p)}
-                    aria-label={`Tambah ${p.name} ke keranjang`}
-                  >
-                    <HugeiconsIcon icon={cartItems.find((x) => x.id === p.id) ? CheckmarkCircle02Icon : Add01Icon} size={14} strokeWidth={2} />
-                    <span>{cartItems.find((x) => x.id === p.id) ? `×${cartItems.find((x) => x.id === p.id)!.qty} di keranjang` : "Tambah"}</span>
-                  </button>
+                  <strong>Paxel Cold-Chain</strong>
+                  <span>Garansi tetap dingin &amp; higienis sampai depan pintu</span>
                 </div>
               </div>
-            ))}
-
-            {filteredProducts.length === 0 && (
-              <div className="order-empty-state">
-                <HugeiconsIcon icon={Search01Icon} size={32} strokeWidth={1.5} color="#94a3b8" />
-                <p>Tidak ada menu yang sesuai dengan pencarian &quot;{searchQuery}&quot;.</p>
+              <div className="feature-item">
+                <span className="feat-icon">⚡</span>
+                <div>
+                  <strong>Same Day Delivery</strong>
+                  <span>Pesan pagi, nikmati hangat/dingin di hari yang sama</span>
+                </div>
               </div>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* ── 5. TRACKING ORDER SECTION ── */}
-      <section id="tracking" className="tracking-section">
-        <div className="tracking-section__inner">
-          <div className="section-header">
-            <span className="section-eyebrow">Status Produksi &amp; Pengiriman</span>
-            <h2>Tracking Pesanan Real-Time</h2>
-            <p>
-              Pantau perjalanan pesanan Anda mulai dari antrian dapur hingga siap dijemput atau dikirim ke lokasi Anda.
-            </p>
-          </div>
-
-          <div className="tracking-box">
-            {/* Input Form */}
-            <form className="tracking-form" onSubmit={(e) => handleSearchTracking(e)}>
-              <div className="tracking-input-group">
-                <HugeiconsIcon icon={Search01Icon} size={20} strokeWidth={2} />
-                <input
-                  type="text"
-                  placeholder="Masukkan Nomor Order (Contoh: #WA-DIR-8908)..."
-                  value={trackingInput}
-                  onChange={(e) => {
-                    setTrackingInput(e.target.value);
-                    if (trackError) setTrackError(null);
-                  }}
-                  required
-                />
+              <div className="feature-item">
+                <span className="feat-icon">🏪</span>
+                <div>
+                  <strong>Self Pickup Tersedia</strong>
+                  <span>Ambil langsung bebas ongkir di outlet Sawangan</span>
+                </div>
               </div>
-              <button type="submit" className="btn-track" disabled={isTracking}>
-                {isTracking ? (
-                  <>
-                    <HugeiconsIcon icon={Loading03Icon} size={16} strokeWidth={2} />
-                    <span>Mengecek...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>Cek Status</span>
-                    <HugeiconsIcon icon={ArrowRight01Icon} size={16} strokeWidth={2} />
-                  </>
-                )}
-              </button>
-            </form>
-
-            {/* Petunjuk Contoh No Order */}
-            <div className="tracking-sample-hints">
-              Contoh nomor pesanan untuk dicoba:
-              <span
-                className="hint-btn"
-                onClick={() => {
-                  setTrackingInput("#WA-DIR-8908");
-                  handleSearchTracking(undefined, "#WA-DIR-8908");
-                }}
-              >
-                #WA-DIR-8908
-              </span>
-              &bull;
-              <span
-                className="hint-btn"
-                onClick={() => {
-                  setTrackingInput("#WA-DIR-0230");
-                  handleSearchTracking(undefined, "#WA-DIR-0230");
-                }}
-              >
-                #WA-DIR-0230
-              </span>
-              &bull;
-              <span
-                className="hint-btn"
-                onClick={() => {
-                  setTrackingInput("#WA-DIR-3319");
-                  handleSearchTracking(undefined, "#WA-DIR-3319");
-                }}
-              >
-                #WA-DIR-3319
-              </span>
             </div>
-
-            {/* Error Message */}
-            {trackError && (
-              <div className="tracking-error">
-                <span>⚠️ {trackError}</span>
-              </div>
-            )}
-
-            {/* Result Box */}
-            {trackResult && (
-              <div className="tracking-result">
-                <div className="tracking-result__header">
-                  <div className="order-id-group">
-                    <strong>{trackResult.orderRef}</strong>
-                    <span>
-                      Atas Nama: <strong>{trackResult.customer}</strong> ({trackResult.channel})
-                    </span>
-                  </div>
-
-                  <span
-                    className={`status-pill-lg status--${trackResult.status.toLowerCase()}`}
-                  >
-                    {trackResult.status === "MENUNGGU" && "Menunggu Antrean Dapur"}
-                    {trackResult.status === "DIMASAK" && "Sedang Dimasak di Dapur"}
-                    {trackResult.status === "SIAP_PICKUP" && "Siap Pickup / Kirim"}
-                  </span>
-                </div>
-
-                {/* Progress Steps */}
-                <div className="tracking-steps">
-                  <div
-                    className={`step-item ${
-                      trackResult.status === "MENUNGGU"
-                        ? "is-active"
-                        : "is-passed"
-                    }`}
-                  >
-                    <div className="step-num">1</div>
-                    <div className="step-text">
-                      <strong>Antrean Dapur</strong>
-                      <small>Pesanan Diterima</small>
-                    </div>
-                  </div>
-
-                  <div
-                    className={`step-item ${
-                      trackResult.status === "DIMASAK"
-                        ? "is-active"
-                        : trackResult.status === "SIAP_PICKUP"
-                        ? "is-passed"
-                        : ""
-                    }`}
-                  >
-                    <div className="step-num">2</div>
-                    <div className="step-text">
-                      <strong>Proses Memasak</strong>
-                      <small>
-                        {trackResult.cookStartedAt ? "Sedang Dimasak" : "Menunggu Dapur"}
-                      </small>
-                    </div>
-                  </div>
-
-                  <div
-                    className={`step-item ${
-                      trackResult.status === "SIAP_PICKUP" ? "is-active is-passed" : ""
-                    }`}
-                  >
-                    <div className="step-num">3</div>
-                    <div className="step-text">
-                      <strong>Siap Pickup</strong>
-                      <small>Dikemas &amp; Siap</small>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Rincian Item */}
-                <div className="tracking-items">
-                  <h5>Daftar Item Pesanan:</h5>
-                  <ul>
-                    {trackResult.items.map((item, i) => (
-                      <li key={i}>
-                        <span>{item.name}</span>
-                        <strong>{item.qty} pcs</strong>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* Info Ekspedisi Resmi Paxel */}
-                {trackResult.paxelAwb && (
-                  <div
-                    style={{
-                      marginTop: "16px",
-                      padding: "12px 14px",
-                      background: "#faf5ff",
-                      border: "1.5px solid #d8b4fe",
-                      borderRadius: "10px",
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "8px",
-                    }}
-                  >
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <span style={{ fontSize: "11px", fontWeight: 800, color: "#6b21a8", letterSpacing: "0.04em", textTransform: "uppercase" }}>
-                        ❄️ Ekspedisi Resmi: Paxel Cold Chain
-                      </span>
-                      <span style={{ fontSize: "10px", fontWeight: 700, color: "#059669", background: "#ecfdf5", padding: "2px 8px", borderRadius: "9999px" }}>
-                        Manifest Siap
-                      </span>
-                    </div>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <span style={{ fontSize: "12px", color: "#475569" }}>No. Resi Paxel:</span>
-                      <strong style={{ fontFamily: "monospace", fontSize: "14px", color: "#3b0764", letterSpacing: "0.05em" }}>
-                        {trackResult.paxelAwb}
-                      </strong>
-                    </div>
-                    {trackResult.paxelTrackingUrl && (
-                      <a
-                        href={trackResult.paxelTrackingUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          gap: "6px",
-                          marginTop: "4px",
-                          padding: "8px 12px",
-                          background: "#5c2d91",
-                          color: "#ffffff",
-                          fontSize: "12px",
-                          fontWeight: 700,
-                          borderRadius: "6px",
-                          textDecoration: "none",
-                        }}
-                      >
-                        <span>Lacak Posisi Kurir Paxel Live</span>
-                        <HugeiconsIcon icon={ArrowRight01Icon} size={14} />
-                      </a>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
           </div>
         </div>
       </section>
 
-      {/* ── 6. FOOTER ── */}
+      {/* ── 5. FOOTER ── */}
       <PublicFooter />
 
       {/* ── FLOATING CART BUTTON ── */}
