@@ -119,25 +119,49 @@ export async function verifyAdminCredentials(
   return { success: true, username: admin.username };
 }
 
-/** Fallback ke env var (kompatibilitas mundur) */
+/** Fallback ke env var (kompatibilitas mundur saat DB admin kosong) */
 function verifyEnvCredentials(
   username: string,
   password: string,
   pin?: string
 ): LoginResult {
-  const validUsername = process.env.SUPERADMIN_USERNAME || "superadmin";
-  const validPassword = process.env.SUPERADMIN_PASSWORD || "baitybites2026";
-  const validPin = process.env.SUPERADMIN_PIN || "9988";
+  const validUsername = process.env.SUPERADMIN_USERNAME;
+  const validPassword = process.env.SUPERADMIN_PASSWORD;
+  const validPin = process.env.SUPERADMIN_PIN;
+
+  // Di production, WAJIB set env var — tidak ada credential default
+  if (process.env.NODE_ENV === "production") {
+    if (!validUsername || !validPassword) {
+      console.error(
+        "[AUTH] SUPERADMIN_USERNAME / SUPERADMIN_PASSWORD env var tidak dikonfigurasi di production!"
+      );
+      return {
+        success: false,
+        error: "Konfigurasi sistem tidak lengkap. Hubungi administrator.",
+      };
+    }
+  }
+
+  // Fallback hanya aktif di development jika env var ada
+  const effectiveUsername = validUsername ?? "superadmin";
+  const effectivePassword = validPassword;
+
+  if (!effectivePassword) {
+    return {
+      success: false,
+      error: "SUPERADMIN_PASSWORD belum dikonfigurasi. Set env var terlebih dahulu.",
+    };
+  }
 
   const usernameMatch =
-    username.trim().toLowerCase() === validUsername.toLowerCase() ||
+    username.trim().toLowerCase() === effectiveUsername.toLowerCase() ||
     username.trim() === "admin@baitybites.id";
 
-  if (usernameMatch && password === validPassword) {
-    if (pin && pin.trim() !== validPin) {
+  if (usernameMatch && password === effectivePassword) {
+    if (validPin && pin && pin.trim() !== validPin) {
       return { success: false, error: "Security PIN 4-digit tidak sesuai." };
     }
-    return { success: true, username: validUsername };
+    return { success: true, username: effectiveUsername };
   }
 
   return {

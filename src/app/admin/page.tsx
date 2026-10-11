@@ -59,12 +59,7 @@ export default function AdminLoginPage() {
     }
   };
 
-  const fillDemo = () => {
-    setUsername("superadmin");
-    setPassword("baitybites2026");
-    setSecurityPin("9988");
-    setErrorMsg(null);
-  };
+
 
   return (
     <div className="admin-login">
@@ -211,24 +206,6 @@ export default function AdminLoginPage() {
           </button>
         </form>
 
-        {/* Credentials hint */}
-        <div className="admin-login__hint">
-          <div className="admin-login__hint-row">
-            <span>Username</span>
-            <code>superadmin</code>
-          </div>
-          <div className="admin-login__hint-row">
-            <span>Password</span>
-            <code>baitybites2026</code>
-          </div>
-          <div className="admin-login__hint-row">
-            <span>PIN</span>
-            <code>9988</code>
-          </div>
-          <button type="button" className="admin-login__autofill" onClick={fillDemo}>
-            Isi Otomatis
-          </button>
-        </div>
       </div>
 
       <p className="admin-login__footer">

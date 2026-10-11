@@ -13,6 +13,7 @@ const ADMIN_PATHS = [
   "/reports",
   "/settings",
   "/cms",
+  "/migration",
 ];
 
 // Rute login admin

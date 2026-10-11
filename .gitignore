@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# database backups (gunakan GitHub Actions artifacts, bukan di repo)
+/backups

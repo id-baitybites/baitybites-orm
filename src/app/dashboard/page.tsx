@@ -1,6 +1,4 @@
-"use client";
-
-import {
+﻿import {
   ArrowUpRight01Icon,
   Calendar03Icon,
   ChartUpIcon,
@@ -19,185 +17,140 @@ import {
 import { HugeiconsIcon } from "@hugeicons/react";
 import Link from "next/link";
 import { AppShell } from "@/components/layout/AppShell/AppShell";
+import { getDashboardDataAction } from "./actions";
+import type { Metadata } from "next";
 
 import "../dashboard.scss";
 
+export const metadata: Metadata = { title: "Dashboard" };
+export const dynamic = "force-dynamic";
+
 type IconType = typeof ArrowUpRight01Icon;
 
-const highlightCards = [
-  {
-    label: "Pengeluaran Tertinggi",
-    value: "Adelwy",
-    description: "Rp 1.007.000",
-    icon: ChartUpIcon,
-    variant: "neutral",
-  },
-  {
-    label: "Order Terbanyak",
-    value: "Adelwy",
-    description: "12 Order",
-    icon: ArrowUpRight01Icon,
-    variant: "success",
-  },
-  {
-    label: "Repeat Order Terbanyak",
-    value: "Adelwy",
-    description: "12 Kali",
-    icon: RepeatIcon,
-    variant: "neutral",
-  },
-  {
-    label: "Produk Favorit",
-    value: "Risoles Mayo Beef Double Cheese",
-    description: "26 Unit",
-    icon: HeartIcon,
-    variant: "danger",
-  },
-];
-
-const metrics = [
-  {
-    label: "Total Pesanan",
-    value: "37",
-    icon: CubeIcon,
-    variant: "orange",
-  },
-  {
-    label: "Terverifikasi",
-    value: "8",
-    icon: CheckmarkCircle02Icon,
-    variant: "green",
-  },
-  {
-    label: "Sedang Jalan",
-    value: "29",
-    icon: RefreshIcon,
-    variant: "blue",
-  },
-];
-
-const orderFlow = [
-  {
-    label: "Menunggu",
-    value: 14,
-    variant: "waiting",
-  },
-  {
-    label: "Dikonfirmasi",
-    value: 0,
-    variant: "confirmed",
-  },
-  {
-    label: "Dibayar",
-    value: 0,
-    variant: "paid",
-  },
-  {
-    label: "Produksi",
-    value: 0,
-    variant: "production",
-  },
-  {
-    label: "Packing",
-    value: 0,
-    variant: "packing",
-  },
-  {
-    label: "Kirim",
-    value: 15,
-    variant: "shipping",
-  },
-  {
-    label: "Diterima",
-    value: 8,
-    variant: "completed",
-  },
-];
-
-const orders = [
-  {
-    number: "#WA-DIR-8908",
-    customer: "Adelwy",
-    status: "Menunggu",
-    date: "9 September 2026",
-    time: "09.23",
-    amount: "Rp 25.000",
-  },
-  {
-    number: "#WA-DIR-0230",
-    customer: "Dinda",
-    status: "Menunggu",
-    date: "9 September 2026",
-    time: "08.58",
-    amount: "Rp 55.000",
-  },
-  {
-    number: "#WA-DIR-4810",
-    customer: "Adelwy",
-    status: "Menunggu",
-    date: "9 September 2026",
-    time: "08.57",
-    amount: "Rp 25.000",
-  },
-  {
-    number: "#WA-DIR-3319",
-    customer: "Merlin",
-    status: "Menunggu",
-    date: "8 September 2026",
-    time: "10.38",
-    amount: "Rp 189.000",
-  },
-  {
-    number: "#WA-DIR-2272",
-    customer: "Merlin",
-    status: "Menunggu",
-    date: "4 September 2026",
-    time: "11.38",
-    amount: "Rp 45.000",
-  },
-];
-
-const quickActions = [
-  {
-    label: "Order Baru",
-    icon: PlusSignIcon,
-    href: "/orders",
-  },
-  {
-    label: "Pelanggan",
-    icon: UserGroupIcon,
-    href: "/customers",
-  },
-  {
-    label: "Produksi",
-    icon: CubeIcon,
-    href: "/production",
-  },
-  {
-    label: "Kitchen TV",
-    icon: BookOpen01Icon,
-    href: "/kitchen",
-  },
-];
-
-function Icon({
-  icon,
-  size = 20,
-}: {
-  icon: IconType;
-  size?: number;
-}) {
+function Icon({ icon, size = 20 }: { icon: IconType; size?: number }) {
   return (
-    <HugeiconsIcon
-      icon={icon}
-      size={size}
-      color="currentColor"
-      strokeWidth={1.8}
-    />
+    <HugeiconsIcon icon={icon} size={size} color="currentColor" strokeWidth={1.8} />
   );
 }
 
-export default function DashboardPage() {
+function formatRupiah(amount: number): string {
+  if (amount >= 1_000_000) {
+    return `Rp ${(amount / 1_000_000).toFixed(1).replace(".0", "")} Jt`;
+  }
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount);
+}
+
+function formatDate(date: Date): string {
+  return new Intl.DateTimeFormat("id-ID", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(new Date(date));
+}
+
+function formatTime(date: Date): string {
+  return new Intl.DateTimeFormat("id-ID", {
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(date));
+}
+
+const quickActions = [
+  { label: "Order Baru", icon: PlusSignIcon, href: "/orders" },
+  { label: "Pelanggan", icon: UserGroupIcon, href: "/customers" },
+  { label: "Produksi", icon: CubeIcon, href: "/production" },
+  { label: "Kitchen TV", icon: BookOpen01Icon, href: "/kitchen" },
+];
+
+const STATUS_LABEL: Record<string, string> = {
+  MENUNGGU: "Menunggu",
+  DIKONFIRMASI: "Dikonfirmasi",
+  DIMASAK: "Dimasak",
+  SIAP_PICKUP: "Siap Pickup",
+  DIKIRIM: "Dikirim",
+  SELESAI: "Selesai",
+  DIBATALKAN: "Dibatalkan",
+};
+
+export default async function DashboardPage() {
+  const { stats, highlight, recentOrders, orderFlow } =
+    await getDashboardDataAction();
+
+  const highlightCards = [
+    {
+      label: "Pengeluaran Tertinggi",
+      value: highlight.topSpender?.name ?? "—",
+      description: highlight.topSpender
+        ? formatRupiah(highlight.topSpender.totalSpent)
+        : "Belum ada data",
+      icon: ChartUpIcon,
+      variant: "neutral",
+    },
+    {
+      label: "Order Terbanyak",
+      value: highlight.topOrderer?.name ?? "—",
+      description: highlight.topOrderer
+        ? `${highlight.topOrderer.totalOrders} Order`
+        : "Belum ada data",
+      icon: ArrowUpRight01Icon,
+      variant: "success",
+    },
+    {
+      label: "Repeat Order Terbanyak",
+      value: highlight.topOrderer?.name ?? "—",
+      description: highlight.topOrderer
+        ? `${highlight.topOrderer.totalOrders} Kali`
+        : "Belum ada data",
+      icon: RepeatIcon,
+      variant: "neutral",
+    },
+    {
+      label: "Produk Terlaris",
+      value: highlight.topProduct?.name ?? "—",
+      description: highlight.topProduct
+        ? `${highlight.topProduct.totalQty} Unit`
+        : "Belum ada data",
+      icon: HeartIcon,
+      variant: "danger",
+    },
+  ];
+
+  const metrics = [
+    {
+      label: "Total Pesanan",
+      value: String(stats.totalOrders),
+      icon: CubeIcon,
+      variant: "orange",
+    },
+    {
+      label: "Selesai",
+      value: String(stats.selesai),
+      icon: CheckmarkCircle02Icon,
+      variant: "green",
+    },
+    {
+      label: "Dalam Proses",
+      value: String(stats.diproses),
+      icon: RefreshIcon,
+      variant: "blue",
+    },
+  ];
+
+  const orderFlowItems = [
+    { label: "Menunggu", value: orderFlow.menunggu, variant: "waiting" },
+    { label: "Dikonfirmasi", value: orderFlow.dikonfirmasi, variant: "confirmed" },
+    { label: "Dimasak", value: orderFlow.dimasak, variant: "paid" },
+    { label: "Siap Pickup", value: orderFlow.siapPickup, variant: "production" },
+    { label: "Dikemas/Kirim", value: orderFlow.dikirim, variant: "packing" },
+    { label: "Selesai", value: orderFlow.selesai, variant: "completed" },
+    { label: "Dibatalkan", value: orderFlow.dibatalkan, variant: "shipping" },
+  ];
+
   return (
     <AppShell>
       <div className="dashboard-page">
@@ -207,7 +160,7 @@ export default function DashboardPage() {
             <p className="eyebrow">BAITYBITES OMS / OVERVIEW</p>
             <h1>Ringkasan Order</h1>
             <p className="dashboard-heading__desc">
-              Selamat datang kembali! Berikut status operasional dan ringkasan pemesanan hari ini.
+              Selamat datang kembali! Berikut status operasional dan ringkasan pemesanan terkini.
             </p>
           </div>
         </section>
@@ -227,7 +180,9 @@ export default function DashboardPage() {
               </div>
 
               <div className="highlight-card__body">
-                <strong>{card.value}</strong>
+                <strong title={card.value}>
+                  {card.value.length > 20 ? card.value.slice(0, 18) + "…" : card.value}
+                </strong>
                 <span>{card.description}</span>
               </div>
             </article>
@@ -254,8 +209,8 @@ export default function DashboardPage() {
 
           <article className="revenue-card">
             <div className="revenue-card__content">
-              <span>Total Pendapatan</span>
-              <strong>Rp 1.801.000</strong>
+              <span>Omzet Hari Ini</span>
+              <strong>{formatRupiah(stats.omzetHariIni)}</strong>
             </div>
 
             <div className="revenue-card__icon">
@@ -272,7 +227,7 @@ export default function DashboardPage() {
           </div>
 
           <div className="flow-card">
-            {orderFlow.map((item) => (
+            {orderFlowItems.map((item) => (
               <div
                 key={item.label}
                 className={`flow-step flow-step--${item.variant}`}
@@ -291,7 +246,11 @@ export default function DashboardPage() {
             <div className="panel-heading">
               <div>
                 <h2>Antrean Pesanan</h2>
-                <span className="panel-heading__sub">5 pesanan terbaru butuh penanganan</span>
+                <span className="panel-heading__sub">
+                  {stats.menunggu > 0
+                    ? `${stats.menunggu} pesanan menunggu penanganan`
+                    : "Tidak ada pesanan menunggu"}
+                </span>
               </div>
 
               <Link href="/orders" className="panel-heading__link">
@@ -301,41 +260,47 @@ export default function DashboardPage() {
             </div>
 
             <div className="order-grid">
-              {orders.map((order) => (
-                <article className="dashboard-order-card" key={order.number}>
-                  <div className="dashboard-order-card__top">
-                    <strong>{order.number}</strong>
-                    <span className="dashboard-order-card__status">
-                      {order.status}
-                    </span>
-                  </div>
+              {recentOrders.length === 0 ? (
+                <p style={{ color: "var(--text-muted)", fontSize: "var(--font-size-sm)" }}>
+                  Belum ada pesanan.
+                </p>
+              ) : (
+                recentOrders.map((order) => (
+                  <article className="dashboard-order-card" key={order.id}>
+                    <div className="dashboard-order-card__top">
+                      <strong>{order.orderRef}</strong>
+                      <span className="dashboard-order-card__status">
+                        {STATUS_LABEL[order.status] ?? order.status}
+                      </span>
+                    </div>
 
-                  <div className="dashboard-order-card__customer">
-                    {order.customer}
-                  </div>
+                    <div className="dashboard-order-card__customer">
+                      {order.customer}
+                    </div>
 
-                  <div className="dashboard-order-card__meta">
-                    <span>
-                      <Icon icon={Calendar03Icon} size={14} />
-                      {order.date}
-                    </span>
-                    <span>
-                      <Icon icon={Clock01Icon} size={14} />
-                      {order.time}
-                    </span>
-                  </div>
+                    <div className="dashboard-order-card__meta">
+                      <span>
+                        <Icon icon={Calendar03Icon} size={14} />
+                        {formatDate(order.createdAt)}
+                      </span>
+                      <span>
+                        <Icon icon={Clock01Icon} size={14} />
+                        {formatTime(order.createdAt)}
+                      </span>
+                    </div>
 
-                  <div className="dashboard-order-card__bottom">
-                    <strong>{order.amount}</strong>
-                    <Link
-                      href={`/orders/${encodeURIComponent(order.number)}`}
-                      className="dashboard-order-card__btn"
-                    >
-                      Lihat Detail
-                    </Link>
-                  </div>
-                </article>
-              ))}
+                    <div className="dashboard-order-card__bottom">
+                      <strong>{formatRupiah(order.totalAmount)}</strong>
+                      <Link
+                        href={`/orders/${encodeURIComponent(order.orderRef)}`}
+                        className="dashboard-order-card__btn"
+                      >
+                        Lihat Detail
+                      </Link>
+                    </div>
+                  </article>
+                ))
+              )}
             </div>
           </section>
 
@@ -356,6 +321,20 @@ export default function DashboardPage() {
                   </Link>
                 ))}
               </div>
+            </section>
+
+            {/* Ringkasan Bulan Ini */}
+            <section className="help-card" style={{ marginBottom: "var(--space-4)" }}>
+              <div className="help-card__icon">
+                <Icon icon={Wallet03Icon} size={20} />
+              </div>
+              <h3>Omzet Bulan Ini</h3>
+              <p style={{ fontSize: "var(--font-size-2xl)", fontWeight: "700", color: "var(--color-primary)", margin: "var(--space-1) 0" }}>
+                {formatRupiah(stats.omzetBulanIni)}
+              </p>
+              <p style={{ fontSize: "var(--font-size-sm)", color: "var(--text-muted)" }}>
+                {stats.totalPelanggan} pelanggan terdaftar
+              </p>
             </section>
 
             <section className="help-card">

@@ -87,6 +87,12 @@ model Order {
   clientRef     Customer?            @relation(fields: [customerId], references: [id])
   payments      Payment[]
 
+  // Index untuk query filter & sort yang paling umum
+  @@index([status])
+  @@index([createdAt(sort: Desc)])
+  @@index([customerId])
+  @@index([status, createdAt(sort: Desc)])
+  @@index([channel])
   @@map("orders")
 }
 
@@ -102,6 +108,8 @@ model OrderItem {
   order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product   Product? @relation(fields: [productId], references: [id])
 
+  @@index([orderId])
+  @@index([productId])
   @@map("order_items")
 }
 
@@ -118,6 +126,8 @@ model Payment {
   updatedAt     DateTime      @updatedAt @map("updated_at")
   order         Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
+  @@index([orderId])
+  @@index([paymentStatus])
   @@map("payments")
 }
 
@@ -130,6 +140,7 @@ model OrderStatusHistory {
   createdAt DateTime    @default(now()) @map("created_at")
   order     Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
+  @@index([orderId])
   @@map("order_status_history")
 }
 

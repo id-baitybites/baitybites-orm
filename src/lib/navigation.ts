@@ -9,6 +9,7 @@ import {
   ShoppingBag01Icon,
   UserGroupIcon,
   Book01Icon,
+  ArrowMoveUpRightIcon,
 } from "@hugeicons/core-free-icons";
 
 // IconSvgObject is not exported by the package — derive it from a known icon.
@@ -18,6 +19,8 @@ export type NavItem = {
   label: string;
   href: string;
   icon: IconSvgObject;
+  /** Jika true, item ini hanya tampil bagi superadmin */
+  superAdminOnly?: boolean;
   children?: Omit<NavItem, "children">[];
 };
 
@@ -37,6 +40,12 @@ export const navigation: NavItem[] = [
       { label: "Settings", href: "/settings", icon: Settings01Icon },
       { label: "CMS", href: "/cms", icon: File02Icon },
       { label: "Docs", href: "/docs", icon: Book01Icon },
+      {
+        label: "Migration",
+        href: "/migration",
+        icon: ArrowMoveUpRightIcon,
+        superAdminOnly: true,
+      },
     ],
   },
 ];
