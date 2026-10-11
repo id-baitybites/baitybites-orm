@@ -4,8 +4,8 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
   ShieldKeyIcon,
-  Store01Icon,
-  Package01Icon,
+  Settings01Icon,
+  Building02Icon,
   CheckmarkCircle02Icon,
   ArrowRight01Icon,
   ArrowLeft01Icon,
@@ -13,16 +13,27 @@ import {
   AlertDiamondIcon,
   SparklesIcon,
   LockPasswordIcon,
+  Database01Icon,
+  GlobalIcon,
+  GoogleIcon,
+  CloudUploadIcon,
+  Location01Icon,
+  MailAtSign01Icon,
+  Call02Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { executeOnboarding, type OnboardingPayload } from "./actions";
+import {
+  executeOnboarding,
+  testOnboardingDatabaseConnection,
+  type OnboardingPayload,
+} from "./actions";
 import "./onboarding.scss";
 
 const STEPS = [
-  { id: 1, label: "Super Admin", icon: ShieldKeyIcon },
-  { id: 2, label: "Brand Identity", icon: Store01Icon },
-  { id: 3, label: "Desain & Warna", icon: SparklesIcon },
-  { id: 4, label: "Katalog & Luncurkan", icon: Package01Icon },
+  { id: 1, label: "1. Otentikasi Admin", icon: ShieldKeyIcon },
+  { id: 2, label: "2. Konfigurasi Sistem", icon: Settings01Icon },
+  { id: 3, label: "3. Identitas Korporasi", icon: Building02Icon },
+  { id: 4, label: "4. Branding & Visual", icon: SparklesIcon },
 ];
 
 export default function OnboardingClient() {
@@ -31,30 +42,56 @@ export default function OnboardingClient() {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
+  // State Testing Database
+  const [dbTestResult, setDbTestResult] = useState<{
+    success: boolean;
+    message: string;
+  } | null>(null);
+  const [isTestingDb, startDbTest] = useTransition();
+
   const [formData, setFormData] = useState<OnboardingPayload>({
-    // Step 1: Admin
+    // Langkah 1: Otentikasi Admin
     adminUsername: "",
     adminDisplayName: "",
     adminPassword: "",
     adminPin: "",
 
-    // Step 2: Brand
+    // Langkah 2: Konfigurasi Sistem (.env)
+    databaseUrl: "",
+    directUrl: "",
+    canonicalDomain: "https://mybrand.com",
+    googleClientId: "",
+    googleClientSecret: "",
+    cloudinaryUrl: "",
+    geminiApiKey: "",
+
+    // Langkah 3: Identitas Korporasi
+    companyLegalName: "",
+    companyAddress: "",
+    companyCity: "Jakarta",
+    companyEmail: "",
+    companyPhone: "+62 812 0000 0000",
+
+    // Langkah 4: Branding Toko & Visual
     brandName: "",
-    tagline: "Bite The Best",
-    heroTitle: "Sensasi Kuliner Pilihan Terbaik",
+    tagline: "The Best Experience",
+    heroTitle: "Sensasi Pilihan Kuliner Terbaik",
     heroTitleAccent: "Spesial Untuk Anda",
     heroDescription:
       "Dibuat dengan bahan baku berkualitas premium, rasa autentik, dan penyajian istimewa yang siap memanjakan selera Anda.",
-    whatsappNumber: "+62 812 0000 0000",
-    instagramUrl: "https://instagram.com/mybrand",
-
-    // Step 3: Colors
     primaryColor: "#ff7a00",
     accentColor: "#10b981",
-
-    // Step 4: Mode
+    instagramUrl: "https://instagram.com/mybrand",
     sampleDataMode: "clean",
   });
+
+  const handleTestDatabase = () => {
+    setDbTestResult(null);
+    startDbTest(async () => {
+      const res = await testOnboardingDatabaseConnection(formData.databaseUrl);
+      setDbTestResult(res);
+    });
+  };
 
   const nextStep = () => {
     setError(null);
@@ -68,8 +105,18 @@ export default function OnboardingClient() {
         return;
       }
     } else if (currentStep === 2) {
+      if (!formData.canonicalDomain.trim()) {
+        setError("Domain resmi aplikasi wajib diisi.");
+        return;
+      }
+    } else if (currentStep === 3) {
+      if (!formData.companyLegalName.trim()) {
+        setError("Nama Perusahaan / Bisnis wajib diisi.");
+        return;
+      }
+    } else if (currentStep === 4) {
       if (!formData.brandName.trim()) {
-        setError("Nama Brand wajib diisi.");
+        setError("Nama Brand Toko wajib diisi.");
         return;
       }
     }
@@ -90,22 +137,35 @@ export default function OnboardingClient() {
       if (result.success) {
         router.push("/dashboard?onboarded=true");
       } else {
-        setError(result.error || "Gagal menyelesaikan onboarding.");
+        setError(result.error || "Gagal menyelesaikan setup awal.");
       }
     });
   };
+
+  // Preview Env String
+  const previewEnv = `# GENERATED ENVIRONMENT CONFIGURATION
+DATABASE_URL="${formData.databaseUrl || "postgresql://..."}"
+DIRECT_URL="${formData.directUrl || formData.databaseUrl || "postgresql://..."}"
+NEXTAUTH_URL="${formData.canonicalDomain.replace(/\/+$/, "") || "https://..."}"
+NEXT_PUBLIC_APP_URL="${formData.canonicalDomain.replace(/\/+$/, "") || "https://..."}"
+GOOGLE_CLIENT_ID="${formData.googleClientId || ""}"
+GOOGLE_CLIENT_SECRET="${formData.googleClientSecret || ""}"
+CLOUDINARY_URL="${formData.cloudinaryUrl || ""}"
+GEMINI_API_KEY="${formData.geminiApiKey || ""}"
+SUPERADMIN_PIN="${formData.adminPin || "889900"}"
+NODE_ENV="production"`;
 
   return (
     <div className="onboarding-layout">
       {/* Top Header */}
       <header className="onboarding-layout__header">
         <div className="onboarding-layout__header-brand">
-          <span>Brand Setup Wizard</span>
-          <span className="badge">Exclusive Instance</span>
+          <span>Client Onboarding Wizard</span>
+          <span className="badge">White-Label Instance</span>
         </div>
         <div className="onboarding-layout__header-badge">
           <HugeiconsIcon icon={LockPasswordIcon} size={14} />
-          <span>Inisialisasi Sistem Baru</span>
+          <span>Setup Sistem Klien Baru</span>
         </div>
       </header>
 
@@ -169,7 +229,9 @@ export default function OnboardingClient() {
 
         {/* Main Card */}
         <div className="onboarding-card">
-          {/* STEP 1: SUPER ADMIN */}
+          {/* ─────────────────────────────────────────────────────────────
+              LANGKAH 1: OTENTIKASI SUPER ADMIN
+              ───────────────────────────────────────────────────────────── */}
           {currentStep === 1 && (
             <>
               <div className="onboarding-card__header">
@@ -177,10 +239,10 @@ export default function OnboardingClient() {
                   <HugeiconsIcon icon={ShieldKeyIcon} size={24} />
                 </div>
                 <div>
-                  <h1>1. Akun Super Admin &amp; Security PIN</h1>
+                  <h1>Langkah 1: Akun Otentikasi Super Admin</h1>
                   <p>
-                    Kredensial tertinggi untuk mengelola seluruh operasional,
-                    keuangan, pesanan, dan pengaturan sistem Anda.
+                    Buat kredensial admin tertinggi yang akan Anda gunakan untuk
+                    mengelola toko, pesanan, staf, dan pengaturan back office.
                   </p>
                 </div>
               </div>
@@ -211,7 +273,7 @@ export default function OnboardingClient() {
                   <input
                     id="adm-display"
                     type="text"
-                    placeholder="misal: Owner BaityBites"
+                    placeholder="misal: Hendra Setiawan"
                     value={formData.adminDisplayName}
                     onChange={(e) =>
                       setFormData({
@@ -262,18 +324,313 @@ export default function OnboardingClient() {
             </>
           )}
 
-          {/* STEP 2: BRAND IDENTITY */}
+          {/* ─────────────────────────────────────────────────────────────
+              LANGKAH 2: KONFIGURASI SISTEM (.ENV SETUP)
+              ───────────────────────────────────────────────────────────── */}
           {currentStep === 2 && (
             <>
               <div className="onboarding-card__header">
                 <div className="onboarding-card__header-icon">
-                  <HugeiconsIcon icon={Store01Icon} size={24} />
+                  <HugeiconsIcon icon={Settings01Icon} size={24} />
                 </div>
                 <div>
-                  <h1>2. Identitas Brand &amp; Kontak Toko</h1>
+                  <h1>Langkah 2: Konfigurasi Database &amp; Environment</h1>
                   <p>
-                    Nama bisnis, slogan, dan informasi kontak yang akan tampil di
-                    seluruh antarmuka pelanggan dan nota pesanan.
+                    Hubungkan database PostgreSQL Anda, domain canonical, serta
+                    layanan pihak ketiga yang akan digenerate ke file konfigurasi.
+                  </p>
+                </div>
+              </div>
+
+              <div className="onboarding-card__grid">
+                <div className="onboarding-card__field" style={{ gridColumn: "1 / -1" }}>
+                  <label htmlFor="cfg-db">
+                    Database Connection URL (PostgreSQL Pooled)
+                  </label>
+                  <div style={{ display: "flex", gap: "8px" }}>
+                    <input
+                      id="cfg-db"
+                      type="text"
+                      placeholder="postgresql://user:password@host-pooler.neon.tech/neondb?sslmode=require"
+                      value={formData.databaseUrl}
+                      onChange={(e) => {
+                        setFormData({ ...formData, databaseUrl: e.target.value });
+                        setDbTestResult(null);
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleTestDatabase}
+                      disabled={isTestingDb || !formData.databaseUrl}
+                      style={{
+                        padding: "0 16px",
+                        borderRadius: "8px",
+                        border: "1px solid var(--border-default)",
+                        background: "rgba(99,102,241,0.1)",
+                        color: "#6366f1",
+                        fontSize: "12px",
+                        fontWeight: 600,
+                        cursor: "pointer",
+                        whiteSpace: "nowrap",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "6px",
+                      }}
+                    >
+                      <HugeiconsIcon icon={Database01Icon} size={14} />
+                      <span>{isTestingDb ? "Testing..." : "Test Koneksi"}</span>
+                    </button>
+                  </div>
+
+                  {dbTestResult && (
+                    <div
+                      style={{
+                        marginTop: "6px",
+                        fontSize: "12px",
+                        padding: "6px 12px",
+                        borderRadius: "6px",
+                        background: dbTestResult.success
+                          ? "rgba(16,185,129,0.1)"
+                          : "rgba(239,68,68,0.1)",
+                        color: dbTestResult.success ? "#10b981" : "#ef4444",
+                      }}
+                    >
+                      {dbTestResult.message}
+                    </div>
+                  )}
+                </div>
+
+                <div className="onboarding-card__field">
+                  <label htmlFor="cfg-domain">
+                    Canonical Domain (NEXTAUTH_URL) <span className="required">*</span>
+                  </label>
+                  <input
+                    id="cfg-domain"
+                    type="text"
+                    placeholder="https://tokoanda.com"
+                    value={formData.canonicalDomain}
+                    onChange={(e) =>
+                      setFormData({ ...formData, canonicalDomain: e.target.value })
+                    }
+                    required
+                  />
+                </div>
+
+                <div className="onboarding-card__field">
+                  <label htmlFor="cfg-cloudinary">Cloudinary Storage URL</label>
+                  <input
+                    id="cfg-cloudinary"
+                    type="password"
+                    placeholder="cloudinary://key:secret@cloudname"
+                    value={formData.cloudinaryUrl}
+                    onChange={(e) =>
+                      setFormData({ ...formData, cloudinaryUrl: e.target.value })
+                    }
+                  />
+                </div>
+
+                <div className="onboarding-card__field">
+                  <label htmlFor="cfg-google-id">Google OAuth Client ID</label>
+                  <input
+                    id="cfg-google-id"
+                    type="text"
+                    placeholder="xxxx.apps.googleusercontent.com"
+                    value={formData.googleClientId}
+                    onChange={(e) =>
+                      setFormData({ ...formData, googleClientId: e.target.value })
+                    }
+                  />
+                </div>
+
+                <div className="onboarding-card__field">
+                  <label htmlFor="cfg-google-sec">Google OAuth Client Secret</label>
+                  <input
+                    id="cfg-google-sec"
+                    type="password"
+                    placeholder="GOCSPX-xxxx"
+                    value={formData.googleClientSecret}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        googleClientSecret: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+              </div>
+
+              {/* Preview Box File .env */}
+              <div
+                style={{
+                  background: "#09090b",
+                  border: "1px solid var(--border-default)",
+                  borderRadius: "12px",
+                  padding: "16px",
+                  marginTop: "8px",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: "8px",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: "11px",
+                      color: "#a1a1aa",
+                      fontWeight: 600,
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    Pratinjau File .env Server Anda:
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => navigator.clipboard.writeText(previewEnv)}
+                    style={{
+                      background: "transparent",
+                      border: "none",
+                      color: "#ff7a00",
+                      fontSize: "11px",
+                      cursor: "pointer",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Salin .env
+                  </button>
+                </div>
+                <pre
+                  style={{
+                    margin: 0,
+                    fontFamily: "monospace",
+                    fontSize: "11px",
+                    color: "#4ade80",
+                    maxHeight: "100px",
+                    overflowY: "auto",
+                    whiteSpace: "pre-wrap",
+                  }}
+                >
+                  {previewEnv}
+                </pre>
+              </div>
+            </>
+          )}
+
+          {/* ─────────────────────────────────────────────────────────────
+              LANGKAH 3: IDENTITAS KORPORASI
+              ───────────────────────────────────────────────────────────── */}
+          {currentStep === 3 && (
+            <>
+              <div className="onboarding-card__header">
+                <div className="onboarding-card__header-icon">
+                  <HugeiconsIcon icon={Building02Icon} size={24} />
+                </div>
+                <div>
+                  <h1>Langkah 3: Identitas Korporasi &amp; Legalitas</h1>
+                  <p>
+                    Lengkapi identitas badan usaha, alamat operasional fisik, dan
+                    kontak legal yang akan dicantumkan pada footer serta nota.
+                  </p>
+                </div>
+              </div>
+
+              <div className="onboarding-card__grid">
+                <div className="onboarding-card__field">
+                  <label htmlFor="corp-legal">
+                    Nama Perusahaan / Badan Usaha <span className="required">*</span>
+                  </label>
+                  <input
+                    id="corp-legal"
+                    type="text"
+                    placeholder="misal: PT Rasa Nusantara Sejahtera"
+                    value={formData.companyLegalName}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setFormData({
+                        ...formData,
+                        companyLegalName: val,
+                        brandName: formData.brandName || val,
+                      });
+                    }}
+                    autoFocus
+                    required
+                  />
+                </div>
+
+                <div className="onboarding-card__field">
+                  <label htmlFor="corp-email">Email Resmi Perusahaan</label>
+                  <input
+                    id="corp-email"
+                    type="email"
+                    placeholder="legal@perusahaan.com"
+                    value={formData.companyEmail}
+                    onChange={(e) =>
+                      setFormData({ ...formData, companyEmail: e.target.value })
+                    }
+                  />
+                </div>
+
+                <div className="onboarding-card__field">
+                  <label htmlFor="corp-phone">Telepon / WhatsApp Resmi</label>
+                  <input
+                    id="corp-phone"
+                    type="text"
+                    placeholder="+62 812 3456 7890"
+                    value={formData.companyPhone}
+                    onChange={(e) =>
+                      setFormData({ ...formData, companyPhone: e.target.value })
+                    }
+                  />
+                </div>
+
+                <div className="onboarding-card__field">
+                  <label htmlFor="corp-city">Kota Operasional</label>
+                  <input
+                    id="corp-city"
+                    type="text"
+                    placeholder="misal: Jakarta Selatan"
+                    value={formData.companyCity}
+                    onChange={(e) =>
+                      setFormData({ ...formData, companyCity: e.target.value })
+                    }
+                  />
+                </div>
+
+                <div className="onboarding-card__field" style={{ gridColumn: "1 / -1" }}>
+                  <label htmlFor="corp-address">Alamat Kantor / Dapur Utama</label>
+                  <textarea
+                    id="corp-address"
+                    value={formData.companyAddress}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        companyAddress: e.target.value,
+                      })
+                    }
+                    placeholder="Jl. Sudirman No. 12, Lantai 3, Jakarta..."
+                  />
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* ─────────────────────────────────────────────────────────────
+              LANGKAH 4: BRANDING TOKO & VISUAL IDENTITY
+              ───────────────────────────────────────────────────────────── */}
+          {currentStep === 4 && (
+            <>
+              <div className="onboarding-card__header">
+                <div className="onboarding-card__header-icon">
+                  <HugeiconsIcon icon={SparklesIcon} size={24} />
+                </div>
+                <div>
+                  <h1>Langkah 4: Branding Toko &amp; Visual Identity</h1>
+                  <p>
+                    Tentukan nama brand publik, palet warna antarmuka, dan
+                    bagaimana Anda ingin mengawali database katalog produk.
                   </p>
                 </div>
               </div>
@@ -281,12 +638,12 @@ export default function OnboardingClient() {
               <div className="onboarding-card__grid">
                 <div className="onboarding-card__field">
                   <label htmlFor="brand-name">
-                    Nama Brand Bisnis <span className="required">*</span>
+                    Nama Brand Publik Toko <span className="required">*</span>
                   </label>
                   <input
                     id="brand-name"
                     type="text"
-                    placeholder="misal: BaityBites / Dapur Lezat"
+                    placeholder="misal: Dapur Lezat"
                     value={formData.brandName}
                     onChange={(e) =>
                       setFormData({ ...formData, brandName: e.target.value })
@@ -301,7 +658,7 @@ export default function OnboardingClient() {
                   <input
                     id="brand-tagline"
                     type="text"
-                    placeholder="misal: Bite The Best"
+                    placeholder="misal: Sensasi Rasa Terbaik"
                     value={formData.tagline}
                     onChange={(e) =>
                       setFormData({ ...formData, tagline: e.target.value })
@@ -310,74 +667,7 @@ export default function OnboardingClient() {
                 </div>
 
                 <div className="onboarding-card__field">
-                  <label htmlFor="brand-wa">Nomor WhatsApp Customer Service</label>
-                  <input
-                    id="brand-wa"
-                    type="text"
-                    placeholder="+62 812 3456 7890"
-                    value={formData.whatsappNumber}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        whatsappNumber: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-
-                <div className="onboarding-card__field">
-                  <label htmlFor="brand-ig">Akun Instagram Toko</label>
-                  <input
-                    id="brand-ig"
-                    type="text"
-                    placeholder="https://instagram.com/mybrand"
-                    value={formData.instagramUrl}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        instagramUrl: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-
-                <div className="onboarding-card__field" style={{ gridColumn: "1 / -1" }}>
-                  <label htmlFor="brand-desc">Deskripsi Singkat Toko</label>
-                  <textarea
-                    id="brand-desc"
-                    value={formData.heroDescription}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        heroDescription: e.target.value,
-                      })
-                    }
-                    placeholder="Deskripsi bisnis Anda yang tampil pada banner utama website..."
-                  />
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* STEP 3: THEME COLORS */}
-          {currentStep === 3 && (
-            <>
-              <div className="onboarding-card__header">
-                <div className="onboarding-card__header-icon">
-                  <HugeiconsIcon icon={SparklesIcon} size={24} />
-                </div>
-                <div>
-                  <h1>3. Palet Warna &amp; Visual Brand</h1>
-                  <p>
-                    Tentukan warna identitas visual toko Anda untuk tombol, banner,
-                    dan elemen antarmuka pemesanan.
-                  </p>
-                </div>
-              </div>
-
-              <div className="onboarding-card__grid">
-                <div className="onboarding-card__field">
-                  <label htmlFor="color-primary">Warna Utama (Primary Brand Color)</label>
+                  <label htmlFor="color-primary">Warna Utama (Primary Color)</label>
                   <div className="onboarding-card__color-picker-row">
                     <input
                       id="color-primary"
@@ -404,7 +694,7 @@ export default function OnboardingClient() {
                 </div>
 
                 <div className="onboarding-card__field">
-                  <label htmlFor="color-accent">Warna Aksen (Secondary / Badge)</label>
+                  <label htmlFor="color-accent">Warna Aksen (Badge / Secondary)</label>
                   <div className="onboarding-card__color-picker-row">
                     <input
                       id="color-accent"
@@ -429,110 +719,62 @@ export default function OnboardingClient() {
                     />
                   </div>
                 </div>
+
+                <div className="onboarding-card__field" style={{ gridColumn: "1 / -1" }}>
+                  <label htmlFor="brand-desc">Deskripsi Sambutan Website</label>
+                  <textarea
+                    id="brand-desc"
+                    value={formData.heroDescription}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        heroDescription: e.target.value,
+                      })
+                    }
+                    placeholder="Kalimat sambutan hangat untuk pelanggan di banner utama website..."
+                  />
+                </div>
               </div>
 
-              {/* Preview Button */}
-              <div
-                style={{
-                  padding: "16px",
-                  borderRadius: "12px",
-                  background: "var(--surface-secondary)",
-                  border: "1px solid var(--border-subtle)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  marginTop: "8px",
-                }}
-              >
-                <span style={{ fontSize: "12px", color: "var(--text-secondary)" }}>
-                  Pratinjau Tombol Utama &amp; Aksen:
-                </span>
-                <div style={{ display: "flex", gap: "10px" }}>
-                  <button
-                    type="button"
-                    style={{
-                      background: formData.primaryColor,
-                      color: "#fff",
-                      border: "none",
-                      padding: "8px 16px",
-                      borderRadius: "6px",
-                      fontSize: "12px",
-                      fontWeight: 600,
-                    }}
+              {/* Data Mode Choice */}
+              <div style={{ marginTop: "12px" }}>
+                <label style={{ fontSize: "12px", fontWeight: 600, color: "var(--text-secondary)", marginBottom: "8px", display: "block" }}>
+                  Mode Data Katalog Awal:
+                </label>
+                <div className="onboarding-card__data-choice">
+                  <div
+                    className={`onboarding-card__data-choice-option ${
+                      formData.sampleDataMode === "clean" ? "is-selected" : ""
+                    }`}
+                    onClick={() =>
+                      setFormData({ ...formData, sampleDataMode: "clean" })
+                    }
                   >
-                    Tombol Pesan Sekarang
-                  </button>
-                  <span
-                    style={{
-                      background: formData.accentColor,
-                      color: "#fff",
-                      padding: "4px 10px",
-                      borderRadius: "12px",
-                      fontSize: "11px",
-                      fontWeight: 700,
-                      display: "flex",
-                      alignItems: "center",
-                    }}
+                    <div className="onboarding-card__data-choice-option-title">
+                      <HugeiconsIcon icon={CheckmarkCircle02Icon} size={16} />
+                      <span>Mulai Database Bersih (Rekomendasi)</span>
+                    </div>
+                    <p className="onboarding-card__data-choice-option-desc">
+                      Katalog kosong yang siap Anda isi dengan produk asli toko Anda.
+                    </p>
+                  </div>
+
+                  <div
+                    className={`onboarding-card__data-choice-option ${
+                      formData.sampleDataMode === "sample" ? "is-selected" : ""
+                    }`}
+                    onClick={() =>
+                      setFormData({ ...formData, sampleDataMode: "sample" })
+                    }
                   >
-                    Badge Best Seller
-                  </span>
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* STEP 4: CATALOG & LAUNCH */}
-          {currentStep === 4 && (
-            <>
-              <div className="onboarding-card__header">
-                <div className="onboarding-card__header-icon">
-                  <HugeiconsIcon icon={SparklesIcon} size={24} />
-                </div>
-                <div>
-                  <h1>4. Data Awal &amp; Siap Meluncurkan</h1>
-                  <p>
-                    Tentukan bagaimana Anda ingin mengawali database produk sebelum
-                    mengakses dashboard admin utama.
-                  </p>
-                </div>
-              </div>
-
-              <div className="onboarding-card__data-choice">
-                <div
-                  className={`onboarding-card__data-choice-option ${
-                    formData.sampleDataMode === "clean" ? "is-selected" : ""
-                  }`}
-                  onClick={() =>
-                    setFormData({ ...formData, sampleDataMode: "clean" })
-                  }
-                >
-                  <div className="onboarding-card__data-choice-option-title">
-                    <HugeiconsIcon icon={Store01Icon} size={18} />
-                    <span>Mulai Database Bersih (Rekomendasi)</span>
+                    <div className="onboarding-card__data-choice-option-title">
+                      <HugeiconsIcon icon={SparklesIcon} size={16} />
+                      <span>Pertahankan Contoh Produk F&amp;B</span>
+                    </div>
+                    <p className="onboarding-card__data-choice-option-desc">
+                      Gunakan contoh menu F&amp;B sebagai referensi format tampilan.
+                    </p>
                   </div>
-                  <p className="onboarding-card__data-choice-option-desc">
-                    Mulai dengan katalog kosong yang siap Anda isi dengan menu
-                    dan produk asli bisnis Anda sendiri dari halaman manajemen
-                    produk.
-                  </p>
-                </div>
-
-                <div
-                  className={`onboarding-card__data-choice-option ${
-                    formData.sampleDataMode === "sample" ? "is-selected" : ""
-                  }`}
-                  onClick={() =>
-                    setFormData({ ...formData, sampleDataMode: "sample" })
-                  }
-                >
-                  <div className="onboarding-card__data-choice-option-title">
-                    <HugeiconsIcon icon={Package01Icon} size={18} />
-                    <span>Pertahankan Contoh Produk F&amp;B</span>
-                  </div>
-                  <p className="onboarding-card__data-choice-option-desc">
-                    Mempertahankan contoh data risoles, minuman, dan pesanan
-                    sebagai referensi format sebelum Anda menggantinya nanti.
-                  </p>
                 </div>
               </div>
             </>
@@ -578,7 +820,7 @@ export default function OnboardingClient() {
                 ) : (
                   <>
                     <HugeiconsIcon icon={CheckmarkCircle02Icon} size={16} />
-                    <span>Selesaikan &amp; Buka Dashboard</span>
+                    <span>Selesaikan Setup &amp; Buka Dashboard</span>
                   </>
                 )}
               </button>

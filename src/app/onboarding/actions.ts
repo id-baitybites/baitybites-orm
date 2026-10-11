@@ -13,13 +13,29 @@ export interface OnboardingStatus {
 }
 
 export interface OnboardingPayload {
-  // 1. Super Admin Account
+  // Langkah 1: Otentikasi Super Admin Klien
   adminUsername: string;
   adminDisplayName: string;
   adminPassword: string;
   adminPin: string;
 
-  // 2. Brand Identity
+  // Langkah 2: Konfigurasi Sistem & Environment (.env)
+  databaseUrl: string;
+  directUrl: string;
+  canonicalDomain: string;
+  googleClientId: string;
+  googleClientSecret: string;
+  cloudinaryUrl: string;
+  geminiApiKey: string;
+
+  // Langkah 3: Identitas Korporasi / Legalitas Perusahaan
+  companyLegalName: string; // Nama PT / CV / Usaha
+  companyAddress: string;   // Alamat kantor / dapur / toko fisik
+  companyCity: string;      // Kota operasional
+  companyEmail: string;     // Email resmi operasional
+  companyPhone: string;     // Telepon / WhatsApp resmi
+
+  // Langkah 4: Branding Toko & Visual Identity
   brandName: string;
   tagline: string;
   heroTitle: string;
@@ -27,10 +43,7 @@ export interface OnboardingPayload {
   heroDescription: string;
   primaryColor: string;
   accentColor: string;
-  whatsappNumber: string;
   instagramUrl: string;
-
-  // 3. Data Mode
   sampleDataMode: "clean" | "sample";
 }
 
@@ -113,18 +126,18 @@ export async function executeOnboarding(payload: OnboardingPayload): Promise<{
     // 2. Buat atau update Brand Theme Setting
     const existingTheme = await db.webThemeSetting.findFirst();
     const themeData = {
-      brandName: payload.brandName.trim(),
+      brandName: payload.brandName.trim() || payload.companyLegalName.trim(),
       tagline: payload.tagline.trim() || "Taste the Quality",
-      heroTitle: payload.heroTitle.trim() || `Selamat Datang di ${payload.brandName.trim()}`,
+      heroTitle: payload.heroTitle.trim() || `Selamat Datang di ${payload.brandName.trim() || payload.companyLegalName.trim()}`,
       heroTitleAccent: payload.heroTitleAccent.trim() || "Kualitas Terbaik Pilihan Anda",
       heroDescription:
         payload.heroDescription.trim() ||
         "Menyajikan produk dan hidangan istimewa dengan bahan baku berkualitas dan pelayanan sepenuh hati.",
       primaryColor: payload.primaryColor || "#ff7a00",
       accentColor: payload.accentColor || "#10b981",
-      whatsappNumber: payload.whatsappNumber.trim() || "+62 812 0000 0000",
+      whatsappNumber: payload.companyPhone.trim() || "+62 812 0000 0000",
       instagramUrl: payload.instagramUrl.trim() || "",
-      announcementText: `Selamat datang di website resmi ${payload.brandName.trim()}!`,
+      announcementText: `Selamat datang di website resmi ${payload.brandName.trim() || payload.companyLegalName.trim()}!`,
       isActive: true,
     };
 
@@ -182,3 +195,43 @@ export async function executeOnboarding(payload: OnboardingPayload): Promise<{
     };
   }
 }
+
+// Helper: Uji koneksi DB langsung saat langkah 2 onboarding
+export async function testOnboardingDatabaseConnection(connectionUrl: string): Promise<{
+  success: boolean;
+  message: string;
+  responseTimeMs?: number;
+}> {
+  if (!connectionUrl.trim()) {
+    return { success: false, message: "URL Database tidak boleh kosong." };
+  }
+
+  const { Pool } = await import("pg");
+  const startTime = Date.now();
+  const testPool = new Pool({
+    connectionString: connectionUrl.trim(),
+    connectionTimeoutMillis: 7000,
+  });
+
+  try {
+    const client = await testPool.connect();
+    await client.query("SELECT 1;");
+    client.release();
+    await testPool.end();
+    const duration = Date.now() - startTime;
+    return {
+      success: true,
+      message: `Berhasil terhubung ke database klien! Ping: ${duration}ms`,
+      responseTimeMs: duration,
+    };
+  } catch (err: any) {
+    try {
+      await testPool.end();
+    } catch {}
+    return {
+      success: false,
+      message: `Gagal terhubung: ${err.message || "Pastikan host, user, password, dan SSL benar."}`,
+    };
+  }
+}
+
