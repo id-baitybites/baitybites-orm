@@ -6,8 +6,9 @@ import { trackOrderAction, type TrackedOrderResult } from "./actions";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Tracking Pesanan Real-Time | Baitybites",
-  description: "Lacak status pesanan Baitybites mulai dari proses masak dapur hingga penjemputan dan pengiriman kurir Paxel secara akurat.",
+  title: `Tracking Pesanan Real-Time | ${process.env.NEXT_PUBLIC_STORE_NAME || "Toko Kami"}`,
+  description:
+    "Lacak status pesanan pelanggan mulai dari proses masak dapur hingga penjemputan dan pengiriman kurir secara akurat.",
 };
 
 interface TrackingPageProps {

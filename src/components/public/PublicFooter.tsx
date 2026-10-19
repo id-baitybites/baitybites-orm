@@ -8,7 +8,33 @@ import {
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 
-export function PublicFooter() {
+interface PublicFooterProps {
+  brandName?: string;
+  tagline?: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+  logoUrl?: string;
+}
+
+export function PublicFooter({
+  brandName,
+  tagline,
+  phone,
+  email,
+  address,
+  logoUrl,
+}: PublicFooterProps = {}) {
+  const effectiveBrand = brandName || process.env.NEXT_PUBLIC_STORE_NAME || "Baitybites";
+  const effectiveTagline =
+    tagline ||
+    "Menghadirkan kuliner artisan dengan bahan premium, resep otentik higienis, serta kemudahan pemesanan cepat.";
+  const effectivePhone = phone || process.env.NEXT_PUBLIC_WHATSAPP_PHONE || "+62 812-8888-0230";
+  const effectiveEmail = email || process.env.STORE_EMAIL || "halo@baitybites.id";
+  const effectiveAddress =
+    address ||
+    "Jl. Amsar No.RT 01/06, Sawangan, Kec. Sawangan, Kota Depok, Jawa Barat 16511";
+
   return (
     <footer className="public-footer">
       <div className="public-footer__inner">
@@ -16,38 +42,48 @@ export function PublicFooter() {
           {/* BRAND & CONTACT */}
           <div className="footer-brand">
             <Link href="/" className="brand-logo">
-              <Image
-                src="/images/logos/baitybites-logo.png"
-                alt="Baitybites Logo"
-                width={150}
-                height={42}
-                style={{ height: "auto", width: "auto", maxHeight: "42px" }}
-              />
+              {logoUrl ? (
+                <Image
+                  src={logoUrl}
+                  alt={`${effectiveBrand} Logo`}
+                  width={150}
+                  height={42}
+                  style={{ height: "auto", width: "auto", maxHeight: "42px" }}
+                />
+              ) : effectiveBrand.toLowerCase() !== "baitybites" ? (
+                <span
+                  style={{
+                    fontSize: "1.35rem",
+                    fontWeight: 800,
+                    color: "#f8fafc",
+                    letterSpacing: "-0.02em",
+                  }}
+                >
+                  {effectiveBrand}
+                </span>
+              ) : (
+                <Image
+                  src="/images/logos/baitybites-logo.png"
+                  alt="Baitybites Logo"
+                  width={150}
+                  height={42}
+                  style={{ height: "auto", width: "auto", maxHeight: "42px" }}
+                />
+              )}
             </Link>
-            <p>
-              Menghadirkan Risol Mayo artisan &amp; kuliner Indonesia dengan bahan premium,
-              resep otentik higienis, serta kemudahan pemesanan cepat.
-            </p>
+            <p>{effectiveTagline}</p>
             <div className="brand-contacts">
               <span>
                 <HugeiconsIcon icon={Location01Icon} size={15} strokeWidth={2} />
-                <a
-                  href="https://www.google.com/maps?q=-6.385874561302349,106.761898"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ color: "inherit", textDecoration: "none" }}
-                  title="Lihat Lokasi Toko di Google Maps"
-                >
-                  Jl. Amsar No.RT 01/06, Sawangan, Kec. Sawangan, Kota Depok, Jawa Barat 16511
-                </a>
+                <span>{effectiveAddress}</span>
               </span>
               <span>
                 <HugeiconsIcon icon={CallIcon} size={15} strokeWidth={2} />
-                +62 812-8888-0230 (WhatsApp Center)
+                {effectivePhone} (WhatsApp Center)
               </span>
               <span>
                 <HugeiconsIcon icon={Mail01Icon} size={15} strokeWidth={2} />
-                halo@baitybites.id
+                {effectiveEmail}
               </span>
             </div>
           </div>
@@ -89,7 +125,7 @@ export function PublicFooter() {
 
         {/* BOTTOM COPYRIGHT */}
         <div className="public-footer__bottom">
-          <span>&copy; {new Date().getFullYear()} Baitybites Indonesia. Seluruh hak cipta dilindungi.</span>
+          <span>&copy; {new Date().getFullYear()} {effectiveBrand}. Seluruh hak cipta dilindungi.</span>
           <div className="bottom-links">
             <a href="#privacy">Kebijakan Privasi</a>
             <a href="#terms">Syarat &amp; Ketentuan</a>

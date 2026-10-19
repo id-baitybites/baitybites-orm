@@ -234,6 +234,8 @@ export function PublicLandingView({
   initialGallery,
   initialPendingTestimoni,
 }: PublicLandingViewProps = {}) {
+  const brandName = initialTheme?.brandName || process.env.NEXT_PUBLIC_STORE_NAME || "Baitybites";
+
   // ── TESTIMONI FORM & PREVIEW STATE ─────────────────────
   const [pendingTestimoni, setPendingTestimoni] = useState(initialPendingTestimoni ?? null);
   const [testimoniRating, setTestimoniRating] = useState(5);
@@ -423,6 +425,7 @@ export function PublicLandingView({
         initialCustomer={initialCustomer}
         cartCount={totalCartItems}
         onCartOpen={() => setIsCartOpen(true)}
+        brandName={brandName}
       />
 
       {/* ── 1. FULLSCREEN HERO SECTION ── */}
@@ -646,7 +649,7 @@ export function PublicLandingView({
         <div className="testimony-section__inner">
           <div className="section-header">
             <span className="section-eyebrow">Ulasan &amp; Cerita Pelanggan</span>
-            <h2>Apa Kata Mereka Tentang Baitybites?</h2>
+            <h2>Apa Kata Mereka Tentang {brandName}?</h2>
             <p>
               Kepuasan pelanggan adalah inspirasi kami untuk terus menjaga mutu rasa dan kerenyahan terbaik.
             </p>
@@ -740,7 +743,7 @@ export function PublicLandingView({
               <div className="testimony-login-prompt">
                 <div className="prompt-icon">⭐</div>
                 <div>
-                  <strong>Punya pengalaman dengan Baitybites?</strong>
+                  <strong>Punya pengalaman dengan {brandName}?</strong>
                   <p>Masuk dengan akun Google untuk meninggalkan ulasan dan membantu pelanggan lain.</p>
                 </div>
                 <a href="/api/auth/google?returnTo=/" className="btn-login-testimony">
@@ -766,7 +769,7 @@ export function PublicLandingView({
                 <div className="status-body">
                   <strong>Terima kasih atas ulasan Anda, {initialCustomer.name.split(" ")[0]}!</strong>
                   <p>
-                    Ulasan Anda telah kami terima dan saat ini sedang dalam proses verifikasi oleh tim moderator Baitybites.
+                    Ulasan Anda telah kami terima dan saat ini sedang dalam proses verifikasi oleh tim {brandName}.
                     Preview ulasan di atas hanya dapat dilihat oleh Anda sampai ulasan disetujui untuk tampil di beranda utama.
                   </p>
                 </div>
@@ -822,7 +825,7 @@ export function PublicLandingView({
                 <textarea
                   className="testimony-textarea"
                   rows={4}
-                  placeholder="Ceritakan pengalaman Anda memesan di Baitybites — rasa, pelayanan, pengiriman, atau apapun yang berkesan..."
+                  placeholder={`Ceritakan pengalaman Anda memesan di ${brandName} — rasa, pelayanan, pengiriman, atau apapun yang berkesan...`}
                   value={testimoniQuote}
                   onChange={(e) => setTestimoniQuote(e.target.value)}
                   maxLength={500}
@@ -912,7 +915,11 @@ export function PublicLandingView({
       </section>
 
       {/* ── 5. FOOTER ── */}
-      <PublicFooter />
+      <PublicFooter
+        brandName={brandName}
+        tagline={initialTheme?.tagline}
+        phone={initialTheme?.whatsappNumber}
+      />
 
       {/* ── FLOATING CART BUTTON ── */}
       {totalCartItems > 0 && !isCartOpen && (

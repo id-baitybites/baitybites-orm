@@ -150,14 +150,28 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </Link>
           ) : (
             <Link href="/orders" className="app-shell__brand">
-              <Image
-                src="/images/logos/baitybites-logo.png"
-                alt="Baitybites Logo"
-                width={130}
-                height={35}
-                className="app-shell__brand-logo"
-                priority
-              />
+              {process.env.NEXT_PUBLIC_STORE_NAME &&
+              process.env.NEXT_PUBLIC_STORE_NAME.toLowerCase() !== "baitybites" ? (
+                <span
+                  style={{
+                    fontSize: "1.15rem",
+                    fontWeight: 800,
+                    color: "#f8fafc",
+                    letterSpacing: "-0.02em",
+                  }}
+                >
+                  {process.env.NEXT_PUBLIC_STORE_NAME}
+                </span>
+              ) : (
+                <Image
+                  src="/images/logos/baitybites-logo.png"
+                  alt="Store Logo"
+                  width={130}
+                  height={35}
+                  className="app-shell__brand-logo"
+                  priority
+                />
+              )}
             </Link>
           )}
 
@@ -311,24 +325,31 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <footer className="app-shell__footer">
         <div className="app-shell__footer-inner">
           <div className="app-shell__footer-brand">
-            <Image
-              src="/images/logos/baitybites-logo.png"
-              alt="Baitybites Logo"
-              width={140}
-              height={38}
-              style={{ height: "auto", width: "auto", maxHeight: "38px" }}
-            />
+            {process.env.NEXT_PUBLIC_STORE_NAME &&
+            process.env.NEXT_PUBLIC_STORE_NAME.toLowerCase() !== "baitybites" ? (
+              <span style={{ fontSize: "1.2rem", fontWeight: 800, color: "#f8fafc" }}>
+                {process.env.NEXT_PUBLIC_STORE_NAME}
+              </span>
+            ) : (
+              <Image
+                src="/images/logos/baitybites-logo.png"
+                alt="Store Logo"
+                width={140}
+                height={38}
+                style={{ height: "auto", width: "auto", maxHeight: "38px" }}
+              />
+            )}
           </div>
 
           <div className="app-shell__footer-description">
-            <strong>Baitybites OMS</strong>
-            <span>Sistem Manajemen Produksi &amp; Pemesanan Risol Premium</span>
+            <strong>{process.env.NEXT_PUBLIC_STORE_NAME || "Store"} OMS</strong>
+            <span>Sistem Manajemen Operasional &amp; Pemesanan Mandiri</span>
           </div>
 
           <div className="app-shell__footer-meta">
             <span>Build: v2.2.12</span>
             <span>API: 2.0.0</span>
-            <span>&copy; 2026 Baitybites. Hak cipta dilindungi.</span>
+            <span>&copy; {new Date().getFullYear()} {process.env.NEXT_PUBLIC_STORE_NAME || "Store"}. Hak cipta dilindungi.</span>
           </div>
         </div>
       </footer>

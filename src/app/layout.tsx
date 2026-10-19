@@ -17,19 +17,22 @@ const ubuntuMono = Ubuntu_Mono({
   weight: ["400", "700"],
 });
 
+const appBrandName = process.env.NEXT_PUBLIC_STORE_NAME || "Baitybites ORM";
+
 export const metadata: Metadata = {
   title: {
-    default: "Baitybites ORM",
-    template: "%s · Baitybites ORM",
+    default: appBrandName,
+    template: `%s · ${appBrandName}`,
   },
-  description:
-    "Sistem manajemen pesanan internal Baitybites — pantau dapur, produksi, dan pengiriman dalam satu layar.",
-  keywords: ["baitybites", "order management", "kitchen display", "OMS"],
+  description: process.env.NEXT_PUBLIC_STORE_NAME
+    ? `Sistem manajemen operasional dan pemesanan ${process.env.NEXT_PUBLIC_STORE_NAME}.`
+    : "Sistem manajemen pesanan internal Baitybites — pantau dapur, produksi, dan pengiriman dalam satu layar.",
+  keywords: ["order management", "kitchen display", "OMS"],
   robots: { index: false, follow: false },
   openGraph: {
-    title: "Baitybites ORM",
-    description: "Internal order management system untuk tim Baitybites.",
-    siteName: "Baitybites ORM",
+    title: appBrandName,
+    description: `Sistem operasional dan pemesanan ${appBrandName}.`,
+    siteName: appBrandName,
     locale: "id_ID",
     type: "website",
   },

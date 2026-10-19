@@ -5,10 +5,20 @@ import { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Baitybites — Sensasi Risol Mayo Meleleh & Cendol Segar",
-  description: "Toko online resmi Baitybites. Pesan risol mayo lumer premium dan minuman cendol segar dengan mudah dan cepat.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const theme = await db.webThemeSetting.findFirst({
+    where: { isActive: true },
+    select: { brandName: true, tagline: true, heroDescription: true },
+  });
+  const storeName = theme?.brandName || process.env.NEXT_PUBLIC_STORE_NAME || "Toko Online";
+  const tagline = theme?.tagline || "Katalog Produk & Pemesanan Online";
+  return {
+    title: `${storeName} — ${tagline}`,
+    description:
+      theme?.heroDescription ||
+      `Toko online resmi ${storeName}. Pesan produk pilihan dengan mudah dan cepat.`,
+  };
+}
 
 export default async function BaitybitesClientPage() {
   // 1. Baca info pelanggan dari cookie sesi secara instan (0ms)

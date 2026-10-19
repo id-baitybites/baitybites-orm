@@ -25,12 +25,22 @@ interface PublicHeaderProps {
   initialCustomer?: CustomerInfo | null;
   cartCount?: number;
   onCartOpen?: () => void;
+  brandName?: string;
+  logoUrl?: string;
 }
 
-export function PublicHeader({ initialCustomer, cartCount = 0, onCartOpen }: PublicHeaderProps = {}) {
+export function PublicHeader({
+  initialCustomer,
+  cartCount = 0,
+  onCartOpen,
+  brandName,
+  logoUrl,
+}: PublicHeaderProps = {}) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [customer, setCustomer] = useState<CustomerInfo | null>(initialCustomer ?? null);
   const [isAdmin, setIsAdmin] = useState(false);
+
+  const effectiveBrand = brandName || process.env.NEXT_PUBLIC_STORE_NAME || "Baitybites";
 
   useEffect(() => {
     // 1. Baca info customer dari cookie non-httpOnly bb_customer_info via regex RFC-compliant
@@ -80,15 +90,38 @@ export function PublicHeader({ initialCustomer, cartCount = 0, onCartOpen }: Pub
       <div className="public-header__inner">
         {/* LOGO */}
         <Link href="/" className="public-header__brand">
-          <Image
-            src="/images/logos/baitybites-logo.png"
-            alt="Baitybites Logo"
-            width={140}
-            height={38}
-            style={{ height: "auto" }}
-            className="public-header__brand-logo"
-            priority
-          />
+          {logoUrl ? (
+            <Image
+              src={logoUrl}
+              alt={`${effectiveBrand} Logo`}
+              width={140}
+              height={38}
+              style={{ height: "auto" }}
+              className="public-header__brand-logo"
+              priority
+            />
+          ) : effectiveBrand.toLowerCase() !== "baitybites" ? (
+            <span
+              style={{
+                fontSize: "1.25rem",
+                fontWeight: 800,
+                color: "#f8fafc",
+                letterSpacing: "-0.02em",
+              }}
+            >
+              {effectiveBrand}
+            </span>
+          ) : (
+            <Image
+              src="/images/logos/baitybites-logo.png"
+              alt="Baitybites Logo"
+              width={140}
+              height={38}
+              style={{ height: "auto" }}
+              className="public-header__brand-logo"
+              priority
+            />
+          )}
         </Link>
 
         {/* NAV MENU */}

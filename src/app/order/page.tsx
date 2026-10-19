@@ -6,10 +6,17 @@ import type { CatalogProduct } from "@/components/order/ProductCard";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Pesan Online & Eksplorasi Menu | Baitybites",
-  description: "Pesan Risol Mayo artisan leleh, aneka varian Risol gourmet, minuman Cendol signature, dan hampers Baitybites dengan pengiriman ekspres Paxel.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const theme = await db.webThemeSetting.findFirst({
+    where: { isActive: true },
+    select: { brandName: true },
+  });
+  const storeName = theme?.brandName || process.env.NEXT_PUBLIC_STORE_NAME || "Toko Online";
+  return {
+    title: `Pesan Online & Eksplorasi Menu | ${storeName}`,
+    description: `Katalog pemesanan online resmi ${storeName}. Pesan aneka produk pilihan dengan pengiriman ekspres.`,
+  };
+}
 
 // Data katalog fallback yang kaya rasa dan detail
 const DEFAULT_CATALOG_PRODUCTS: CatalogProduct[] = [

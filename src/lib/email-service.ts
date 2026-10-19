@@ -16,8 +16,8 @@ export interface SendEmailResult {
   error?: string;
 }
 
-const PLATFORM_EMAIL = "id.baitybites@gmail.com";
-const PLATFORM_TEST_INBOX = "id.baitybites@gmail.com";
+const PLATFORM_EMAIL = process.env.STORE_EMAIL || process.env.SMTP_FROM_EMAIL || "id.baitybites@gmail.com";
+const PLATFORM_TEST_INBOX = process.env.STORE_EMAIL || "id.baitybites@gmail.com";
 
 /**
  * Universal Email Dispatcher — urutan prioritas:
@@ -69,8 +69,9 @@ async function sendViaBrevoAPI(
   apiKey: string
 ): Promise<SendEmailResult> {
   try {
+    const senderName = process.env.NEXT_PUBLIC_STORE_NAME || "Toko Kami";
     const payload = {
-      sender: { name: "Baitybites ORM", email: PLATFORM_EMAIL },
+      sender: { name: senderName, email: PLATFORM_EMAIL },
       to: [{ email: options.to.trim() }],
       replyTo: { email: options.replyTo || PLATFORM_EMAIL },
       subject: options.subject,
@@ -148,8 +149,9 @@ async function sendViaSMTP(
       auth: { user: smtpUser, pass: smtpPass },
     });
 
+    const senderName = process.env.NEXT_PUBLIC_STORE_NAME || "Toko Kami";
     await transporter.sendMail({
-      from: process.env.SMTP_FROM?.trim() || `Baitybites ORM <${smtpUser}>`,
+      from: process.env.SMTP_FROM?.trim() || `${senderName} <${smtpUser}>`,
       to: options.to.trim(),
       replyTo: options.replyTo || smtpUser,
       subject: options.subject,
@@ -185,9 +187,10 @@ async function sendViaResend(
   apiKey: string
 ): Promise<SendEmailResult> {
   const resend = new Resend(apiKey);
+  const senderName = process.env.NEXT_PUBLIC_STORE_NAME || "Toko Kami";
   const fromEmail =
     process.env.RESEND_FROM_EMAIL?.trim() ||
-    "Baitybites ORM <onboarding@resend.dev>";
+    `${senderName} <onboarding@resend.dev>`;
 
   try {
     const result = await resend.emails.send({

@@ -87,9 +87,9 @@ export function TrackingOrderView({
             <HugeiconsIcon icon={Location01Icon} size={14} strokeWidth={2.2} />
             Live Order Status
           </span>
-          <h1>Lacak Pesanan Baitybites</h1>
+          <h1>Lacak Status Pesanan</h1>
           <p>
-            Pantau status persiapan pesanan Anda dari dapur Baitybites hingga penjemputan atau pengiriman kurir Paxel secara real-time.
+            Pantau status persiapan pesanan Anda dari dapur hingga penjemputan atau pengiriman kurir secara real-time.
           </p>
 
           <div className="tracking-search-card">

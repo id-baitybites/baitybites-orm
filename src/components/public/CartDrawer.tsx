@@ -202,7 +202,8 @@ export function CartDrawer({
           createdPaxelAwb ? `\nNo. Resi Paxel (AWB): ${createdPaxelAwb}` : ""
         }`;
 
-    const msg = `Halo Baitybites! Saya mau konfirmasi pesanan dari website:
+    const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Toko";
+    const msg = `Halo ${storeName}! Saya mau konfirmasi pesanan dari website:
 No. Pesanan: ${createdOrderRef}
 Nama: ${customerName}
 No. WA: ${customerPhone}
@@ -308,7 +309,7 @@ Mohon diproses ya kak. Terima kasih!`;
                   Pilih aneka Risol Mayo Melted dan Minuman Cendol favorit Anda dari katalog untuk memulai pemesanan.
                 </p>
                 <button type="button" className="btn-browse-catalog" onClick={onClose}>
-                  <span>Jelajahi Menu Baitybites</span>
+                  <span>Jelajahi Menu Katalog</span>
                   <HugeiconsIcon icon={ArrowRight01Icon} size={16} strokeWidth={2} />
                 </button>
               </div>
@@ -453,7 +454,7 @@ Mohon diproses ya kak. Terima kasih!`;
                       <strong>Ambil di Toko (Self Pickup)</strong>
                       <span className="free-badge">Bebas Ongkir</span>
                     </div>
-                    <small>Ambil langsung ke Toko Baitybites Sawangan, Depok.</small>
+                    <small>Ambil langsung ke lokasi outlet toko.</small>
                   </div>
                 </button>
               </div>
@@ -471,7 +472,7 @@ Mohon diproses ya kak. Terima kasih!`;
                 <div className="paxel-coldchain-banner">
                   <HugeiconsIcon icon={SparklesIcon} size={18} />
                   <div>
-                    <strong>Jaminan Suhu Terjaga (Cold Chain):</strong> Seluruh paket risol &amp; cemilan Baitybites diantar menggunakan armada berinsulasi dan freezer Paxel untuk menjaga kesegaran maksimal.
+                    <strong>Jaminan Suhu Terjaga (Cold Chain):</strong> Seluruh paket makanan diantar menggunakan armada berinsulasi dan freezer Paxel untuk menjaga kesegaran maksimal.
                   </div>
                 </div>
               )}
@@ -664,7 +665,7 @@ Mohon diproses ya kak. Terima kasih!`;
                     </div>
                     <div className="info-wrap">
                       <strong>Transfer Bank</strong>
-                      <span>BCA / Mandiri Baitybites dengan bukti transfer.</span>
+                      <span>BCA / Mandiri / Rekening Toko dengan bukti transfer.</span>
                     </div>
                   </div>
                 </label>
@@ -729,7 +730,7 @@ Mohon diproses ya kak. Terima kasih!`;
               </div>
               <h3>Pesanan Berhasil Diterima!</h3>
               <p>
-                Terima kasih, <strong>{customerName}</strong>! Pesanan Anda telah masuk ke sistem dapur Baitybites dan segera diproses.
+                Terima kasih, <strong>{customerName}</strong>! Pesanan Anda telah masuk ke sistem dapur kami dan segera diproses.
               </p>
 
               {/* Order Ref Card */}
