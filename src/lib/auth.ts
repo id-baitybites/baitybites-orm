@@ -137,17 +137,19 @@ export async function verifyAdminCredentials(
     return { success: false, error: "Username dan Password wajib diisi." };
   }
 
-  let admin: {
+  type AdminRecord = {
     id: string;
     username: string;
     passwordHash: string;
     pinHash: string | null;
     isActive: boolean;
     role: AdminRole;
-  } | null = null;
+  };
+
+  let admin: AdminRecord | null = null;
 
   try {
-    admin = await db.admin.findUnique({
+    const found = await db.admin.findUnique({
       where: { username: username.trim().toLowerCase() },
       select: {
         id: true,
@@ -157,7 +159,8 @@ export async function verifyAdminCredentials(
         isActive: true,
         role: true,
       },
-    }) as typeof admin;
+    });
+    admin = found as AdminRecord | null;
   } catch (err) {
     console.error("[AUTH] Gagal query tabel admins:", err);
     return {
