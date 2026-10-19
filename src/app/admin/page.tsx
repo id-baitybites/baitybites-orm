@@ -49,7 +49,11 @@ export default function AdminLoginPage() {
         const msg =
           res.role === "PLATFORM_OWNER"
             ? "Autentikasi berhasil! Mengarahkan ke Platform Owner Console..."
-            : "Autentikasi berhasil! Mengarahkan ke Toko OMS...";
+            : res.role === "KASIR"
+            ? "Autentikasi berhasil! Mengarahkan ke Modul Kasir & Pesanan..."
+            : res.role === "KITCHEN_STAFF"
+            ? "Autentikasi berhasil! Mengarahkan ke Layar Dapur (KDS)..."
+            : "Autentikasi berhasil! Mengarahkan ke Super Admin OMS...";
         setSuccessMsg(msg);
         setTimeout(() => {
           router.push(dest);

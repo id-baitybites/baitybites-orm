@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { SESSION_COOKIE, CUSTOMER_SESSION_COOKIE } from "@/lib/auth-constants";
+import {
+  SESSION_COOKIE,
+  SESSION_ROLE_COOKIE,
+  CUSTOMER_SESSION_COOKIE,
+} from "@/lib/auth-constants";
 
-// Rute yang membutuhkan autentikasi Superadmin (OMS)
+// Rute yang membutuhkan autentikasi Superadmin / Staff (OMS)
 const ADMIN_PATHS = [
   "/dashboard",
   "/orders",
@@ -14,6 +18,7 @@ const ADMIN_PATHS = [
   "/settings",
   "/cms",
   "/migration",
+  "/platform",
 ];
 
 // Rute login admin
@@ -21,6 +26,13 @@ const ADMIN_LOGIN_PATH = "/admin";
 
 // Rute yang membutuhkan autentikasi Pelanggan
 const CUSTOMER_PROTECTED_PATHS = ["/profile"];
+
+function getDefaultRouteForRole(role?: string): string {
+  if (role === "PLATFORM_OWNER") return "/platform/console";
+  if (role === "KITCHEN_STAFF") return "/kitchen";
+  if (role === "KASIR") return "/orders";
+  return "/orders";
+}
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -43,6 +55,7 @@ export function proxy(request: NextRequest) {
 
   const adminSession = request.cookies.get(SESSION_COOKIE)?.value;
   const isAdminAuthenticated = adminSession === "authenticated";
+  const userRole = request.cookies.get(SESSION_ROLE_COOKIE)?.value;
 
   const customerSession = request.cookies.get(CUSTOMER_SESSION_COOKIE)?.value;
   const isCustomerAuthenticated = Boolean(customerSession);
@@ -54,9 +67,32 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // Admin sudah login tapi buka /admin → redirect ke /orders
+  // Jika sudah login admin, periksa hak akses berbasis Role (RBAC)
+  if (isAdminAuthenticated && isAdminRoute) {
+    if (userRole === "KASIR") {
+      const kasirAllowed = ["/orders", "/customers", "/tracking"];
+      const isAllowed = kasirAllowed.some(
+        (p) => pathname === p || pathname.startsWith(p + "/")
+      );
+      if (!isAllowed) {
+        return NextResponse.redirect(new URL("/orders", request.url));
+      }
+    } else if (userRole === "KITCHEN_STAFF") {
+      const kitchenAllowed = ["/kitchen", "/production"];
+      const isAllowed = kitchenAllowed.some(
+        (p) => pathname === p || pathname.startsWith(p + "/")
+      );
+      if (!isAllowed) {
+        return NextResponse.redirect(new URL("/kitchen", request.url));
+      }
+    }
+  }
+
+  // Admin sudah login tapi buka /admin → redirect ke dashboard per role
   if (isAdminAuthenticated && pathname === ADMIN_LOGIN_PATH) {
-    return NextResponse.redirect(new URL("/orders", request.url));
+    return NextResponse.redirect(
+      new URL(getDefaultRouteForRole(userRole), request.url)
+    );
   }
 
   // Akses rute Pelanggan tanpa login pelanggan → redirect ke /login?tab=customer
@@ -67,10 +103,12 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // (legacy) Sudah login admin tapi buka /login → redirect ke /orders jika tab bukan customer
+  // (legacy) Sudah login admin tapi buka /login → redirect per role jika tab bukan customer
   const tab = request.nextUrl.searchParams.get("tab");
   if (isAdminAuthenticated && pathname === "/login" && tab !== "customer") {
-    return NextResponse.redirect(new URL("/orders", request.url));
+    return NextResponse.redirect(
+      new URL(getDefaultRouteForRole(userRole), request.url)
+    );
   }
 
   return NextResponse.next();

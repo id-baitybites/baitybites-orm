@@ -9,6 +9,7 @@ export interface AdminListItem {
   id: string;
   username: string;
   displayName: string;
+  role: string;
   isActive: boolean;
   lastLoginAt: Date | null;
   createdAt: Date;
@@ -24,6 +25,7 @@ export async function getAdminsAction(): Promise<AdminListItem[]> {
       id: true,
       username: true,
       displayName: true,
+      role: true,
       isActive: true,
       lastLoginAt: true,
       createdAt: true,
@@ -43,6 +45,10 @@ export async function createAdminAction(formData: FormData): Promise<{
   const displayName = (formData.get("displayName") as string)?.trim();
   const password = formData.get("password") as string;
   const pin = (formData.get("pin") as string)?.trim() || undefined;
+  const roleInput = (formData.get("role") as string)?.trim() || "SUPER_ADMIN";
+
+  const validRoles = ["SUPER_ADMIN", "KASIR", "KITCHEN_STAFF", "PLATFORM_OWNER"];
+  const role = validRoles.includes(roleInput) ? (roleInput as "SUPER_ADMIN" | "KASIR" | "KITCHEN_STAFF" | "PLATFORM_OWNER") : "SUPER_ADMIN";
 
   if (!username || !displayName || !password) {
     return { success: false, error: "Username, nama, dan password wajib diisi." };
@@ -69,9 +75,38 @@ export async function createAdminAction(formData: FormData): Promise<{
       displayName,
       passwordHash,
       pinHash: pinHash ?? null,
+      role,
       isActive: true,
       createdBy: promotedBy ?? "SYSTEM",
     },
+  });
+
+  revalidatePath("/settings/admins");
+  return { success: true };
+}
+
+// ─── Update Role ──────────────────────────────────────────────────────────────
+
+export async function updateAdminRoleAction(
+  id: string,
+  newRole: string
+): Promise<{ success: boolean; error?: string }> {
+  const validRoles = ["SUPER_ADMIN", "KASIR", "KITCHEN_STAFF", "PLATFORM_OWNER"];
+  if (!validRoles.includes(newRole)) {
+    return { success: false, error: "Role tidak valid." };
+  }
+
+  const currentUser = await getCurrentAdminUsername();
+  const target = await db.admin.findUnique({ where: { id } });
+  if (!target) return { success: false, error: "Pengguna tidak ditemukan." };
+
+  if (target.username === currentUser && newRole !== "SUPER_ADMIN" && newRole !== "PLATFORM_OWNER") {
+    return { success: false, error: "Tidak dapat menurunkan hak akses akun Anda sendiri." };
+  }
+
+  await db.admin.update({
+    where: { id },
+    data: { role: newRole as "SUPER_ADMIN" | "KASIR" | "KITCHEN_STAFF" | "PLATFORM_OWNER" },
   });
 
   revalidatePath("/settings/admins");

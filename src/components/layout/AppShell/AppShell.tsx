@@ -17,6 +17,7 @@ import platformIcon from "@/app/icon.png";
 import {
   platformNavigation,
   storeNavigation,
+  getNavigationByRole,
   type NavItem,
 } from "@/lib/navigation";
 import { logoutAction } from "@/app/login/actions";
@@ -92,8 +93,16 @@ function NavGroupItem({
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [role, setRole] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const activePath = pathname.startsWith("/orders/") ? "/orders" : pathname;
+
+  useEffect(() => {
+    const match = document.cookie.match(/(?:^|;\s*)bb_role=([^;]*)/);
+    if (match) {
+      setRole(decodeURIComponent(match[1]));
+    }
+  }, []);
 
   // Deteksi cakupan: Platform Owner Console vs Store Merchant OMS
   const isPlatformScope =
@@ -101,7 +110,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     pathname.startsWith("/settings/leads") ||
     pathname.startsWith("/settings/provision");
 
-  const currentNav = isPlatformScope ? platformNavigation : storeNavigation;
+  const currentNav = isPlatformScope ? platformNavigation : getNavigationByRole(role);
 
   function handleLogout() {
     startTransition(async () => {
@@ -190,6 +199,53 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <HugeiconsIcon icon={RocketIcon} size={14} />
                 <span>Platform Console</span>
               </Link>
+            )}
+
+            {role && (
+              <span
+                style={{
+                  fontSize: "0.7rem",
+                  fontWeight: 700,
+                  padding: "3px 8px",
+                  borderRadius: "6px",
+                  background:
+                    role === "PLATFORM_OWNER"
+                      ? "rgba(79, 70, 229, 0.2)"
+                      : role === "KASIR"
+                      ? "rgba(16, 185, 129, 0.2)"
+                      : role === "KITCHEN_STAFF"
+                      ? "rgba(217, 119, 6, 0.2)"
+                      : "rgba(234, 88, 12, 0.2)",
+                  color:
+                    role === "PLATFORM_OWNER"
+                      ? "#a5b4fc"
+                      : role === "KASIR"
+                      ? "#6ee7b7"
+                      : role === "KITCHEN_STAFF"
+                      ? "#fcd34d"
+                      : "#fdba74",
+                  border:
+                    role === "PLATFORM_OWNER"
+                      ? "1px solid rgba(79, 70, 229, 0.4)"
+                      : role === "KASIR"
+                      ? "1px solid rgba(16, 185, 129, 0.4)"
+                      : role === "KITCHEN_STAFF"
+                      ? "1px solid rgba(217, 119, 6, 0.4)"
+                      : "1px solid rgba(234, 88, 12, 0.4)",
+                  letterSpacing: "0.02em",
+                  textTransform: "uppercase",
+                  display: "inline-flex",
+                  alignItems: "center",
+                }}
+              >
+                {role === "PLATFORM_OWNER"
+                  ? "Owner"
+                  : role === "KASIR"
+                  ? "Kasir"
+                  : role === "KITCHEN_STAFF"
+                  ? "Kitchen"
+                  : "Super Admin"}
+              </span>
             )}
 
             <button

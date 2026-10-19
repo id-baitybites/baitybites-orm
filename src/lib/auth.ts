@@ -10,14 +10,25 @@ const SESSION_VALUE = "authenticated";
 /** 8 jam */
 const SESSION_MAX_AGE = 60 * 60 * 8;
 
-export type AdminRole = "PLATFORM_OWNER" | "STORE_ADMIN";
+export type AdminRole =
+  | "PLATFORM_OWNER"
+  | "SUPER_ADMIN"
+  | "KASIR"
+  | "KITCHEN_STAFF"
+  | "STORE_ADMIN";
 
 export function determineAdminRole(username: string): AdminRole {
   const u = username.toLowerCase().trim();
   if (u === "superadmin" || u === "platform.admin" || u === "owner") {
     return "PLATFORM_OWNER";
   }
-  return "STORE_ADMIN";
+  if (u.includes("kasir") || u.includes("cashier")) {
+    return "KASIR";
+  }
+  if (u.includes("kitchen") || u.includes("chef") || u.includes("dapur")) {
+    return "KITCHEN_STAFF";
+  }
+  return "SUPER_ADMIN";
 }
 
 // ─── Session ──────────────────────────────────────────────────────────────────
@@ -25,9 +36,9 @@ export function determineAdminRole(username: string): AdminRole {
 /**
  * Set session cookie setelah login berhasil.
  */
-export async function setSession(username: string) {
+export async function setSession(username: string, role?: AdminRole) {
   const cookieStore = await cookies();
-  const role = determineAdminRole(username);
+  const effectiveRole = role || determineAdminRole(username);
 
   cookieStore.set(SESSION_COOKIE, SESSION_VALUE, {
     httpOnly: true,
@@ -45,7 +56,7 @@ export async function setSession(username: string) {
     maxAge: SESSION_MAX_AGE,
   });
   // Simpan role untuk navigasi UI terpisah
-  cookieStore.set(SESSION_ROLE_COOKIE, role, {
+  cookieStore.set(SESSION_ROLE_COOKIE, effectiveRole, {
     httpOnly: false,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
@@ -86,8 +97,17 @@ export async function getCurrentAdminUsername(): Promise<string | null> {
  */
 export async function getCurrentAdminRole(): Promise<AdminRole> {
   const cookieStore = await cookies();
-  const roleVal = cookieStore.get(SESSION_ROLE_COOKIE)?.value;
-  if (roleVal === "PLATFORM_OWNER" || roleVal === "STORE_ADMIN") {
+  const roleVal = cookieStore.get(SESSION_ROLE_COOKIE)?.value as AdminRole | undefined;
+  if (
+    roleVal &&
+    [
+      "PLATFORM_OWNER",
+      "SUPER_ADMIN",
+      "KASIR",
+      "KITCHEN_STAFF",
+      "STORE_ADMIN",
+    ].includes(roleVal)
+  ) {
     return roleVal;
   }
   const username = cookieStore.get(SESSION_ADMIN_COOKIE)?.value;
@@ -100,6 +120,7 @@ export interface LoginResult {
   success: boolean;
   error?: string;
   username?: string;
+  role?: AdminRole;
 }
 
 /**
@@ -158,7 +179,11 @@ export async function verifyAdminCredentials(
     data: { lastLoginAt: new Date() },
   });
 
-  return { success: true, username: admin.username };
+  return {
+    success: true,
+    username: admin.username,
+    role: (admin as unknown as { role?: AdminRole }).role || "SUPER_ADMIN",
+  };
 }
 
 /** Fallback ke env var (kompatibilitas mundur saat DB admin kosong) */

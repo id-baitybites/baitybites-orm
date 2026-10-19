@@ -199,6 +199,7 @@ model Admin {
   displayName  String    @map("display_name")
   passwordHash String    @map("password_hash")
   pinHash      String?   @map("pin_hash")
+  role         AdminRole @default(SUPER_ADMIN)
   isActive     Boolean   @default(true) @map("is_active")
   lastLoginAt  DateTime? @map("last_login_at")
   createdAt    DateTime  @default(now()) @map("created_at")
@@ -206,6 +207,15 @@ model Admin {
   createdBy    String?   @map("created_by")
 
   @@map("admins")
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  KASIR
+  KITCHEN_STAFF
+  PLATFORM_OWNER
+
+  @@map("admin_role")
 }
 
 enum Channel {

@@ -47,7 +47,7 @@ export const platformNavigation: NavItem[] = [
 ];
 
 /**
- * 🏪 NAVIGASI 2: STORE ADMIN (Klien Toko Baitybites Shop)
+ * 🏪 NAVIGASI 2: STORE ADMIN / SUPER ADMIN (Klien Toko Baitybites Shop)
  * Dikhususkan untuk pemilik & tim toko: manajemen pesanan risol, stok produk, dapur, dan CMS.
  */
 export const storeNavigation: NavItem[] = [
@@ -65,9 +65,29 @@ export const storeNavigation: NavItem[] = [
     children: [
       { label: "CMS Web Toko", href: "/cms", icon: File02Icon },
       { label: "Profil Toko", href: "/settings", icon: Settings01Icon },
+      { label: "Manajemen Admin & Staff", href: "/settings/admins", icon: UserGroupIcon },
       { label: "Panduan Penggunaan", href: "/docs", icon: Book01Icon },
     ],
   },
+];
+
+/**
+ * 🧾 NAVIGASI 3: KASIR (Point of Sale, Pesanan Masuk, & Pelanggan)
+ * Dibatasi hanya pada operasional kasir dan pencatatan pesanan.
+ */
+export const kasirNavigation: NavItem[] = [
+  { label: "Manajemen Pesanan", href: "/orders", icon: ShoppingBag01Icon },
+  { label: "Data Pelanggan", href: "/customers", icon: UserGroupIcon },
+  { label: "Tracking Status Resi", href: "/tracking", icon: Store01Icon },
+];
+
+/**
+ * 🍳 NAVIGASI 4: KITCHEN STAFF (Kitchen Display System & Produksi)
+ * Dibatasi hanya pada layar display dapur dan batching produksi.
+ */
+export const kitchenNavigation: NavItem[] = [
+  { label: "Kitchen Display (KDS)", href: "/kitchen", icon: KitchenUtensilsIcon },
+  { label: "Batch Produksi & Stok", href: "/production", icon: FactoryIcon },
 ];
 
 /** Default fallback (Store Admin) */
@@ -76,6 +96,12 @@ export const navigation: NavItem[] = storeNavigation;
 export function getNavigationByRole(role?: string | null): NavItem[] {
   if (role === "PLATFORM_OWNER") {
     return platformNavigation;
+  }
+  if (role === "KASIR") {
+    return kasirNavigation;
+  }
+  if (role === "KITCHEN_STAFF") {
+    return kitchenNavigation;
   }
   return storeNavigation;
 }

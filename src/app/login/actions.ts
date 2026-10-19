@@ -40,16 +40,23 @@ export async function superAdminLoginAction(formData: FormData): Promise<{
   if (result.success && result.username) {
     // Login berhasil: reset counter dan set session
     resetRateLimit(rateLimitKey);
-    await setSession(result.username);
+    const role = result.role || (result.username.toLowerCase() === "superadmin" || result.username.toLowerCase() === "platform.admin" ? "PLATFORM_OWNER" : "SUPER_ADMIN");
+    await setSession(result.username, role);
 
-    const isOwner =
-      result.username.toLowerCase() === "superadmin" ||
-      result.username.toLowerCase() === "platform.admin";
-    const redirectTo = isOwner ? "/platform/console" : "/orders";
+    let redirectTo = "/orders";
+    if (role === "PLATFORM_OWNER") {
+      redirectTo = "/platform/console";
+    } else if (role === "KITCHEN_STAFF") {
+      redirectTo = "/kitchen";
+    } else if (role === "KASIR") {
+      redirectTo = "/orders";
+    } else {
+      redirectTo = "/orders";
+    }
 
     return {
       success: true,
-      role: isOwner ? "PLATFORM_OWNER" : "STORE_ADMIN",
+      role,
       redirectTo,
     };
   } else {

@@ -19,10 +19,25 @@ import {
   toggleAdminActiveAction,
   deleteAdminAction,
   resetAdminPasswordAction,
+  updateAdminRoleAction,
 } from "./actions";
 import "./admins.scss";
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
+
+function getRoleBadge(role?: string) {
+  switch (role) {
+    case "PLATFORM_OWNER":
+      return { label: "Platform Owner", bg: "#4f46e5", text: "#ffffff" };
+    case "KASIR":
+      return { label: "Kasir (POS & Orders)", bg: "#059669", text: "#ffffff" };
+    case "KITCHEN_STAFF":
+      return { label: "Kitchen Staff (KDS)", bg: "#d97706", text: "#ffffff" };
+    case "SUPER_ADMIN":
+    default:
+      return { label: "Super Admin", bg: "#ea580c", text: "#ffffff" };
+  }
+}
 
 function AdminCard({
   admin,
@@ -38,6 +53,18 @@ function AdminCard({
   const [newPassword, setNewPassword] = useState("");
   const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
   const isSelf = admin.username === currentUsername;
+  const roleBadge = getRoleBadge(admin.role);
+
+  function handleRoleChange(newRole: string) {
+    startTransition(async () => {
+      const res = await updateAdminRoleAction(admin.id, newRole);
+      if (!res.success) setMsg({ type: "err", text: res.error! });
+      else {
+        setMsg({ type: "ok", text: `Role berhasil diubah menjadi ${newRole}.` });
+        onRefresh();
+      }
+    });
+  }
 
   function handleToggle() {
     startTransition(async () => {
@@ -74,10 +101,26 @@ function AdminCard({
           <HugeiconsIcon icon={UserIcon as IconSvgElement} size={20} strokeWidth={1.8} />
         </span>
         <div className="admin-card__info">
-          <strong className="admin-card__name">
-            {admin.displayName}
-            {isSelf && <span className="admin-card__self-badge">Anda</span>}
-          </strong>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+            <strong className="admin-card__name">
+              {admin.displayName}
+              {isSelf && <span className="admin-card__self-badge">Anda</span>}
+            </strong>
+            <span
+              style={{
+                fontSize: "0.68rem",
+                fontWeight: 700,
+                padding: "2px 8px",
+                borderRadius: "6px",
+                background: roleBadge.bg,
+                color: roleBadge.text,
+                letterSpacing: "0.02em",
+                textTransform: "uppercase",
+              }}
+            >
+              {roleBadge.label}
+            </span>
+          </div>
           <code className="admin-card__username">@{admin.username}</code>
         </div>
         <span className={`admin-card__status-badge${admin.isActive ? " admin-card__status-badge--active" : " admin-card__status-badge--inactive"}`}>
@@ -89,6 +132,30 @@ function AdminCard({
           {admin.isActive ? "Aktif" : "Nonaktif"}
         </span>
       </div>
+
+      {!isSelf && (
+        <div style={{ padding: "8px 16px", background: "rgba(255,255,255,0.03)", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px" }}>
+          <span style={{ fontSize: "0.78rem", color: "#9ca3af" }}>Ubah Role:</span>
+          <select
+            value={admin.role || "SUPER_ADMIN"}
+            disabled={isPending}
+            onChange={(e) => handleRoleChange(e.target.value)}
+            style={{
+              padding: "4px 8px",
+              fontSize: "0.78rem",
+              borderRadius: "6px",
+              background: "#1f2937",
+              color: "#f3f4f6",
+              border: "1px solid #374151",
+              cursor: "pointer",
+            }}
+          >
+            <option value="SUPER_ADMIN">👑 Super Admin</option>
+            <option value="KASIR">🧾 Kasir (POS & Orders)</option>
+            <option value="KITCHEN_STAFF">🍳 Kitchen Staff (KDS)</option>
+          </select>
+        </div>
+      )}
 
       <dl className="admin-card__meta">
         <div>
@@ -202,7 +269,7 @@ function PromoteForm({ onSuccess }: { onSuccess: () => void }) {
     return (
       <button className="promote-btn" onClick={() => setOpen(true)}>
         <HugeiconsIcon icon={UserAdd01Icon as IconSvgElement} size={16} strokeWidth={1.8} />
-        <span>Promosikan Admin Baru</span>
+        <span>Tambah Staff / Admin Baru</span>
       </button>
     );
   }
@@ -212,7 +279,7 @@ function PromoteForm({ onSuccess }: { onSuccess: () => void }) {
       <div className="promote-form__header">
         <h3>
           <HugeiconsIcon icon={UserAdd01Icon as IconSvgElement} size={16} strokeWidth={1.8} />
-          Promosikan Super Admin Baru
+          Tambah Akun Staff / Admin Baru
         </h3>
         <button className="promote-form__close" type="button" onClick={() => setOpen(false)}>
           <HugeiconsIcon icon={Cancel01Icon as IconSvgElement} size={18} strokeWidth={1.8} />
@@ -232,6 +299,31 @@ function PromoteForm({ onSuccess }: { onSuccess: () => void }) {
         </div>
 
         <div className="promote-form__row">
+          <div className="form-field" style={{ width: "100%" }}>
+            <label htmlFor="pf-role">Role Akses</label>
+            <select
+              id="pf-role"
+              name="role"
+              defaultValue="SUPER_ADMIN"
+              style={{
+                width: "100%",
+                padding: "8px 12px",
+                borderRadius: "8px",
+                background: "#1f2937",
+                border: "1px solid #374151",
+                color: "#f3f4f6",
+                fontSize: "0.875rem",
+                marginTop: "4px",
+              }}
+            >
+              <option value="SUPER_ADMIN">👑 Super Admin Toko (Akses Penuh Semua Modul)</option>
+              <option value="KASIR">🧾 Kasir (Point of Sale, Orders & Pelanggan)</option>
+              <option value="KITCHEN_STAFF">🍳 Kitchen Staff (Layar Dapur KDS & Batching Produksi)</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="promote-form__row">
           <div className="form-field">
             <label htmlFor="pf-password">Password <span>(min. 8 karakter)</span></label>
             <input id="pf-password" name="password" type="password" required minLength={8} placeholder="Buat password kuat" autoComplete="new-password" />
@@ -246,7 +338,7 @@ function PromoteForm({ onSuccess }: { onSuccess: () => void }) {
 
         <div className="promote-form__footer">
           <button type="submit" disabled={isPending} className="promote-form__submit">
-            {isPending ? "Memproses..." : "Promosikan Sekarang"}
+            {isPending ? "Memproses..." : "Simpan Akun Staff"}
           </button>
           <button type="button" onClick={() => setOpen(false)} className="promote-form__cancel">
             Batal
@@ -270,9 +362,6 @@ export function AdminsClient({
 
   // Untuk trigger re-fetch setelah mutasi
   function refreshList() {
-    // Re-fetch via router.refresh() tidak mungkin di sini tanpa router.
-    // Aksi sudah pakai revalidatePath — next request akan dapat data terbaru.
-    // Untuk UX langsung, tampilkan pesan sukses saja; user refresh untuk update.
     window.location.reload();
   }
 
@@ -280,8 +369,8 @@ export function AdminsClient({
     <div className="admins-page">
       <div className="admins-page__header">
         <div>
-          <h1>Manajemen Admin</h1>
-          <p>Promosikan, kelola, dan cabut akses super admin sistem Baitybites ORM.</p>
+          <h1>Manajemen Admin &amp; Staff</h1>
+          <p>Kelola hak akses berjenjang Super Admin, Kasir, dan Kitchen Staff sistem Baitybites ORM.</p>
         </div>
         <PromoteForm onSuccess={refreshList} />
       </div>
