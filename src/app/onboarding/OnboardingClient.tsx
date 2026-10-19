@@ -26,6 +26,8 @@ import {
   executeOnboarding,
   testOnboardingDatabaseConnection,
   type OnboardingPayload,
+  type OnboardingResult,
+  type OnboardingStepResult,
 } from "./actions";
 import "./onboarding.scss";
 
@@ -47,6 +49,7 @@ export default function OnboardingClient({
   const [currentStep, setCurrentStep] = useState(1);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [onboardingResult, setOnboardingResult] = useState<OnboardingResult | null>(null);
 
   // State Testing Database
   const [dbTestResult, setDbTestResult] = useState<{
@@ -140,12 +143,19 @@ export default function OnboardingClient({
 
     startTransition(async () => {
       const result = await executeOnboarding(formData);
-      if (result.success) {
-        router.push("/dashboard?onboarded=true");
-      } else {
+      setOnboardingResult(result);
+      if (!result.success) {
         setError(result.error || "Gagal menyelesaikan setup awal.");
       }
     });
+  };
+
+  // Redirect setelah user klik tombol di success screen
+  const handleGoToDashboard = () => {
+    // Role-aware redirect: platform owner ke /platform/console, store admin ke /dashboard
+    const username = formData.adminUsername.trim().toLowerCase();
+    const isOwner = username === "superadmin" || username === "platform.admin" || username === "owner";
+    router.push(isOwner ? "/platform/console?onboarded=true" : "/dashboard?onboarded=true");
   };
 
   // Preview Env String
@@ -160,6 +170,87 @@ CLOUDINARY_URL="${formData.cloudinaryUrl || ""}"
 GEMINI_API_KEY="${formData.geminiApiKey || ""}"
 SUPERADMIN_PIN="${formData.adminPin || "889900"}"
 NODE_ENV="production"`;
+
+  // ── Success Screen ──────────────────────────────────────────────────────────
+  if (onboardingResult?.success) {
+    const steps = onboardingResult.steps ?? [];
+    return (
+      <div className="onboarding-layout">
+        <header className="onboarding-layout__header">
+          <div className="onboarding-layout__header-brand">
+            <span>Client Onboarding Wizard</span>
+            <span className="badge">Setup Selesai</span>
+          </div>
+        </header>
+        <main className="onboarding-layout__content">
+          <div className="onboarding-card" style={{ maxWidth: 600, margin: "0 auto" }}>
+            <div className="onboarding-card__header">
+              <div className="onboarding-card__header-icon" style={{ background: "rgba(16,185,129,0.15)" }}>
+                <HugeiconsIcon icon={CheckmarkCircle02Icon} size={28} style={{ color: "#10b981" }} />
+              </div>
+              <div>
+                <h1 style={{ color: "#10b981" }}>🎉 Sistem Berhasil Diinisialisasi!</h1>
+                <p>{onboardingResult.message}</p>
+              </div>
+            </div>
+
+            {/* Per-step results */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px", margin: "16px 0 24px" }}>
+              {steps.map((s: OnboardingStepResult, i: number) => (
+                <div
+                  key={i}
+                  style={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: "10px",
+                    padding: "10px 14px",
+                    borderRadius: "8px",
+                    background: s.success ? "rgba(16,185,129,0.08)" : "rgba(239,68,68,0.08)",
+                    border: `1px solid ${s.success ? "rgba(16,185,129,0.2)" : "rgba(239,68,68,0.2)"}`,
+                    fontSize: "13px",
+                  }}
+                >
+                  <HugeiconsIcon
+                    icon={s.success ? CheckmarkCircle02Icon : AlertDiamondIcon}
+                    size={16}
+                    style={{ color: s.success ? "#10b981" : "#ef4444", flexShrink: 0, marginTop: 2 }}
+                  />
+                  <div>
+                    <strong style={{ color: s.success ? "#065f46" : "#b91c1c", display: "block" }}>
+                      {s.step}
+                    </strong>
+                    <span style={{ color: "#475569" }}>{s.message}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {onboardingResult.dbMigrated && (
+              <div style={{ padding: "10px 14px", borderRadius: "8px", background: "#eff6ff", border: "1px solid #bfdbfe", fontSize: "12px", color: "#1e40af", marginBottom: "16px" }}>
+                <strong>✅ Database Target di-Provision:</strong> Schema PostgreSQL berhasil di-push via <code>prisma db push</code>. Instance toko siap digunakan.
+              </div>
+            )}
+            {onboardingResult.dbSkipped && (
+              <div style={{ padding: "10px 14px", borderRadius: "8px", background: "#f0fdf4", border: "1px solid #bbf7d0", fontSize: "12px", color: "#166534", marginBottom: "16px" }}>
+                <strong>ℹ️ Database:</strong> Menggunakan schema server yang sudah ada — tidak perlu migrasi.
+              </div>
+            )}
+
+            <button
+              id="onboarding-go-to-dashboard"
+              type="button"
+              className="onboarding-card__btn-next"
+              onClick={handleGoToDashboard}
+              style={{ width: "100%", justifyContent: "center" }}
+            >
+              <HugeiconsIcon icon={ArrowRight01Icon} size={16} />
+              <span>Buka Dashboard Toko</span>
+            </button>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="onboarding-layout">
