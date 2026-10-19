@@ -593,6 +593,34 @@ function KonfigurasiInstanceSection() {
         </div>
       </div>
 
+      <div className="settings-section-group">
+        <p className="settings-section-group__title">Backup &amp; Disaster Recovery</p>
+        <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "8px", padding: "14px 16px", fontSize: "13px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", flexWrap: "wrap" }}>
+          <div style={{ maxWidth: "450px" }}>
+            <strong style={{ color: "#0f172a", display: "block", marginBottom: "4px" }}>Pencadangan Database &amp; Recovery Tool</strong>
+            <span style={{ color: "#64748b" }}>Otomasi aktif via GitHub Actions (02:00 WIB) &amp; Vercel Cron. Buat snapshot on-demand atau pulihkan data kapan saja.</span>
+          </div>
+          <Link
+            href="/settings/backup"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              padding: "8px 14px",
+              background: "#f97316",
+              color: "#ffffff",
+              borderRadius: "6px",
+              fontWeight: 600,
+              fontSize: "13px",
+              textDecoration: "none",
+            }}
+          >
+            Buka Modul Backup
+            <HugeiconsIcon icon={ArrowRight01Icon} size={14} strokeWidth={2} />
+          </Link>
+        </div>
+      </div>
+
       <div style={{ marginTop: "1rem" }}>
         <button
           type="button"

@@ -12,6 +12,7 @@ import {
   ArrowMoveUpRightIcon,
   RocketIcon,
   Store01Icon,
+  Database01Icon,
 } from "@hugeicons/core-free-icons";
 
 // IconSvgObject is not exported by the package — derive it from a known icon.
@@ -40,6 +41,7 @@ export const platformNavigation: NavItem[] = [
     icon: Settings01Icon,
     children: [
       { label: "Platform Settings", href: "/settings", icon: Settings01Icon },
+      { label: "Backup & Recovery DB", href: "/settings/backup", icon: Database01Icon },
       { label: "Migration Tool", href: "/migration", icon: ArrowMoveUpRightIcon },
       { label: "Dokumentasi", href: "/docs", icon: Book01Icon },
     ],
@@ -66,6 +68,7 @@ export const storeNavigation: NavItem[] = [
       { label: "CMS Web Toko", href: "/cms", icon: File02Icon },
       { label: "Profil Toko", href: "/settings", icon: Settings01Icon },
       { label: "Manajemen Admin & Staff", href: "/settings/admins", icon: UserGroupIcon },
+      { label: "Backup & Recovery DB", href: "/settings/backup", icon: Database01Icon },
       { label: "Panduan Penggunaan", href: "/docs", icon: Book01Icon },
     ],
   },

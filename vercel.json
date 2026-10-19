@@ -28,5 +28,11 @@
         { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
       ]
     }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/db-backup",
+      "schedule": "0 19 * * *"
+    }
   ]
 }
