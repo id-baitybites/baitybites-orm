@@ -6,5 +6,7 @@
 
 export const SESSION_COOKIE = "bb_session";
 export const SESSION_ADMIN_COOKIE = "bb_admin";
+export const SESSION_ROLE_COOKIE = "bb_role";
 export const CUSTOMER_SESSION_COOKIE = "bb_customer_session";
 export const CUSTOMER_INFO_COOKIE = "bb_customer_info";
+

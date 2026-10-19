@@ -36,7 +36,13 @@ const STEPS = [
   { id: 4, label: "4. Branding & Visual", icon: SparklesIcon },
 ];
 
-export default function OnboardingClient() {
+interface OnboardingClientProps {
+  isReconfiguration?: boolean;
+}
+
+export default function OnboardingClient({
+  isReconfiguration = false,
+}: OnboardingClientProps) {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [isPending, startTransition] = useTransition();
@@ -170,6 +176,31 @@ NODE_ENV="production"`;
       </header>
 
       <main className="onboarding-layout__content">
+        {isReconfiguration && (
+          <div
+            style={{
+              background: "#eff6ff",
+              border: "1px solid #bfdbfe",
+              color: "#1e40af",
+              borderRadius: "8px",
+              padding: "12px 16px",
+              marginBottom: "20px",
+              fontSize: "13px",
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+            }}
+          >
+            <HugeiconsIcon icon={CheckmarkCircle02Icon} size={18} style={{ color: "#3b82f6", flexShrink: 0 }} />
+            <div>
+              <strong>Mode Rekonfigurasi / Tinjauan Onboarding Aktif</strong>
+              <p style={{ margin: "2px 0 0", color: "#1d4ed8" }}>
+                Sistem instance ini telah terinisialisasi. Anda dapat memperbarui kredensial super admin, database connection, atau visual identity kapan saja.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Stepper Progress Bar */}
         <div className="onboarding-stepper">
           <div className="onboarding-stepper__line">

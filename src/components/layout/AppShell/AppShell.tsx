@@ -1,12 +1,24 @@
 "use client";
 
-import { Logout01Icon, Menu01Icon, Cancel01Icon, ArrowDown01Icon } from "@hugeicons/core-free-icons";
+import {
+  Logout01Icon,
+  Menu01Icon,
+  Cancel01Icon,
+  ArrowDown01Icon,
+  Store01Icon,
+  RocketIcon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useRef, useEffect, useTransition } from "react";
-import { navigation, type NavItem } from "@/lib/navigation";
+import platformIcon from "@/app/icon.png";
+import {
+  platformNavigation,
+  storeNavigation,
+  type NavItem,
+} from "@/lib/navigation";
 import { logoutAction } from "@/app/login/actions";
 import "./app-shell.scss";
 
@@ -83,6 +95,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [isPending, startTransition] = useTransition();
   const activePath = pathname.startsWith("/orders/") ? "/orders" : pathname;
 
+  // Deteksi cakupan: Platform Owner Console vs Store Merchant OMS
+  const isPlatformScope =
+    pathname.startsWith("/platform") ||
+    pathname.startsWith("/settings/leads") ||
+    pathname.startsWith("/settings/provision");
+
+  const currentNav = isPlatformScope ? platformNavigation : storeNavigation;
+
   function handleLogout() {
     startTransition(async () => {
       await logoutAction();
@@ -90,7 +110,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   // All items for mobile nav (flatten children)
-  const mobileNavItems = navigation.flatMap((item) =>
+  const mobileNavItems = currentNav.flatMap((item) =>
     item.children ? item.children : [item]
   );
 
@@ -99,19 +119,42 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {/* HEADER */}
       <header className="app-shell__header">
         <div className="app-shell__header-inner">
-          <Link href="/" className="app-shell__brand">
-            <Image
-              src="/images/logos/baitybites-logo.png"
-              alt="Baitybites Logo"
-              width={140}
-              height={38}
-              className="app-shell__brand-logo"
-              priority
-            />
-          </Link>
+          {/* Brand Logo & Title */}
+          {isPlatformScope ? (
+            <Link href="/platform/console" className="app-shell__brand-platform">
+              <div className="platform-logo-badge">
+                <Image
+                  src={platformIcon}
+                  alt="Baitybites ORM"
+                  width={32}
+                  height={32}
+                  className="platform-logo-img"
+                  priority
+                />
+              </div>
+              <div className="platform-brand-meta">
+                <span className="brand-name">
+                  Baitybites <strong>ORM</strong>
+                </span>
+                <span className="brand-badge-owner">Platform Console</span>
+              </div>
+            </Link>
+          ) : (
+            <Link href="/orders" className="app-shell__brand">
+              <Image
+                src="/images/logos/baitybites-logo.png"
+                alt="Baitybites Logo"
+                width={130}
+                height={35}
+                className="app-shell__brand-logo"
+                priority
+              />
+            </Link>
+          )}
 
+          {/* Navigasi Utama Tersegregasi */}
           <nav className="app-shell__nav" aria-label="Navigasi utama">
-            {navigation.map((item) =>
+            {currentNav.map((item) =>
               item.children ? (
                 <NavGroupItem key={item.href} item={item} activePath={activePath} />
               ) : (
@@ -127,7 +170,28 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             )}
           </nav>
 
+          {/* Quick Context Switcher & Actions */}
           <div className="app-shell__actions">
+            {isPlatformScope ? (
+              <Link
+                href="/"
+                className="app-shell__scope-switch"
+                title="Buka Halaman Penjualan Platform"
+                target="_blank"
+              >
+                <span>Web Penjualan</span>
+              </Link>
+            ) : (
+              <Link
+                href="/platform/console"
+                className="app-shell__scope-switch"
+                title="Buka Platform Owner Console"
+              >
+                <HugeiconsIcon icon={RocketIcon} size={14} />
+                <span>Platform Console</span>
+              </Link>
+            )}
+
             <button
               className="app-shell__logout"
               type="button"

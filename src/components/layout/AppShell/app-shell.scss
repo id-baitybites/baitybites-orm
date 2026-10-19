@@ -45,6 +45,80 @@
     }
   }
 
+  &__brand-platform {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    text-decoration: none;
+    flex-shrink: 0;
+
+    .platform-logo-badge {
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      flex-shrink: 0;
+
+      &:hover {
+        transform: scale(1.06);
+      }
+
+      .platform-logo-img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
+      }
+    }
+
+    .platform-brand-meta {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.15;
+
+      .brand-name {
+        font-size: 0.95rem;
+        font-weight: 550;
+        color: #ffffff;
+        letter-spacing: -0.01em;
+
+        strong {
+          color: #a5b4fc;
+          font-weight: 650;
+        }
+      }
+
+      .brand-badge-owner {
+        font-size: 0.7rem;
+        font-weight: 500;
+        color: #cbd5e1;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+      }
+    }
+  }
+
+  &__scope-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.65rem;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: #475569;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    text-decoration: none;
+    transition: all 0.15s ease;
+
+    &:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+  }
+
   &__mark {
     width: 36px;
     height: 36px;
@@ -221,6 +295,7 @@
     opacity: 0;
     transform: translateY(-6px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -228,6 +303,7 @@
 }
 
 .app-shell {
+
   /* ACTIONS */
   &__actions {
     display: flex;
@@ -484,6 +560,7 @@
     opacity: 0;
     transform: translateY(-8px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

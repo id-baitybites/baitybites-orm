@@ -1,0 +1,40 @@
+[
+  {
+    "businessName": "Sidr Revive",
+    "contactName": "kmp",
+    "email": "edukmp51@gmail.com",
+    "phone": "0818163911",
+    "selectedPlan": "Business Pro",
+    "message": "Toko Madu Sidr Yaman Berkualitas",
+    "id": "lead-1791864966269",
+    "status": "INVOICE_DIKIRIM",
+    "createdAt": "2026-10-13T04:16:06.269Z",
+    "updatedAt": "2026-10-13T05:47:54.192Z"
+  },
+  {
+    "id": "lead-001",
+    "businessName": "Toko Kue Ibu Lestari",
+    "contactName": "Lestari Rahayu",
+    "email": "lestari.test@gmail.com",
+    "phone": "081298765432",
+    "selectedPlan": "Starter Instance",
+    "message": "Uji coba pengiriman via Resend API Key",
+    "status": "INVOICE_DIKIRIM",
+    "internalNotes": "Permintaan pertama via platform landing page",
+    "createdAt": "2026-10-12T07:40:01.188Z",
+    "updatedAt": "2026-10-13T05:30:49.330Z"
+  },
+  {
+    "id": "lead-002",
+    "businessName": "Kopi Seduh Nusantara",
+    "contactName": "Rian Pratama",
+    "email": "rian.pratama@kopinusantara.id",
+    "phone": "081388776655",
+    "selectedPlan": "Business Pro",
+    "message": "Membutuhkan custom domain & sistem display dapur untuk 2 cabang kami di Bandung.",
+    "status": "DIHUBUNGI",
+    "internalNotes": "Sudah dihubungi via WA tgl 12 Okt, meminta draft penawaran resmi.",
+    "createdAt": "2026-10-12T02:40:01.188Z",
+    "updatedAt": "2026-10-12T07:40:01.188Z"
+  }
+]

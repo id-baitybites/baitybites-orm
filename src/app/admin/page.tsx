@@ -45,10 +45,15 @@ export default function AdminLoginPage() {
     try {
       const res = await superAdminLoginAction(formData);
       if (res.success) {
-        setSuccessMsg("Autentikasi berhasil! Mengarahkan ke Dashboard OMS...");
+        const dest = res.redirectTo || "/orders";
+        const msg =
+          res.role === "PLATFORM_OWNER"
+            ? "Autentikasi berhasil! Mengarahkan ke Platform Owner Console..."
+            : "Autentikasi berhasil! Mengarahkan ke Toko OMS...";
+        setSuccessMsg(msg);
         setTimeout(() => {
-          router.push("/orders");
-        }, 900);
+          router.push(dest);
+        }, 800);
       } else {
         setErrorMsg(res.error || "Kombinasi username/password/PIN tidak valid.");
       }
@@ -82,11 +87,11 @@ export default function AdminLoginPage() {
           </div>
           <div className="admin-login__badge">
             <HugeiconsIcon icon={SecurityCheckIcon} size={11} strokeWidth={2} />
-            <span>Portal Admin Baitybites OMS</span>
+            <span>Portal Administrasi Baitybites ORM</span>
           </div>
-          <h1 className="admin-login__title">Masuk Superadmin</h1>
+          <h1 className="admin-login__title">Masuk Administrasi</h1>
           <p className="admin-login__subtitle">
-            Autentikasi multi-layer untuk akses penuh ke sistem manajemen pesanan.
+            Autentikasi aman untuk Platform Owner Console dan Toko Merchant.
           </p>
         </div>
 
@@ -120,7 +125,7 @@ export default function AdminLoginPage() {
                 name="username"
                 type="text"
                 autoComplete="username"
-                placeholder="superadmin"
+                placeholder="superadmin atau admin.baitybites"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
@@ -169,7 +174,7 @@ export default function AdminLoginPage() {
           <div className="admin-field">
             <label htmlFor="admin-pin" className="admin-field__label">
               Security PIN
-              <span className="admin-field__label-note">4-digit, opsional</span>
+              <span className="admin-field__label-note">4–6 digit, opsional</span>
             </label>
             <div className="admin-field__input-wrap">
               <span className="admin-field__icon">
@@ -180,9 +185,8 @@ export default function AdminLoginPage() {
                 name="securityPin"
                 type="password"
                 inputMode="numeric"
-                maxLength={4}
-                pattern="[0-9]{4}"
-                placeholder="– – – –"
+                maxLength={6}
+                placeholder="Contoh: 8899 atau kosongkan"
                 value={securityPin}
                 onChange={(e) => setSecurityPin(e.target.value.replace(/\D/g, ""))}
                 disabled={isLoading}
@@ -199,7 +203,7 @@ export default function AdminLoginPage() {
               </>
             ) : (
               <>
-                <span>Masuk ke Dashboard OMS</span>
+                <span>Masuk ke Sistem</span>
                 <HugeiconsIcon icon={ArrowRight01Icon} size={16} strokeWidth={2} />
               </>
             )}

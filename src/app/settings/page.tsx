@@ -21,6 +21,7 @@ import {
   Note01Icon,
   PrinterIcon,
   UserIcon,
+  Database01Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { AppShell } from "@/components/layout/AppShell/AppShell";
@@ -29,6 +30,7 @@ import "./settings.scss";
 // ─── Section config ───────────────────────────────────────────────────────────
 const SECTIONS = [
   { id: "profil-bisnis", label: "Profil Bisnis", icon: Store01Icon },
+  { id: "konfigurasi-instance", label: "Konfigurasi Toko & Database", icon: Database01Icon },
   { id: "notifikasi", label: "Notifikasi", icon: Notification01Icon },
   { id: "pengguna-akses", label: "Pengguna & Akses", icon: UserStar01Icon },
   { id: "integrasi-wa", label: "Integrasi WhatsApp", icon: WhatsappIcon },
@@ -482,6 +484,129 @@ function PreferensiOrderSection() {
   );
 }
 
+// ─── Section: Konfigurasi Instance (No-Code Env) ─────────────────────────────
+function KonfigurasiInstanceSection() {
+  const [storeName, setStoreName] = useState("Toko Kue Ibu Lestari");
+  const [storeUrl, setStoreUrl] = useState("https://toko-kue-ibu-lestari.baitybites.site");
+  const [storePin, setStorePin] = useState("1234");
+  const [waPhone, setWaPhone] = useState("081298765432");
+  const [savedLocally, setSavedLocally] = useState(false);
+
+  function handleSaveEnv() {
+    setSavedLocally(true);
+    setTimeout(() => setSavedLocally(false), 2500);
+  }
+
+  return (
+    <div className="settings-panel__body">
+      <div className="settings-info-card" style={{ background: "#ecfdf5", borderColor: "#a7f3d0" }}>
+        <HugeiconsIcon icon={CheckmarkCircle02Icon} size={20} style={{ color: "#059669", flexShrink: 0 }} />
+        <div>
+          <strong style={{ color: "#065f46" }}>Database Terisolasi (Multi-Tenant Active)</strong>
+          <p style={{ color: "#047857", margin: "4px 0 0", fontSize: "13px" }}>
+            Toko Anda berjalan di atas skema database mandiri <code>toko_kue_ibu_lestari</code> di Neon PostgreSQL.
+            Seluruh pesanan, katalog kue, dan data transaksi 100% terpisah dan tidak tercampur dengan toko mitra lainnya.
+          </p>
+        </div>
+      </div>
+
+      <div className="settings-section-group">
+        <p className="settings-section-group__title">Identitas Toko Online (No-Code)</p>
+        <label className="settings-field">
+          <span>
+            <HugeiconsIcon icon={Building02Icon} size={14} />
+            Nama Brand Toko (NEXT_PUBLIC_STORE_NAME)
+          </span>
+          <input
+            value={storeName}
+            onChange={(e) => setStoreName(e.target.value)}
+            type="text"
+            placeholder="Nama toko kuliner Anda"
+          />
+        </label>
+
+        <label className="settings-field">
+          <span>
+            <HugeiconsIcon icon={Store01Icon} size={14} />
+            Alamat Web Toko Publik (NEXT_PUBLIC_APP_URL)
+          </span>
+          <input
+            value={storeUrl}
+            onChange={(e) => setStoreUrl(e.target.value)}
+            type="url"
+            placeholder="https://namatoko.baitybites.site"
+          />
+        </label>
+
+        <label className="settings-field">
+          <span>
+            <HugeiconsIcon icon={Call02Icon} size={14} />
+            Nomor WhatsApp Terima Pesanan (NEXT_PUBLIC_WHATSAPP_PHONE)
+          </span>
+          <input
+            value={waPhone}
+            onChange={(e) => setWaPhone(e.target.value)}
+            type="tel"
+            placeholder="0812xxxxxxxx"
+          />
+        </label>
+      </div>
+
+      <div className="settings-section-group">
+        <p className="settings-section-group__title">Kredensial Keamanan Kasir &amp; Dapur Toko</p>
+        <label className="settings-field">
+          <span>
+            <HugeiconsIcon icon={UserStar01Icon} size={14} />
+            Security PIN Kasir Toko (STORE_ADMIN_PIN)
+          </span>
+          <input
+            value={storePin}
+            onChange={(e) => setStorePin(e.target.value)}
+            type="text"
+            maxLength={6}
+            placeholder="1234"
+            style={{ letterSpacing: "0.2em", fontWeight: 700, maxWidth: "200px" }}
+          />
+          <small style={{ color: "#64748b", marginTop: "4px" }}>
+            PIN 4-6 angka yang dimasukkan kasir saat login ke sistem kasir toko Anda.
+          </small>
+        </label>
+      </div>
+
+      <div className="settings-section-group">
+        <p className="settings-section-group__title">Status Database Cloud Terdedikasi</p>
+        <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "8px", padding: "14px 16px", fontSize: "13px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
+            <span style={{ color: "#64748b" }}>Status Skema Database:</span>
+            <strong style={{ color: "#059669" }}>🟢 Aktif &amp; Terisolasi</strong>
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
+            <span style={{ color: "#64748b" }}>Nama Skema Neon:</span>
+            <code style={{ background: "#ffffff", padding: "2px 6px", border: "1px solid #cbd5e1", borderRadius: "4px" }}>
+              toko_kue_ibu_lestari
+            </code>
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <span style={{ color: "#64748b" }}>Pemisahan Data Multi-Klien:</span>
+            <span style={{ color: "#0f172a", fontWeight: 600 }}>Tingkat Namespace PostgreSQL (Zero Collision)</span>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ marginTop: "1rem" }}>
+        <button
+          type="button"
+          className="settings-page__save"
+          onClick={handleSaveEnv}
+          style={{ width: "100%", justifyContent: "center" }}
+        >
+          {savedLocally ? "✅ Konfigurasi Toko Berhasil Disimpan!" : "Simpan Konfigurasi Toko"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ─── Panel map ────────────────────────────────────────────────────────────────
 const SECTION_PANEL: Record<
   string,
@@ -490,6 +615,10 @@ const SECTION_PANEL: Record<
   "profil-bisnis": {
     description: "Identitas dan informasi operasional bisnis Baitybites yang tampil di dokumen dan komunikasi pelanggan.",
     component: <ProfilBisnisSection />,
+  },
+  "konfigurasi-instance": {
+    description: "Atur konfigurasi nama toko, URL publik, nomor WhatsApp, PIN kasir, dan pantau status database terisolasi toko Anda.",
+    component: <KonfigurasiInstanceSection />,
   },
   notifikasi: {
     description: "Atur saluran dan jenis notifikasi yang diterima admin dan tim operasional.",

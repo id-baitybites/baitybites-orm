@@ -14,6 +14,8 @@ import { headers } from "next/headers";
 export async function superAdminLoginAction(formData: FormData): Promise<{
   success: boolean;
   error?: string;
+  redirectTo?: string;
+  role?: string;
 }> {
   const username = (formData.get("username") as string)?.trim().toLowerCase() || "";
   const password = formData.get("password") as string;
@@ -39,12 +41,22 @@ export async function superAdminLoginAction(formData: FormData): Promise<{
     // Login berhasil: reset counter dan set session
     resetRateLimit(rateLimitKey);
     await setSession(result.username);
+
+    const isOwner =
+      result.username.toLowerCase() === "superadmin" ||
+      result.username.toLowerCase() === "platform.admin";
+    const redirectTo = isOwner ? "/platform/console" : "/orders";
+
+    return {
+      success: true,
+      role: isOwner ? "PLATFORM_OWNER" : "STORE_ADMIN",
+      redirectTo,
+    };
   } else {
     // Login gagal: catat percobaan
     recordFailedAttempt(rateLimitKey);
+    return { success: false, error: result.error };
   }
-
-  return { success: result.success, error: result.error };
 }
 
 // ─── Logout ───────────────────────────────────────────────────────────────────
