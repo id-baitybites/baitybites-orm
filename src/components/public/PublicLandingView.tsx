@@ -20,6 +20,7 @@ import {
 import { HugeiconsIcon } from "@hugeicons/react";
 import { PublicHeader } from "@/components/public/PublicHeader";
 import { PublicFooter } from "@/components/public/PublicFooter";
+import { DemoFloatingBar } from "@/components/public/DemoFloatingBar";
 import { CartDrawer } from "@/components/public/CartDrawer";
 import { trackOrderAction, type TrackedOrderResult } from "@/app/tracking/actions";
 import type { CheckoutItem } from "@/app/actions/checkout";
@@ -396,6 +397,9 @@ export function PublicLandingView({
 
   return (
     <div className="public-site">
+      {/* ── Demo Context Bar ── */}
+      <DemoFloatingBar currentRole="Website & Toko Online Klien" />
+
       {/* ── BANNER PENGUMUMAN / PROMO CMS ── */}
       {initialTheme?.announcementText && (
         <div

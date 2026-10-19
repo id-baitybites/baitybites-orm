@@ -150,9 +150,9 @@ export default function PlatformLandingPage() {
           </nav>
 
           <div className="platform-landing__header-actions">
-            {/* Link ke web client pertama sebagai demonstrasi langsung */}
-            <Link href="/baitybites" className="btn-outline">
-              Lihat Demo Toko
+            {/* Link ke pusat demo interaktif */}
+            <Link href="/demo" className="btn-outline">
+              Pusat Demo Interaktif
             </Link>
             <a href="#harga" className="btn-cta-primary">
               <HugeiconsIcon icon={RocketIcon} size={15} />
@@ -185,8 +185,8 @@ export default function PlatformLandingPage() {
             <HugeiconsIcon icon={RocketIcon} size={18} />
             <span>Lihat Paket &amp; Harga</span>
           </a>
-          <Link href="/baitybites" className="btn-hero-secondary">
-            <span>Jelajahi Demo Client (Baitybites)</span>
+          <Link href="/demo" className="btn-hero-secondary">
+            <span>Uji Coba Live Demo Multi-Role</span>
             <HugeiconsIcon icon={ArrowRight01Icon} size={16} />
           </Link>
         </div>

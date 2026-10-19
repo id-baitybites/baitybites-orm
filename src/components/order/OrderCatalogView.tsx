@@ -14,6 +14,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import { PublicHeader } from "@/components/public/PublicHeader";
 import { PublicFooter } from "@/components/public/PublicFooter";
+import { DemoFloatingBar } from "@/components/public/DemoFloatingBar";
 import { CartDrawer } from "@/components/public/CartDrawer";
 import { ProductCard, type CatalogProduct } from "./ProductCard";
 import type { CheckoutItem } from "@/app/actions/checkout";
@@ -169,6 +170,9 @@ export function OrderCatalogView({ initialCustomer, products = [] }: OrderCatalo
 
   return (
     <div className="order-catalog-page">
+      {/* ── Demo Context Bar ── */}
+      <DemoFloatingBar currentRole="Storefront & E-Commerce Klien" />
+
       {/* ── Public Header ── */}
       <PublicHeader
         initialCustomer={initialCustomer}
