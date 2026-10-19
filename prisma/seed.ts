@@ -463,6 +463,57 @@ async function main() {
     },
   });
 
+  // ─── N. SEED ADMIN CREDENTIALS ────────────────────────────────────────────
+  // Semua password & PIN disimpan sebagai bcrypt hash — tidak pernah plaintext.
+  // Untuk mengubah credential: update nilai di sini → jalankan `npx prisma db seed`
+  console.log("Mengisi/memperbarui akun admin...");
+
+  const bcrypt = await import("bcryptjs");
+
+  const adminSeedData = [
+    {
+      username: "superadmin",
+      displayName: "Super Administrator",
+      password: "baitybites2026",
+      pin: "9988",
+      role: "PLATFORM_OWNER" as const,
+    },
+    {
+      username: "admin.baitybites",
+      displayName: "Admin Baitybites",
+      password: "baitybites2026",
+      pin: "9988",
+      role: "SUPER_ADMIN" as const,
+    },
+  ];
+
+  for (const seed of adminSeedData) {
+    const passwordHash = await bcrypt.hash(seed.password, 12);
+    const pinHash = await bcrypt.hash(seed.pin, 12);
+
+    await prisma.admin.upsert({
+      where: { username: seed.username },
+      update: {
+        displayName: seed.displayName,
+        passwordHash,
+        pinHash,
+        role: seed.role,
+        isActive: true,
+      },
+      create: {
+        username: seed.username,
+        displayName: seed.displayName,
+        passwordHash,
+        pinHash,
+        role: seed.role,
+        isActive: true,
+        createdBy: "SEED",
+      },
+    });
+
+    console.log(`  ✓ Admin "${seed.username}" (${seed.role}) siap.`);
+  }
+
   console.log("✅ Seeding database Baitybites selesai dengan sukses!");
 }
 

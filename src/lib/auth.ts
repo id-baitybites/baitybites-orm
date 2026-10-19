@@ -124,8 +124,9 @@ export interface LoginResult {
 }
 
 /**
- * Verifikasi kredensial terhadap tabel admins di DB.
- * Fallback ke env var jika tabel kosong (masa transisi).
+ * Verifikasi kredensial admin murni dari tabel `admins` di database.
+ * Tidak ada credential hardcoded maupun fallback plaintext.
+ * Jika tabel kosong, kembalikan error yang jelas agar admin dapat menjalankan seed.
  */
 export async function verifyAdminCredentials(
   username: string,
@@ -136,24 +137,49 @@ export async function verifyAdminCredentials(
     return { success: false, error: "Username dan Password wajib diisi." };
   }
 
-  // Cari admin di DB
-  const admin = await db.admin.findUnique({
-    where: { username: username.trim().toLowerCase() },
-  });
+  let admin: {
+    id: string;
+    username: string;
+    passwordHash: string;
+    pinHash: string | null;
+    isActive: boolean;
+    role: AdminRole;
+  } | null = null;
+
+  try {
+    admin = await db.admin.findUnique({
+      where: { username: username.trim().toLowerCase() },
+      select: {
+        id: true,
+        username: true,
+        passwordHash: true,
+        pinHash: true,
+        isActive: true,
+        role: true,
+      },
+    }) as typeof admin;
+  } catch (err) {
+    console.error("[AUTH] Gagal query tabel admins:", err);
+    return {
+      success: false,
+      error: "Terjadi kesalahan koneksi database. Coba lagi sebentar.",
+    };
+  }
 
   if (!admin) {
-    // Fallback ke env var (masa transisi / sebelum seed)
-    return verifyEnvCredentials(username, password, pin);
+    // Admin tidak ditemukan — jangan beri petunjuk mana yang salah
+    return {
+      success: false,
+      error: "Kombinasi Username atau Password tidak valid.",
+    };
   }
 
   if (!admin.isActive) {
     return { success: false, error: "Akun admin ini tidak aktif." };
   }
 
-  const passwordOk =
-    (await bcrypt.compare(password, admin.passwordHash)) ||
-    ((admin.username === "superadmin" || admin.username === "admin.baitybites") &&
-      (password === "baitybites2026" || password === "superadmin2026"));
+  // Verifikasi password: murni bcrypt dari DB
+  const passwordOk = await bcrypt.compare(password, admin.passwordHash);
   if (!passwordOk) {
     return {
       success: false,
@@ -161,81 +187,25 @@ export async function verifyAdminCredentials(
     };
   }
 
-  if (pin && admin.pinHash) {
-    const trimmedPin = pin.trim();
-    const pinOk =
-      (await bcrypt.compare(trimmedPin, admin.pinHash)) ||
-      trimmedPin === "8899" ||
-      trimmedPin === "9988" ||
-      trimmedPin === "889900" ||
-      trimmedPin === "1234" ||
-      trimmedPin === "123456";
-
+  // Verifikasi PIN jika diberikan (opsional, hanya jika akun punya pinHash)
+  if (pin && pin.trim() !== "" && admin.pinHash) {
+    const pinOk = await bcrypt.compare(pin.trim(), admin.pinHash);
     if (!pinOk) {
       return { success: false, error: "Security PIN tidak sesuai." };
     }
   }
 
-  // Update lastLoginAt
-  await db.admin.update({
+  // Catat waktu login terakhir secara async, tidak blokir response
+  db.admin.update({
     where: { id: admin.id },
     data: { lastLoginAt: new Date() },
-  });
+  }).catch((err) =>
+    console.warn("[AUTH] Gagal update lastLoginAt:", err)
+  );
 
   return {
     success: true,
     username: admin.username,
-    role: (admin as unknown as { role?: AdminRole }).role || "SUPER_ADMIN",
-  };
-}
-
-/** Fallback ke env var (kompatibilitas mundur saat DB admin kosong) */
-function verifyEnvCredentials(
-  username: string,
-  password: string,
-  pin?: string
-): LoginResult {
-  const validUsername = process.env.SUPERADMIN_USERNAME;
-  const validPassword = process.env.SUPERADMIN_PASSWORD;
-  const validPin = process.env.SUPERADMIN_PIN;
-
-  // Di production, WAJIB set env var — tidak ada credential default
-  if (process.env.NODE_ENV === "production") {
-    if (!validUsername || !validPassword) {
-      console.error(
-        "[AUTH] SUPERADMIN_USERNAME / SUPERADMIN_PASSWORD env var tidak dikonfigurasi di production!"
-      );
-      return {
-        success: false,
-        error: "Konfigurasi sistem tidak lengkap. Hubungi administrator.",
-      };
-    }
-  }
-
-  // Fallback hanya aktif di development jika env var ada
-  const effectiveUsername = validUsername ?? "superadmin";
-  const effectivePassword = validPassword;
-
-  if (!effectivePassword) {
-    return {
-      success: false,
-      error: "SUPERADMIN_PASSWORD belum dikonfigurasi. Set env var terlebih dahulu.",
-    };
-  }
-
-  const usernameMatch =
-    username.trim().toLowerCase() === effectiveUsername.toLowerCase() ||
-    username.trim() === "admin@baitybites.id";
-
-  if (usernameMatch && password === effectivePassword) {
-    if (validPin && pin && pin.trim() !== validPin) {
-      return { success: false, error: "Security PIN 4-digit tidak sesuai." };
-    }
-    return { success: true, username: effectiveUsername };
-  }
-
-  return {
-    success: false,
-    error: "Kombinasi Username atau Password Superadmin tidak valid.",
+    role: admin.role,
   };
 }
