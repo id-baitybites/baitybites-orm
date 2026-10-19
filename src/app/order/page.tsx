@@ -7,11 +7,18 @@ import type { CatalogProduct } from "@/components/order/ProductCard";
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const theme = await db.webThemeSetting.findFirst({
-    where: { isActive: true },
-    select: { brandName: true },
-  });
-  const storeName = theme?.brandName || process.env.NEXT_PUBLIC_STORE_NAME || "Toko Online";
+  let storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Toko Online";
+  try {
+    const theme = await db.webThemeSetting.findFirst({
+      where: { isActive: true },
+      select: { brandName: true },
+    });
+    if (theme?.brandName) {
+      storeName = theme.brandName;
+    }
+  } catch {
+    // Gunakan fallback aman saat database belum siap / mode build
+  }
   return {
     title: `Pesan Online & Eksplorasi Menu | ${storeName}`,
     description: `Katalog pemesanan online resmi ${storeName}. Pesan aneka produk pilihan dengan pengiriman ekspres.`,

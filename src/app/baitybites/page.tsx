@@ -6,17 +6,25 @@ import { Metadata } from "next";
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const theme = await db.webThemeSetting.findFirst({
-    where: { isActive: true },
-    select: { brandName: true, tagline: true, heroDescription: true },
-  });
-  const storeName = theme?.brandName || process.env.NEXT_PUBLIC_STORE_NAME || "Toko Online";
-  const tagline = theme?.tagline || "Katalog Produk & Pemesanan Online";
+  let storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Toko Online";
+  let tagline = "Katalog Produk & Pemesanan Online";
+  let description = `Toko online resmi ${storeName}. Pesan produk pilihan dengan mudah dan cepat.`;
+
+  try {
+    const theme = await db.webThemeSetting.findFirst({
+      where: { isActive: true },
+      select: { brandName: true, tagline: true, heroDescription: true },
+    });
+    if (theme?.brandName) storeName = theme.brandName;
+    if (theme?.tagline) tagline = theme.tagline;
+    if (theme?.heroDescription) description = theme.heroDescription;
+  } catch {
+    // Gunakan fallback aman saat database belum siap / mode build
+  }
+
   return {
     title: `${storeName} — ${tagline}`,
-    description:
-      theme?.heroDescription ||
-      `Toko online resmi ${storeName}. Pesan produk pilihan dengan mudah dan cepat.`,
+    description,
   };
 }
 
