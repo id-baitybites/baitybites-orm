@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { Client } from "pg";
+import * as bcrypt from "bcryptjs";
 import { sendEmailWithFallback } from "@/lib/email-service";
 import { db } from "@/lib/db";
 
@@ -169,28 +170,111 @@ STORE_ADMIN_PIN="1234"
       }
     }
 
-    // 3. Pengiriman Email Otomatis ke Klien via Brevo jika email diisi
+    // 3. Auto-Generate Akun Client Admin & Pengiriman Email Kredensial via Brevo
     let emailSent = false;
     let emailRecipient: string | undefined = undefined;
+
+    const clientAdminUsername = `admin.${cleanSlug}`;
+    const clientAdminPassword = `${cleanSlug.charAt(0).toUpperCase() + cleanSlug.slice(1)}2026!#`;
+    const clientAdminPin = "1234";
+
+    try {
+      const existingAdmin = await db.admin.findUnique({
+        where: { username: clientAdminUsername },
+      });
+      const passwordHash = await bcrypt.hash(clientAdminPassword, 10);
+      const pinHash = await bcrypt.hash(clientAdminPin, 10);
+      if (!existingAdmin) {
+        await db.admin.create({
+          data: {
+            id: `adm-client-${cleanSlug}`,
+            username: clientAdminUsername,
+            displayName: `Admin ${payload.clientName}`,
+            passwordHash,
+            pinHash,
+            role: "SUPER_ADMIN",
+            isActive: true,
+            createdBy: "PLATFORM_PROVISION",
+          },
+        });
+      } else {
+        await db.admin.update({
+          where: { username: clientAdminUsername },
+          data: {
+            passwordHash,
+            pinHash,
+            isActive: true,
+          },
+        });
+      }
+    } catch (adminErr: any) {
+      console.warn("Notice: could not ensure client admin account in db:", adminErr?.message);
+    }
 
     if (payload.clientEmail?.trim()) {
       try {
         const baseUrl = process.env.NEXT_PUBLIC_APP_URL?.trim() || "https://baitybites-orm.vercel.app";
-        const directOnboardingUrl = `${baseUrl}/onboarding?force=true&brand=${encodeURIComponent(payload.clientName)}`;
+        const loginUrl = `${baseUrl}/admin?from=%2Fonboarding`;
 
         const emailHtml = `
           <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 620px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #ffffff;">
-            <div style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); padding: 26px 32px; color: #ffffff;">
-              <h1 style="color: #ffffff; margin: 0; font-size: 20px; font-weight: 700;">Baitybites ORM Engine</h1>
-              <p style="color: rgba(255,255,255,0.9); margin: 6px 0 0; font-size: 13px;">Selamat Datang! Instance Repositori Toko Anda Telah Siap</p>
+            <div style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); padding: 26px 32px; color: #ffffff;">
+              <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; background: rgba(255,255,255,0.18); display: inline-block; padding: 4px 10px; border-radius: 12px; font-weight: 600; margin-bottom: 6px;">
+                Aktivasi Akun &amp; Instance
+              </div>
+              <h1 style="color: #ffffff; margin: 0; font-size: 21px; font-weight: 700;">Instance Siap &amp; Kredensial Client Admin</h1>
+              <p style="color: rgba(255,255,255,0.85); margin: 6px 0 0; font-size: 13px;">Bisnis: <strong>${payload.clientName}</strong> &bull; Peran: <strong>Client Super Admin</strong></p>
             </div>
 
             <div style="padding: 28px 32px; color: #0f172a; font-size: 14px; line-height: 1.6;">
               <p style="margin-top: 0;">Halo Tim <strong>${payload.clientName}</strong>,</p>
-              <p>Selamat! Repositori sistem e-commerce &amp; OMS khusus untuk bisnis kuliner Anda telah berhasil di-generate secara dedicated oleh tim Baitybites ORM.</p>
+              <p>Selamat! Instance sistem e-commerce dan operasional restoran Anda telah berhasil disiapkan di platform Baitybites ORM.</p>
 
+              <!-- KOTAK KREDENSIAL OTENTIKASI RESMI -->
+              <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-left: 4px solid #4f46e5; border-radius: 8px; padding: 20px; margin: 24px 0;">
+                <h3 style="margin: 0 0 12px; font-size: 14px; color: #312e81; text-transform: uppercase; letter-spacing: 0.05em;">Kredensial Otentikasi Client Admin:</h3>
+                <p style="margin: 0 0 10px; font-size: 12px; color: #64748b;">
+                  Gunakan kredensial resmi di bawah ini untuk autentikasi sebelum masuk ke wizard onboarding setup toko:
+                </p>
+                <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                  <tr>
+                    <td style="padding: 6px 0; color: #64748b; width: 160px;">Portal Login:</td>
+                    <td style="padding: 6px 0;"><a href="${loginUrl}" style="color: #4f46e5; font-weight: 600;">${baseUrl}/admin</a></td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 6px 0; color: #64748b;">Username:</td>
+                    <td style="padding: 6px 0;"><code style="background: #ffffff; padding: 3px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 14px; font-weight: 700; color: #0f172a;">${clientAdminUsername}</code></td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 6px 0; color: #64748b;">Password Sementara:</td>
+                    <td style="padding: 6px 0;"><code style="background: #ffffff; padding: 3px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 14px; font-weight: 700; color: #0f172a;">${clientAdminPassword}</code></td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 6px 0; color: #64748b;">Security PIN Kasir:</td>
+                    <td style="padding: 6px 0;"><code style="background: #ffffff; padding: 3px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 14px; font-weight: 700; color: #0f172a;">${clientAdminPin}</code></td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 6px 0; color: #64748b;">Hak Akses / Role:</td>
+                    <td style="padding: 6px 0; font-weight: 600; color: #059669;">SUPER_ADMIN (Owner Toko)</td>
+                  </tr>
+                </table>
+              </div>
+
+              <!-- CTA LOGIN OTENTIKASI & ONBOARDING -->
+              <div style="background: #eef2ff; border: 2px solid #6366f1; border-radius: 10px; padding: 22px; margin: 24px 0; text-align: center;">
+                <h3 style="margin: 0 0 6px; font-size: 16px; color: #3730a3;">🔐 Autentikasi &amp; Lanjut Onboarding Toko</h3>
+                <p style="margin: 0 0 16px; font-size: 13px; color: #4338ca;">Demi keamanan sistem, Anda diwajibkan melakukan autentikasi login terlebih dahulu sebelum masuk ke Wizard Setup Brand dan Menu:</p>
+                <a href="${loginUrl}" style="display: inline-block; background: #4f46e5; color: #ffffff; padding: 14px 30px; border-radius: 8px; font-weight: 700; text-decoration: none; font-size: 14px; box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.25);">
+                  🔐 Login Client Admin &amp; Setup Toko &rarr;
+                </a>
+                <p style="margin: 12px 0 0; font-size: 12px; color: #6366f1;">
+                  Tautan login resmi: <a href="${loginUrl}" style="color: #4f46e5; word-break: break-all;">${loginUrl}</a>
+                </p>
+              </div>
+
+              <!-- DETAIL REPOSITORI & ENVIRONMENT -->
               <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 18px 20px; margin: 20px 0;">
-                <h3 style="margin: 0 0 12px; font-size: 14px; color: #0284c7; text-transform: uppercase; letter-spacing: 0.05em;">Detail Instance Repositori:</h3>
+                <h3 style="margin: 0 0 12px; font-size: 14px; color: #0284c7; text-transform: uppercase; letter-spacing: 0.05em;">Detail Repositori Dedicated:</h3>
                 <p style="margin: 0 0 8px;"><strong>URL Repositori GitHub:</strong><br />
                   <a href="${finalRepoUrl}" style="color: #0284c7; word-break: break-all;">${finalRepoUrl}</a>
                 </p>
@@ -203,36 +287,23 @@ STORE_ADMIN_PIN="1234"
               </div>
 
               <div style="background: #fdfbf7; border: 1px solid #fed7aa; border-radius: 8px; padding: 18px 20px; margin: 20px 0;">
-                <h3 style="margin: 0 0 10px; font-size: 14px; color: #ea580c; text-transform: uppercase; letter-spacing: 0.05em;">Kredensial &amp; Konfigurasi Lingkungan (.env):</h3>
-                <p style="margin: 0 0 6px; font-size: 13px;"><strong>Security PIN Admin Toko:</strong> <code style="background: #ffffff; padding: 2px 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-weight: 700;">1234</code> (dapat diubah di Backoffice Toko)</p>
+                <h3 style="margin: 0 0 10px; font-size: 14px; color: #ea580c; text-transform: uppercase; letter-spacing: 0.05em;">Konfigurasi Lingkungan Database (.env):</h3>
                 <p style="margin: 0 0 6px; font-size: 13px;"><strong>Skema Database:</strong> <code style="background: #ffffff; padding: 2px 6px; border: 1px solid #cbd5e1; border-radius: 4px;">${sanitizedSlugUnderscore}</code> (Terisolasi di Neon PostgreSQL)</p>
                 <pre style="background: #ffffff; padding: 12px; border: 1px solid #fed7aa; border-radius: 6px; font-size: 11px; overflow-x: auto; margin-top: 10px; color: #334155;">${envPreset}</pre>
               </div>
 
-              <!-- CTA DIRECT ONBOARDING -->
-              <div style="background: #eef2ff; border: 2px solid #6366f1; border-radius: 10px; padding: 22px; margin: 24px 0; text-align: center;">
-                <h3 style="margin: 0 0 6px; font-size: 16px; color: #3730a3;">🚀 Setup Konfigurasi &amp; Onboarding Toko</h3>
-                <p style="margin: 0 0 16px; font-size: 13px; color: #4338ca;">Klik tombol di bawah ini untuk memulai wizard pengaturan identitas brand, tema visual, nomor WhatsApp CS, dan katalog menu toko:</p>
-                <a href="${directOnboardingUrl}" style="display: inline-block; background: #4f46e5; color: #ffffff; padding: 13px 26px; border-radius: 8px; font-weight: 700; text-decoration: none; font-size: 14px; box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.25);">
-                  Buka Wizard Setup Toko Anda &rarr;
-                </a>
-                <p style="margin: 12px 0 0; font-size: 12px; color: #6366f1;">
-                  Tautan langsung: <a href="${directOnboardingUrl}" style="color: #4f46e5; word-break: break-all;">${directOnboardingUrl}</a>
-                </p>
-              </div>
-
               <div style="margin: 26px 0 16px;">
-                <p style="margin: 0 0 6px; font-weight: 600;">Langkah Selanjutnya:</p>
+                <p style="margin: 0 0 6px; font-weight: 600;">Alur Otentikasi &amp; Setup:</p>
                 <ol style="margin: 0; padding-left: 20px; font-size: 13px; color: #475569;">
-                  <li>Jalankan aplikasi atau buka langsung di VS Code Dev.</li>
-                  <li>Buka <a href="${directOnboardingUrl}" style="color: #4f46e5; font-weight: 600;">Halaman Panduan Onboarding Interaktif</a> untuk melengkapi menu dan logo toko Anda.</li>
-                  <li>Jika butuh bantuan teknis, hubungi tim kami via WhatsApp atau balas email ini.</li>
+                  <li>Klik tombol <strong>Login Client Admin</strong> di atas dan masukkan username serta password resmi Anda.</li>
+                  <li>Setelah terotentikasi, sistem akan mengarahkan Anda ke Wizard Setup &amp; Onboarding untuk melengkapi nama brand, warna visual, dan menu toko Anda.</li>
+                  <li>Untuk keamanan, Anda dapat mengganti password sementara melalui menu Pengaturan setelah onboarding selesai.</li>
                 </ol>
               </div>
 
               <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0;" />
               <p style="margin: 0; font-size: 12px; color: #64748b;">
-                Email ini dikirim secara otomatis oleh <strong>Baitybites ORM Platform Console</strong> kepada mitra bisnis terdaftar.
+                Email ini dikirim secara otomatis oleh <strong>Baitybites ORM Platform Security &amp; Provisioning Engine</strong> kepada mitra bisnis terdaftar.
               </p>
             </div>
           </div>
@@ -240,7 +311,7 @@ STORE_ADMIN_PIN="1234"
 
         const emailSendResult = await sendEmailWithFallback({
           to: payload.clientEmail.trim(),
-          subject: `🚀 Akses Repository & Kredensial Onboarding Instance Toko Anda - ${payload.clientName}`,
+          subject: `🔐 Kredensial Otentikasi Resmi Client Admin & Akses Onboarding Toko — ${payload.clientName}`,
           html: emailHtml,
         });
 

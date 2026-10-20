@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   UserIcon,
   LockPasswordIcon,
@@ -20,8 +20,10 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { superAdminLoginAction } from "@/app/login/actions";
 import "./admin.scss";
 
-export default function AdminLoginPage() {
+function AdminLoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const fromPath = searchParams.get("from");
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -45,7 +47,7 @@ export default function AdminLoginPage() {
     try {
       const res = await superAdminLoginAction(formData);
       if (res.success) {
-        const dest = res.redirectTo || "/orders";
+        const dest = (fromPath && fromPath.startsWith("/")) ? fromPath : (res.redirectTo || "/orders");
         const msg =
           res.role === "PLATFORM_OWNER"
             ? "Autentikasi berhasil! Mengarahkan ke Platform Owner Console..."
@@ -53,7 +55,7 @@ export default function AdminLoginPage() {
             ? "Autentikasi berhasil! Mengarahkan ke Modul Kasir & Pesanan..."
             : res.role === "KITCHEN_STAFF"
             ? "Autentikasi berhasil! Mengarahkan ke Layar Dapur (KDS)..."
-            : "Autentikasi berhasil! Mengarahkan ke Super Admin OMS...";
+            : "Autentikasi berhasil! Mengarahkan ke Dashboard Toko...";
         setSuccessMsg(msg);
         setTimeout(() => {
           router.push(dest);
@@ -68,8 +70,6 @@ export default function AdminLoginPage() {
     }
   };
 
-
-
   return (
     <div className="admin-login">
       {/* Ambient background blobs */}
@@ -83,6 +83,7 @@ export default function AdminLoginPage() {
         <span>Kembali ke Beranda</span>
       </Link>
 
+      {/* Main Card */}
       <div className="admin-login__card">
         {/* Header */}
         <div className="admin-login__header">
@@ -91,13 +92,31 @@ export default function AdminLoginPage() {
           </div>
           <div className="admin-login__badge">
             <HugeiconsIcon icon={SecurityCheckIcon} size={11} strokeWidth={2} />
-            <span>Portal Administrasi Baitybites ORM</span>
+            <span>Portal Otentikasi Resmi</span>
           </div>
           <h1 className="admin-login__title">Masuk Administrasi</h1>
           <p className="admin-login__subtitle">
-            Autentikasi aman untuk Platform Owner Console dan Toko Merchant.
+            Autentikasi aman untuk Platform Owner dan Client Admin Toko.
           </p>
         </div>
+
+        {/* Notice jika diarahkan dari onboarding */}
+        {fromPath && fromPath.includes("onboarding") && (
+          <div
+            style={{
+              background: "#eff6ff",
+              border: "1px solid #bfdbfe",
+              color: "#1e40af",
+              padding: "12px 16px",
+              borderRadius: "8px",
+              marginBottom: "18px",
+              fontSize: "13px",
+              lineHeight: 1.5,
+            }}
+          >
+            🔐 <strong>Autentikasi Diperlukan:</strong> Silakan login menggunakan akun Client Admin Anda terlebih dahulu untuk mengakses panduan konfigurasi setup onboarding toko.
+          </div>
+        )}
 
         {/* Alerts */}
         {errorMsg && (
@@ -129,10 +148,12 @@ export default function AdminLoginPage() {
                 name="username"
                 type="text"
                 autoComplete="username"
-                placeholder="superadmin atau admin.baitybites"
+                autoFocus
+                required
+                className="admin-field__input"
+                placeholder="Contoh: admin.sidrrevive"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                required
                 disabled={isLoading}
               />
             </div>
@@ -140,9 +161,11 @@ export default function AdminLoginPage() {
 
           {/* Password */}
           <div className="admin-field">
-            <label htmlFor="admin-password" className="admin-field__label">
-              Master Password
-            </label>
+            <div className="admin-field__label-row">
+              <label htmlFor="admin-password" className="admin-field__label">
+                Password
+              </label>
+            </div>
             <div className="admin-field__input-wrap">
               <span className="admin-field__icon">
                 <HugeiconsIcon icon={LockPasswordIcon} size={17} strokeWidth={1.8} />
@@ -152,16 +175,17 @@ export default function AdminLoginPage() {
                 name="password"
                 type={showPassword ? "text" : "password"}
                 autoComplete="current-password"
-                placeholder="••••••••••••"
+                required
+                className="admin-field__input"
+                placeholder="Masukkan password admin"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                required
                 disabled={isLoading}
               />
               <button
                 type="button"
                 className="admin-field__toggle"
-                onClick={() => setShowPassword((v) => !v)}
+                onClick={() => setShowPassword(!showPassword)}
                 aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"}
                 tabIndex={-1}
               >
@@ -174,23 +198,27 @@ export default function AdminLoginPage() {
             </div>
           </div>
 
-          {/* Security PIN */}
+          {/* Security PIN Kasir */}
           <div className="admin-field">
-            <label htmlFor="admin-pin" className="admin-field__label">
-              Security PIN
-              <span className="admin-field__label-note">4–6 digit, opsional</span>
-            </label>
+            <div className="admin-field__label-row">
+              <label htmlFor="admin-pin" className="admin-field__label">
+                Security PIN 4-Digit (Opsional)
+              </label>
+              <span className="admin-field__hint">Default awal: 1234</span>
+            </div>
             <div className="admin-field__input-wrap">
               <span className="admin-field__icon">
-                <HugeiconsIcon icon={Key01Icon} size={17} strokeWidth={1.8} />
+                <HugeiconsIcon icon={SecurityCheckIcon} size={17} strokeWidth={1.8} />
               </span>
               <input
                 id="admin-pin"
                 name="securityPin"
                 type="password"
                 inputMode="numeric"
-                maxLength={6}
-                placeholder="Contoh: 8899 atau kosongkan"
+                maxLength={4}
+                autoComplete="off"
+                className="admin-field__input"
+                placeholder="••••"
                 value={securityPin}
                 onChange={(e) => setSecurityPin(e.target.value.replace(/\D/g, ""))}
                 disabled={isLoading}
@@ -220,5 +248,13 @@ export default function AdminLoginPage() {
         © {new Date().getFullYear()} Baitybites OMS · Enkripsi TLS 256-bit
       </p>
     </div>
+  );
+}
+
+export default function AdminLoginPage() {
+  return (
+    <Suspense fallback={<div className="admin-login-layout" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>Memuat sistem autentikasi...</div>}>
+      <AdminLoginForm />
+    </Suspense>
   );
 }

@@ -16,11 +16,13 @@ import {
   Cancel01Icon,
   Loading03Icon,
   PencilEdit02Icon,
+  ShieldKeyIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   updateLeadStatusAction,
   sendEmailReplyAction,
+  sendOnboardingInviteAction,
 } from "./actions";
 import type { ClientLead, LeadStatus } from "@/lib/leads-store";
 
@@ -96,6 +98,19 @@ export default function LeadsClient({ initialLeads }: LeadsClientProps) {
         setStatusFeedback(`📧 Email otomatis (${newStatus}) terkirim: ${res.emailRecipient}`);
         setTimeout(() => setStatusFeedback(null), 10000);
       }
+    });
+  };
+
+  const handleSendOnboardingInvite = (id: string, name: string) => {
+    startTransition(async () => {
+      setStatusFeedback(`Mengirimkan kredensial otentikasi Client Admin & link onboarding ke ${name}...`);
+      const res = await sendOnboardingInviteAction(id);
+      if (res.success) {
+        setStatusFeedback(`🔐 Kredensial Client Admin berhasil dikirim via Brevo ke: ${res.emailRecipient}`);
+      } else {
+        setStatusFeedback(`⚠️ Gagal mengirim kredensial: ${res.message}`);
+      }
+      setTimeout(() => setStatusFeedback(null), 10000);
     });
   };
 
@@ -434,6 +449,17 @@ export default function LeadsClient({ initialLeads }: LeadsClientProps) {
 
                     <td>
                       <div className="action-cell">
+                        <button
+                          type="button"
+                          onClick={() => handleSendOnboardingInvite(lead.id, lead.businessName)}
+                          className="btn-auth-action"
+                          title="Kirim Kredensial Otentikasi Client Admin Resmi via Brevo"
+                          disabled={isPending}
+                        >
+                          <HugeiconsIcon icon={ShieldKeyIcon} size={13} />
+                          <span>Kirim Kredensial</span>
+                        </button>
+
                         <Link
                           href={`/settings/provision?name=${encodeURIComponent(
                             lead.businessName
