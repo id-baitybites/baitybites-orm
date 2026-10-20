@@ -7,9 +7,12 @@ export type LeadStatus =
   | "BARU"
   | "DIHUBUNGI"
   | "INVOICE_DIKIRIM"
+  | "BUKTI_DITERIMA"
   | "LUNAS"
   | "PROVISIONING"
   | "PROVISIONED"
+  | "ONBOARDING_SELESAI"
+  | "WEBSITE_AKTIF"
   | "BATAL";
 
 export interface ClientLead {
@@ -26,11 +29,21 @@ export interface ClientLead {
   invoiceNumber?: string | null;
   invoiceAmount?: number | null;
   paidAt?: string | null;
+  // Pembayaran & Bukti Transfer
+  paymentProofUrl?: string | null;
+  paymentSenderName?: string | null;
+  paymentBankName?: string | null;
+  paymentSubmittedAt?: string | null;
+  // Provisioning & Teknis
   repoUrl?: string | null;
   deploymentUrl?: string | null;
   customDomain?: string | null;
   dbSchemaName?: string | null;
   provisionedAt?: string | null;
+  // Kontrak Layanan SaaS
+  contractStartDate?: string | null;
+  contractEndDate?: string | null;
+  activatedAt?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -72,11 +85,18 @@ export async function getAllLeads(): Promise<ClientLead[]> {
         invoiceNumber: r.invoiceNumber,
         invoiceAmount: r.invoiceAmount,
         paidAt: r.paidAt ? r.paidAt.toISOString() : null,
+        paymentProofUrl: (r as any).paymentProofUrl ?? null,
+        paymentSenderName: (r as any).paymentSenderName ?? null,
+        paymentBankName: (r as any).paymentBankName ?? null,
+        paymentSubmittedAt: (r as any).paymentSubmittedAt ? new Date((r as any).paymentSubmittedAt).toISOString() : null,
         repoUrl: r.repoUrl,
         deploymentUrl: r.deploymentUrl,
         customDomain: r.customDomain,
         dbSchemaName: r.dbSchemaName,
         provisionedAt: r.provisionedAt ? r.provisionedAt.toISOString() : null,
+        contractStartDate: (r as any).contractStartDate ? new Date((r as any).contractStartDate).toISOString() : null,
+        contractEndDate: (r as any).contractEndDate ? new Date((r as any).contractEndDate).toISOString() : null,
+        activatedAt: (r as any).activatedAt ? new Date((r as any).activatedAt).toISOString() : null,
         createdAt: r.createdAt.toISOString(),
         updatedAt: r.updatedAt.toISOString(),
       }));
@@ -141,11 +161,18 @@ export async function saveLead(
       invoiceNumber: created.invoiceNumber,
       invoiceAmount: created.invoiceAmount,
       paidAt: created.paidAt ? created.paidAt.toISOString() : null,
+      paymentProofUrl: null,
+      paymentSenderName: null,
+      paymentBankName: null,
+      paymentSubmittedAt: null,
       repoUrl: created.repoUrl,
       deploymentUrl: created.deploymentUrl,
       customDomain: created.customDomain,
       dbSchemaName: created.dbSchemaName,
       provisionedAt: created.provisionedAt ? created.provisionedAt.toISOString() : null,
+      contractStartDate: null,
+      contractEndDate: null,
+      activatedAt: null,
       createdAt: created.createdAt.toISOString(),
       updatedAt: created.updatedAt.toISOString(),
     };
@@ -182,6 +209,13 @@ export async function updateLeadStatus(
     invoiceAmount?: number;
     paidAt?: Date;
     provisionedAt?: Date;
+    paymentProofUrl?: string;
+    paymentSenderName?: string;
+    paymentBankName?: string;
+    paymentSubmittedAt?: Date;
+    contractStartDate?: Date;
+    contractEndDate?: Date;
+    activatedAt?: Date;
   }
 ): Promise<ClientLead | null> {
   try {
@@ -202,6 +236,13 @@ export async function updateLeadStatus(
     if (extra?.invoiceAmount !== undefined) dataToUpdate.invoiceAmount = extra.invoiceAmount;
     if (extra?.paidAt) dataToUpdate.paidAt = extra.paidAt;
     if (extra?.provisionedAt) dataToUpdate.provisionedAt = extra.provisionedAt;
+    if (extra?.paymentProofUrl) dataToUpdate.paymentProofUrl = extra.paymentProofUrl;
+    if (extra?.paymentSenderName) dataToUpdate.paymentSenderName = extra.paymentSenderName;
+    if (extra?.paymentBankName) dataToUpdate.paymentBankName = extra.paymentBankName;
+    if (extra?.paymentSubmittedAt) dataToUpdate.paymentSubmittedAt = extra.paymentSubmittedAt;
+    if (extra?.contractStartDate) dataToUpdate.contractStartDate = extra.contractStartDate;
+    if (extra?.contractEndDate) dataToUpdate.contractEndDate = extra.contractEndDate;
+    if (extra?.activatedAt) dataToUpdate.activatedAt = extra.activatedAt;
 
     const updated = await db.clientLead.update({
       where: { id },
@@ -222,11 +263,18 @@ export async function updateLeadStatus(
       invoiceNumber: updated.invoiceNumber,
       invoiceAmount: updated.invoiceAmount,
       paidAt: updated.paidAt ? updated.paidAt.toISOString() : null,
+      paymentProofUrl: (updated as any).paymentProofUrl ?? null,
+      paymentSenderName: (updated as any).paymentSenderName ?? null,
+      paymentBankName: (updated as any).paymentBankName ?? null,
+      paymentSubmittedAt: (updated as any).paymentSubmittedAt ? new Date((updated as any).paymentSubmittedAt).toISOString() : null,
       repoUrl: updated.repoUrl,
       deploymentUrl: updated.deploymentUrl,
       customDomain: updated.customDomain,
       dbSchemaName: updated.dbSchemaName,
       provisionedAt: updated.provisionedAt ? updated.provisionedAt.toISOString() : null,
+      contractStartDate: (updated as any).contractStartDate ? new Date((updated as any).contractStartDate).toISOString() : null,
+      contractEndDate: (updated as any).contractEndDate ? new Date((updated as any).contractEndDate).toISOString() : null,
+      activatedAt: (updated as any).activatedAt ? new Date((updated as any).activatedAt).toISOString() : null,
       createdAt: updated.createdAt.toISOString(),
       updatedAt: updated.updatedAt.toISOString(),
     };

@@ -62,14 +62,36 @@ export async function provisionClientRepository(
 
     // Format env preset untuk instance toko klien dengan skema database terisolasi
     const sanitizedSlugUnderscore = cleanSlug.replace(/-/g, "_");
+
+    let clientDbUrl = process.env.DATABASE_URL?.trim() || "";
+    if (clientDbUrl) {
+      if (clientDbUrl.includes("schema=")) {
+        clientDbUrl = clientDbUrl.replace(/schema=[^&]+/, `schema=${sanitizedSlugUnderscore}`);
+      } else if (clientDbUrl.includes("?")) {
+        clientDbUrl = `${clientDbUrl}&schema=${sanitizedSlugUnderscore}`;
+      } else {
+        clientDbUrl = `${clientDbUrl}?schema=${sanitizedSlugUnderscore}`;
+      }
+    } else {
+      clientDbUrl = `postgresql://db_user:password@neon.tech/neondb?sslmode=require&schema=${sanitizedSlugUnderscore}`;
+    }
+
+    const clientDirectUrl =
+      process.env.DIRECT_URL?.trim() ||
+      "postgresql://db_user:password@neon.tech/neondb?sslmode=require";
+
+    // Masking kredensial sensitif untuk tampilan browser & email klien
+    const maskSecret = (url: string) => url.replace(/:\/\/[^:]+:([^@]+)@/, "://neondb_owner:••••••••@");
+
     const envPreset = `# === KONFIGURASI INSTANCE CLIENT: ${payload.clientName.toUpperCase()} ===
 NEXT_PUBLIC_STORE_NAME="${payload.clientName}"
 NEXT_PUBLIC_APP_URL="https://${cleanSlug}.baitybites.site"
 NEXT_PUBLIC_WHATSAPP_PHONE="081298765432"
 
 # Database Dedicated (Skema: ${sanitizedSlugUnderscore})
-DATABASE_URL="postgresql://neondb_owner:npg_MgTYQlpsi29R@ep-divine-darkness-b36on9n8-pooler.c-4.ap-southeast-1.aws.neon.tech/neondb?channel_binding=require&sslmode=verify-full&schema=${sanitizedSlugUnderscore}"
-DIRECT_URL="postgresql://neondb_owner:npg_MgTYQlpsi29R@ep-divine-darkness-b36on9n8.c-4.ap-southeast-1.aws.neon.tech/neondb?channel_binding=require&sslmode=verify-full"
+# Kredensial dikelola otomatis dan aman di server environment
+DATABASE_URL="${maskSecret(clientDbUrl)}"
+DIRECT_URL="${maskSecret(clientDirectUrl)}"
 
 # Kredensial Admin Kasir & Dapur Toko
 STORE_ADMIN_PIN="1234"

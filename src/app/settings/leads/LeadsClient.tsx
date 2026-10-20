@@ -11,7 +11,6 @@ import {
   CheckmarkCircle02Icon,
   Clock01Icon,
   AlertCircleIcon,
-  File02Icon,
   RocketIcon,
   Cancel01Icon,
   Loading03Icon,
@@ -19,6 +18,20 @@ import {
   ShieldKeyIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import {
+  Sparkles,
+  Phone,
+  Receipt,
+  Upload,
+  CheckCircle2,
+  Settings2,
+  Rocket,
+  PartyPopper,
+  Globe,
+  XCircle,
+  HelpCircle,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import {
   updateLeadStatusAction,
   sendEmailReplyAction,
@@ -30,14 +43,17 @@ interface LeadsClientProps {
   initialLeads: ClientLead[];
 }
 
-const STATUS_LABELS: Record<LeadStatus, { label: string; badgeClass: string }> = {
-  BARU: { label: "Baru (Perlu Respon)", badgeClass: "status-baru" },
-  DIHUBUNGI: { label: "Sudah Dihubungi", badgeClass: "status-dihubungi" },
-  INVOICE_DIKIRIM: { label: "Invoice Terkirim", badgeClass: "status-invoice" },
-  LUNAS: { label: "Pembayaran Lunas", badgeClass: "status-lunas" },
-  PROVISIONING: { label: "Sedang Dibuat", badgeClass: "status-provisioning" },
-  PROVISIONED: { label: "Instance Siap", badgeClass: "status-provisioned" },
-  BATAL: { label: "Dibatalkan", badgeClass: "status-batal" },
+const STATUS_LABELS: Record<LeadStatus, { label: string; badgeClass: string; Icon: LucideIcon }> = {
+  BARU: { label: "Baru (Perlu Respon)", badgeClass: "status-baru", Icon: Sparkles },
+  DIHUBUNGI: { label: "Sudah Dihubungi", badgeClass: "status-dihubungi", Icon: Phone },
+  INVOICE_DIKIRIM: { label: "Invoice Terkirim", badgeClass: "status-invoice", Icon: Receipt },
+  BUKTI_DITERIMA: { label: "Bukti Diterima", badgeClass: "status-bukti", Icon: Upload },
+  LUNAS: { label: "Pembayaran Lunas", badgeClass: "status-lunas", Icon: CheckCircle2 },
+  PROVISIONING: { label: "Sedang Dibuat", badgeClass: "status-provisioning", Icon: Settings2 },
+  PROVISIONED: { label: "Instance Siap", badgeClass: "status-provisioned", Icon: Rocket },
+  ONBOARDING_SELESAI: { label: "Onboarding Selesai", badgeClass: "status-onboarding", Icon: PartyPopper },
+  WEBSITE_AKTIF: { label: "Website Aktif", badgeClass: "status-aktif", Icon: Globe },
+  BATAL: { label: "Dibatalkan", badgeClass: "status-batal", Icon: XCircle },
 };
 
 export default function LeadsClient({ initialLeads }: LeadsClientProps) {
@@ -81,10 +97,17 @@ export default function LeadsClient({ initialLeads }: LeadsClientProps) {
   const totalCount = leads.length;
   const newCount = leads.filter((l) => l.status === "BARU").length;
   const inProgressCount = leads.filter(
-    (l) => l.status === "DIHUBUNGI" || l.status === "INVOICE_DIKIRIM"
+    (l) =>
+      l.status === "DIHUBUNGI" ||
+      l.status === "INVOICE_DIKIRIM" ||
+      l.status === "BUKTI_DITERIMA"
   ).length;
   const readyCount = leads.filter(
-    (l) => l.status === "LUNAS" || l.status === "PROVISIONED"
+    (l) =>
+      l.status === "LUNAS" ||
+      l.status === "PROVISIONED" ||
+      l.status === "ONBOARDING_SELESAI" ||
+      l.status === "WEBSITE_AKTIF"
   ).length;
 
   const handleStatusChange = (id: string, newStatus: LeadStatus) => {
@@ -95,7 +118,7 @@ export default function LeadsClient({ initialLeads }: LeadsClientProps) {
       );
       const res = await updateLeadStatusAction(id, newStatus);
       if (res.emailSent && res.emailRecipient) {
-        setStatusFeedback(`📧 Email otomatis (${newStatus}) terkirim: ${res.emailRecipient}`);
+        setStatusFeedback(`Email otomatis (${newStatus}) terkirim ke: ${res.emailRecipient}`);
         setTimeout(() => setStatusFeedback(null), 10000);
       }
     });
@@ -106,9 +129,9 @@ export default function LeadsClient({ initialLeads }: LeadsClientProps) {
       setStatusFeedback(`Mengirimkan kredensial otentikasi Client Admin & link onboarding ke ${name}...`);
       const res = await sendOnboardingInviteAction(id);
       if (res.success) {
-        setStatusFeedback(`🔐 Kredensial Client Admin berhasil dikirim via Brevo ke: ${res.emailRecipient}`);
+        setStatusFeedback(`Kredensial Client Admin berhasil dikirim via Brevo ke: ${res.emailRecipient}`);
       } else {
-        setStatusFeedback(`⚠️ Gagal mengirim kredensial: ${res.message}`);
+        setStatusFeedback(`Gagal mengirim kredensial: ${res.message}`);
       }
       setTimeout(() => setStatusFeedback(null), 10000);
     });
@@ -289,35 +312,56 @@ export default function LeadsClient({ initialLeads }: LeadsClientProps) {
             className={`tab-btn ${activeFilter === "BARU" ? "is-active" : ""}`}
             onClick={() => setActiveFilter("BARU")}
           >
-            Baru ({newCount})
+            <Sparkles size={13} /> Baru ({newCount})
           </button>
           <button
             type="button"
             className={`tab-btn ${activeFilter === "DIHUBUNGI" ? "is-active" : ""}`}
             onClick={() => setActiveFilter("DIHUBUNGI")}
           >
-            Dihubungi
+            <Phone size={13} /> Dihubungi
           </button>
           <button
             type="button"
             className={`tab-btn ${activeFilter === "INVOICE_DIKIRIM" ? "is-active" : ""}`}
             onClick={() => setActiveFilter("INVOICE_DIKIRIM")}
           >
-            Invoice Terkirim
+            <Receipt size={13} /> Invoice Terkirim
+          </button>
+          <button
+            type="button"
+            className={`tab-btn ${activeFilter === "BUKTI_DITERIMA" ? "is-active" : ""}`}
+            onClick={() => setActiveFilter("BUKTI_DITERIMA")}
+          >
+            <Upload size={13} /> Bukti Diterima
           </button>
           <button
             type="button"
             className={`tab-btn ${activeFilter === "LUNAS" ? "is-active" : ""}`}
             onClick={() => setActiveFilter("LUNAS")}
           >
-            Lunas
+            <CheckCircle2 size={13} /> Lunas
           </button>
           <button
             type="button"
             className={`tab-btn ${activeFilter === "PROVISIONED" ? "is-active" : ""}`}
             onClick={() => setActiveFilter("PROVISIONED")}
           >
-            Instance Siap
+            <Rocket size={13} /> Instance Siap
+          </button>
+          <button
+            type="button"
+            className={`tab-btn ${activeFilter === "ONBOARDING_SELESAI" ? "is-active" : ""}`}
+            onClick={() => setActiveFilter("ONBOARDING_SELESAI")}
+          >
+            <PartyPopper size={13} /> Onboarding
+          </button>
+          <button
+            type="button"
+            className={`tab-btn ${activeFilter === "WEBSITE_AKTIF" ? "is-active" : ""}`}
+            onClick={() => setActiveFilter("WEBSITE_AKTIF")}
+          >
+            <Globe size={13} /> Website Aktif
           </button>
         </div>
 
@@ -356,6 +400,7 @@ export default function LeadsClient({ initialLeads }: LeadsClientProps) {
                 const statusMeta = STATUS_LABELS[lead.status] || {
                   label: lead.status,
                   badgeClass: "",
+                  Icon: HelpCircle,
                 };
                 return (
                   <tr key={lead.id}>
@@ -411,6 +456,9 @@ export default function LeadsClient({ initialLeads }: LeadsClientProps) {
 
                     <td>
                       <div className="status-cell">
+                        <div className={`status-badge-wrap ${statusMeta.badgeClass}`}>
+                          <statusMeta.Icon size={13} />
+                        </div>
                         <select
                           className={`status-select ${statusMeta.badgeClass}`}
                           value={lead.status}
@@ -422,8 +470,12 @@ export default function LeadsClient({ initialLeads }: LeadsClientProps) {
                           <option value="BARU">Baru (Perlu Respon)</option>
                           <option value="DIHUBUNGI">Sudah Dihubungi</option>
                           <option value="INVOICE_DIKIRIM">Invoice Terkirim</option>
+                          <option value="BUKTI_DITERIMA">Bukti Diterima</option>
                           <option value="LUNAS">Pembayaran Lunas</option>
+                          <option value="PROVISIONING">Sedang Dibuat</option>
                           <option value="PROVISIONED">Instance Siap</option>
+                          <option value="ONBOARDING_SELESAI">Onboarding Selesai</option>
+                          <option value="WEBSITE_AKTIF">Website Aktif</option>
                           <option value="BATAL">Dibatalkan</option>
                         </select>
                       </div>

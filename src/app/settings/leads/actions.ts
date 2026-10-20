@@ -118,22 +118,61 @@ export async function updateLeadStatusAction(
               </p>
             </div>
 
-            <!-- TAUTAN ONBOARDING & SETUP PREVIEW -->
-            <div style="background: #fdfbf7; border: 1px solid #fed7aa; border-radius: 8px; padding: 18px 20px; margin: 24px 0;">
-              <h4 style="margin: 0 0 6px; color: #c2410c; font-size: 14px; text-transform: uppercase; letter-spacing: 0.04em;">🚀 Akses Awal: Setup &amp; Onboarding Toko</h4>
-              <p style="margin: 0 0 12px; font-size: 13px; color: #7c2d12;">Sembari menyelesaikan proses pembayaran, Anda sudah dapat mencoba simulator konfigurasi identitas brand, tema warna, dan katalog toko Anda di tautan berikut:</p>
+            <!-- TAUTAN KONFIRMASI PEMBAYARAN -->
+            <div style="background: #fffbeb; border: 1px solid #fcd34d; border-radius: 8px; padding: 18px 20px; margin: 24px 0;">
+              <h4 style="margin: 0 0 6px; color: #b45309; font-size: 14px; text-transform: uppercase; letter-spacing: 0.04em;">📤 Unggah Bukti Transfer Pembayaran</h4>
+              <p style="margin: 0 0 12px; font-size: 13px; color: #92400e;">Setelah melakukan transfer, silakan mengunggah foto/screenshot bukti transfer Anda melalui form konfirmasi pembayaran resmi kami. Admin kami akan memverifikasi dalam waktu 1×24 jam:</p>
               <div style="text-align: center; margin: 14px 0 6px;">
-                <a href="${onboardingUrl}" style="display: inline-block; background: #ea580c; color: #ffffff; padding: 11px 22px; border-radius: 6px; font-weight: 700; text-decoration: none; font-size: 13px;">
-                  Buka Wizard Onboarding Toko &rarr;
+                <a href="${baseUrl}/payment-confirmation?lead=${updated.id}&invoice=${invoiceNo}" style="display: inline-block; background: #d97706; color: #ffffff; padding: 11px 22px; border-radius: 6px; font-weight: 700; text-decoration: none; font-size: 13px;">
+                  📎 Unggah Bukti Transfer &rarr;
                 </a>
               </div>
-              <p style="margin: 8px 0 0; font-size: 11px; color: #9a3412; text-align: center;">
-                Tautan: <a href="${onboardingUrl}" style="color: #ea580c; word-break: break-all;">${onboardingUrl}</a>
+              <p style="margin: 10px 0 0; font-size: 12px; color: #92400e; text-align: center;">
+                Atau kirim via WhatsApp ke <strong>0812-9876-5432</strong> dengan menyebutkan nomor invoice: <code>${invoiceNo}</code>
               </p>
             </div>
 
             <p style="margin: 20px 0 0;">
-              Setelah transfer berhasil, balas email ini atau kirimkan bukti transfer via WhatsApp ke tim kami di nomor <strong>0812-9876-5432</strong>. Sistem instance Anda akan langsung diaktifkan secara otomatis.
+              Setelah transfer berhasil dan bukti diterima, tim kami akan memverifikasi dan mengaktifkan instance sistem toko Anda.
+            </p>
+          </div>
+
+          <div style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 16px 32px; text-align: center; font-size: 12px; color: #94a3b8;">
+            &copy; ${new Date().getFullYear()} <strong>Baitybites ORM</strong> &bull; Billing &amp; Finance Division
+          </div>
+        </div>
+      `;
+    } else if (status === "BUKTI_DITERIMA") {
+      emailSubject = `✅ Bukti Transfer Diterima — Sedang Diverifikasi Tim Kami | ${updated.businessName}`;
+      emailHtml = `
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 620px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #ffffff;">
+          <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 26px 32px; color: #ffffff;">
+            <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; background: rgba(255,255,255,0.2); display: inline-block; padding: 4px 10px; border-radius: 12px; font-weight: 600; margin-bottom: 6px;">
+              Konfirmasi Penerimaan Bukti
+            </div>
+            <h1 style="color: #ffffff; margin: 0; font-size: 21px; font-weight: 700;">Bukti Transfer Telah Kami Terima</h1>
+            <p style="color: rgba(255,255,255,0.9); margin: 6px 0 0; font-size: 13px;">Sedang dalam proses verifikasi oleh tim keuangan kami</p>
+          </div>
+
+          <div style="padding: 28px 32px; color: #0f172a; font-size: 14px; line-height: 1.6;">
+            <p style="margin-top: 0;">Halo <strong>${updated.contactName}</strong>,</p>
+            <p>Terima kasih! Bukti transfer pembayaran Anda untuk langganan <strong>${updated.selectedPlan}</strong> di <strong>${updated.businessName}</strong> telah berhasil kami terima.</p>
+
+            <div style="background: #fffbeb; border: 1px solid #fcd34d; border-radius: 8px; padding: 18px 20px; margin: 20px 0;">
+              <h3 style="margin: 0 0 10px; font-size: 14px; color: #92400e; text-transform: uppercase;">Status Verifikasi:</h3>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 24px;">⏳</span>
+                <div>
+                  <p style="margin: 0; font-weight: 600; color: #b45309;">Bukti diterima — Menunggu Verifikasi Tim Keuangan</p>
+                  <p style="margin: 4px 0 0; font-size: 12px; color: #92400e;">Estimasi verifikasi: 1×24 jam kerja</p>
+                </div>
+              </div>
+            </div>
+
+            <p>Setelah pembayaran terverifikasi, Anda akan menerima email konfirmasi pembayaran lunas beserta tautan untuk mengakses dan melakukan konfigurasi dashboard sistem toko Anda.</p>
+
+            <p style="margin: 20px 0 0; font-size: 13px; color: #64748b;">
+              Ada pertanyaan? Hubungi tim kami di <a href="mailto:${platformEmail}" style="color: #d97706;">${platformEmail}</a> atau WhatsApp <strong>0812-9876-5432</strong>.
             </p>
           </div>
 
@@ -268,7 +307,121 @@ export async function updateLeadStatusAction(
           </div>
         </div>
       `;
+    } else if (status === "ONBOARDING_SELESAI") {
+      emailSubject = `🎊 Selamat! Onboarding Toko ${updated.businessName} Telah Selesai`;
+      emailHtml = `
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 620px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #ffffff;">
+          <div style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); padding: 26px 32px; color: #ffffff;">
+            <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; background: rgba(255,255,255,0.2); display: inline-block; padding: 4px 10px; border-radius: 12px; font-weight: 600; margin-bottom: 6px;">
+              Konfigurasi Selesai
+            </div>
+            <h1 style="color: #ffffff; margin: 0; font-size: 21px; font-weight: 700;">Onboarding Toko Berhasil Diselesaikan</h1>
+            <p style="color: rgba(255,255,255,0.9); margin: 6px 0 0; font-size: 13px;">Identitas brand dan konfigurasi toko ${updated.businessName} telah tersimpan</p>
+          </div>
+
+          <div style="padding: 28px 32px; color: #0f172a; font-size: 14px; line-height: 1.6;">
+            <p style="margin-top: 0;">Halo <strong>${updated.contactName}</strong>,</p>
+            <p>Selamat! Proses onboarding dan konfigurasi toko <strong>${updated.businessName}</strong> telah berhasil diselesaikan. Toko Anda sudah siap beroperasi penuh.</p>
+
+            <div style="background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 18px 20px; margin: 20px 0;">
+              <h3 style="margin: 0 0 10px; font-size: 14px; color: #0369a1; text-transform: uppercase; letter-spacing: 0.04em;">🔗 Akses Platform Anda:</h3>
+              <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                <tr>
+                  <td style="padding: 7px 0; color: #64748b; width: 180px;">🌐 Web Toko Publik:</td>
+                  <td style="padding: 7px 0;"><a href="${storeUrl}" style="color: #0284c7; font-weight: 600;">${storeUrl}</a></td>
+                </tr>
+                <tr>
+                  <td style="padding: 7px 0; color: #64748b;">⚙️ Dashboard Backoffice:</td>
+                  <td style="padding: 7px 0;"><a href="${adminUrl}" style="color: #0284c7; font-weight: 600;">${adminUrl}</a></td>
+                </tr>
+                <tr>
+                  <td style="padding: 7px 0; color: #64748b;">🍳 Kitchen Display (KDS):</td>
+                  <td style="padding: 7px 0;"><a href="${kdsUrl}" style="color: #0284c7; font-weight: 600;">${kdsUrl}</a></td>
+                </tr>
+              </table>
+            </div>
+
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 18px 20px; margin: 20px 0;">
+              <h3 style="margin: 0 0 10px; font-size: 14px; color: #334155; text-transform: uppercase;">📋 Langkah Selanjutnya:</h3>
+              <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: #475569; line-height: 1.8;">
+                <li>Tambahkan dan lengkapi katalog menu / produk toko Anda</li>
+                <li>Atur integrasi WhatsApp untuk sistem pemesanan</li>
+                <li>Hubungkan domain kustom Anda (opsional, hubungi tim kami)</li>
+                <li>Lakukan uji coba transaksi pertama bersama tim Anda</li>
+              </ul>
+            </div>
+
+            <p style="margin: 20px 0 0; font-size: 13px; color: #64748b;">
+              Tim kami akan mengirimkan email notifikasi resmi aktivasi website toko Anda setelah semua konfigurasi divalidasi. Butuh bantuan teknis? Hubungi kami di <a href="mailto:${platformEmail}" style="color: #0284c7;">${platformEmail}</a>.
+            </p>
+          </div>
+
+          <div style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 16px 32px; text-align: center; font-size: 12px; color: #94a3b8;">
+            &copy; ${new Date().getFullYear()} <strong>Baitybites ORM</strong> &bull; Client Success Team
+          </div>
+        </div>
+      `;
+    } else if (status === "WEBSITE_AKTIF") {
+      emailSubject = `🌐 Website Toko ${updated.businessName} Resmi Aktif — Selamat Datang di Baitybites ORM!`;
+      emailHtml = `
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 620px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #ffffff;">
+          <div style="background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); padding: 26px 32px; color: #ffffff;">
+            <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; background: rgba(255,255,255,0.2); display: inline-block; padding: 4px 10px; border-radius: 12px; font-weight: 600; margin-bottom: 6px;">
+              Aktivasi Resmi Website
+            </div>
+            <h1 style="color: #ffffff; margin: 0; font-size: 21px; font-weight: 700;">Website Toko Anda Resmi Aktif! 🎉</h1>
+            <p style="color: rgba(255,255,255,0.9); margin: 6px 0 0; font-size: 13px;">${updated.businessName} &bull; Baitybites ORM SaaS Platform</p>
+          </div>
+
+          <div style="padding: 28px 32px; color: #0f172a; font-size: 14px; line-height: 1.6;">
+            <p style="margin-top: 0;">Halo <strong>${updated.contactName}</strong>,</p>
+            <p>Selamat! Website toko online <strong>${updated.businessName}</strong> telah resmi aktif dan dapat diakses oleh publik. Selamat bergabung bersama keluarga mitra Baitybites ORM! 🙌</p>
+
+            <div style="background: #f0fdf4; border: 2px solid #16a34a; border-radius: 10px; padding: 22px; margin: 24px 0; text-align: center;">
+              <h3 style="margin: 0 0 6px; font-size: 16px; color: #14532d;">🌐 Web Toko Publik Anda</h3>
+              <p style="margin: 0 0 14px; font-size: 13px; color: #166534;">Bagikan tautan toko Anda kepada pelanggan sekarang:</p>
+              <a href="${storeUrl}" style="display: inline-block; background: #16a34a; color: #ffffff; padding: 13px 26px; border-radius: 8px; font-weight: 700; text-decoration: none; font-size: 14px; box-shadow: 0 4px 6px -1px rgba(22, 163, 74, 0.25);">
+                Kunjungi Toko Anda &rarr;
+              </a>
+              <p style="margin: 10px 0 0; font-size: 12px; color: #166534; word-break: break-all;">${storeUrl}</p>
+            </div>
+
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 18px 20px; margin: 20px 0;">
+              <h3 style="margin: 0 0 12px; font-size: 14px; color: #334155; text-transform: uppercase; letter-spacing: 0.04em;">📋 Informasi Kontrak Layanan SaaS:</h3>
+              <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                <tr>
+                  <td style="padding: 7px 0; color: #64748b; width: 160px;">Paket Berlangganan:</td>
+                  <td style="padding: 7px 0; font-weight: 600; color: #16a34a;">${updated.selectedPlan}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 7px 0; color: #64748b;">Tanggal Aktif:</td>
+                  <td style="padding: 7px 0;">${new Date().toLocaleDateString("id-ID", { dateStyle: "long" })}</td>
+                </tr>
+              </table>
+            </div>
+
+            <div style="background: #fefce8; border: 1px solid #fde68a; border-radius: 8px; padding: 16px 20px; margin: 20px 0;">
+              <h4 style="margin: 0 0 10px; font-size: 13px; color: #854d0e; text-transform: uppercase;">⚠️ Kewajiban & Ketentuan Layanan:</h4>
+              <ul style="margin: 0; padding-left: 20px; font-size: 12px; color: #78350f; line-height: 1.9;">
+                <li>Perpanjang langganan sebelum masa aktif berakhir untuk menghindari suspensi layanan</li>
+                <li>Dilarang mengubah atau mendistribusikan source code platform tanpa izin tertulis</li>
+                <li>Gunakan platform sesuai ketentuan penggunaan yang berlaku (ToS Baitybites ORM)</li>
+                <li>Laporan gangguan teknis dikirimkan ke email platform kami atau via WhatsApp support</li>
+              </ul>
+            </div>
+
+            <p style="margin: 20px 0 0; font-size: 13px; color: #64748b;">
+              Untuk panduan lengkap penggunaan platform, dokumentasi, atau bantuan teknis — hubungi tim kami di <a href="mailto:${platformEmail}" style="color: #16a34a;">${platformEmail}</a> atau WhatsApp <strong>0812-9876-5432</strong>.
+            </p>
+          </div>
+
+          <div style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 16px 32px; text-align: center; font-size: 12px; color: #94a3b8;">
+            &copy; ${new Date().getFullYear()} <strong>Baitybites ORM</strong> &bull; Platform Management &amp; Client Success Team
+          </div>
+        </div>
+      `;
     }
+
 
     let emailSent = false;
     let emailRecipient: string | undefined = undefined;

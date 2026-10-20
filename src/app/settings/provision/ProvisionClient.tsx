@@ -32,7 +32,6 @@ export default function ProvisionClient() {
   const TARGET_ORG = "id-baitybites";
   const TEMPLATE_REPO = "id-baitybites/baitybites-orm";
   const [isPrivate, setIsPrivate] = useState(true);
-  const [githubToken, setGithubToken] = useState("");
 
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [result, setResult] = useState<ProvisionResult | null>(null);
@@ -61,7 +60,6 @@ export default function ProvisionClient() {
         targetOrgOrUser: TARGET_ORG,
         templateRepo: TEMPLATE_REPO,
         isPrivate,
-        githubToken: githubToken.trim() || undefined,
       });
       setResult(res);
     });
@@ -158,23 +156,9 @@ export default function ProvisionClient() {
             </label>
           </div>
 
-          <details style={{ marginTop: "0.25rem", fontSize: "0.85rem", color: "var(--text-secondary)" }}>
-            <summary style={{ cursor: "pointer", fontWeight: 600 }}>
-              ⚙️ Pengaturan Otomatisasi GitHub API (Opsional)
-            </summary>
-            <div className="form-group" style={{ marginTop: "0.75rem" }}>
-              <label>GitHub Personal Access Token (PAT)</label>
-              <input
-                type="password"
-                placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
-                value={githubToken}
-                onChange={(e) => setGithubToken(e.target.value)}
-              />
-              <span className="form-hint">
-                Jika diisi dengan token izin <code>repo</code>, repositori akan terbuat otomatis tanpa perlu klik konfirmasi di GitHub.
-              </span>
-            </div>
-          </details>
+          <div className="form-hint" style={{ marginTop: "0.25rem", display: "flex", alignItems: "center", gap: "6px", color: "#059669" }}>
+            <span>🔒 Otomatisasi GitHub &amp; skema database diamankan via environment secret server-side (GITHUB_PROVISION_TOKEN).</span>
+          </div>
 
           <button type="submit" className="btn-submit" disabled={isPending}>
             <HugeiconsIcon icon={SparklesIcon} size={18} />
