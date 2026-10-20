@@ -175,6 +175,8 @@ STORE_ADMIN_PIN="1234"
 
     if (payload.clientEmail?.trim()) {
       try {
+        const baseUrl = process.env.NEXT_PUBLIC_APP_URL?.trim() || "https://baitybites-orm.vercel.app";
+        const directOnboardingUrl = `${baseUrl}/onboarding?force=true&brand=${encodeURIComponent(payload.clientName)}`;
 
         const emailHtml = `
           <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 620px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #ffffff;">
@@ -207,11 +209,23 @@ STORE_ADMIN_PIN="1234"
                 <pre style="background: #ffffff; padding: 12px; border: 1px solid #fed7aa; border-radius: 6px; font-size: 11px; overflow-x: auto; margin-top: 10px; color: #334155;">${envPreset}</pre>
               </div>
 
+              <!-- CTA DIRECT ONBOARDING -->
+              <div style="background: #eef2ff; border: 2px solid #6366f1; border-radius: 10px; padding: 22px; margin: 24px 0; text-align: center;">
+                <h3 style="margin: 0 0 6px; font-size: 16px; color: #3730a3;">🚀 Setup Konfigurasi &amp; Onboarding Toko</h3>
+                <p style="margin: 0 0 16px; font-size: 13px; color: #4338ca;">Klik tombol di bawah ini untuk memulai wizard pengaturan identitas brand, tema visual, nomor WhatsApp CS, dan katalog menu toko:</p>
+                <a href="${directOnboardingUrl}" style="display: inline-block; background: #4f46e5; color: #ffffff; padding: 13px 26px; border-radius: 8px; font-weight: 700; text-decoration: none; font-size: 14px; box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.25);">
+                  Buka Wizard Setup Toko Anda &rarr;
+                </a>
+                <p style="margin: 12px 0 0; font-size: 12px; color: #6366f1;">
+                  Tautan langsung: <a href="${directOnboardingUrl}" style="color: #4f46e5; word-break: break-all;">${directOnboardingUrl}</a>
+                </p>
+              </div>
+
               <div style="margin: 26px 0 16px;">
                 <p style="margin: 0 0 6px; font-weight: 600;">Langkah Selanjutnya:</p>
                 <ol style="margin: 0; padding-left: 20px; font-size: 13px; color: #475569;">
                   <li>Jalankan aplikasi atau buka langsung di VS Code Dev.</li>
-                  <li>Buka halaman panduan onboarding interaktif untuk melengkapi menu dan logo toko Anda.</li>
+                  <li>Buka <a href="${directOnboardingUrl}" style="color: #4f46e5; font-weight: 600;">Halaman Panduan Onboarding Interaktif</a> untuk melengkapi menu dan logo toko Anda.</li>
                   <li>Jika butuh bantuan teknis, hubungi tim kami via WhatsApp atau balas email ini.</li>
                 </ol>
               </div>
