@@ -282,3 +282,48 @@ enum GalleryCategory {
 
   @@map("gallery_category")
 }
+
+enum LeadStatus {
+  BARU
+  DIHUBUNGI
+  INVOICE_DIKIRIM
+  LUNAS
+  PROVISIONING
+  PROVISIONED
+  BATAL
+
+  @@map("lead_status")
+}
+
+model ClientLead {
+  id            String      @id @default(cuid())
+  businessName  String      @map("business_name")
+  contactName   String      @map("contact_name")
+  email         String
+  phone         String
+  selectedPlan  String      @default("Business Pro") @map("selected_plan")
+  brandSlug     String?     @map("brand_slug")
+  message       String?
+  status        LeadStatus  @default(BARU)
+  internalNotes String?     @map("internal_notes")
+
+  // Informasi Billing & Invoice
+  invoiceNumber String?     @map("invoice_number")
+  invoiceAmount Float?      @map("invoice_amount")
+  paidAt        DateTime?   @map("paid_at")
+
+  // Informasi Teknis & Provisioning Instance
+  repoUrl       String?     @map("repo_url")
+  deploymentUrl String?     @map("deployment_url")
+  customDomain  String?     @map("custom_domain")
+  dbSchemaName  String?     @map("db_schema_name")
+  provisionedAt DateTime?   @map("provisioned_at")
+
+  createdAt     DateTime    @default(now()) @map("created_at")
+  updatedAt     DateTime    @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@index([createdAt(sort: Desc)])
+  @@index([email])
+  @@map("client_leads")
+}

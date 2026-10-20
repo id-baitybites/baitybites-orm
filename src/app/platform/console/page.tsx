@@ -10,8 +10,8 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-export default function PlatformConsolePage() {
-  const leads = getAllLeads();
+export default async function PlatformConsolePage() {
+  const leads = await getAllLeads();
 
   return (
     <AppShell>

@@ -1,6 +1,5 @@
 "use server";
 
-import { Resend } from "resend";
 import { saveLead } from "@/lib/leads-store";
 import { sendEmailWithFallback } from "@/lib/email-service";
 
@@ -22,20 +21,6 @@ export async function sendSubscriptionEmail(
   data: SubscriptionRequest
 ): Promise<SubscriptionResult> {
   const PLATFORM_EMAIL = "id.baitybites@gmail.com";
-  const apiKey = process.env.RESEND_API_KEY?.trim();
-
-  if (!apiKey) {
-    return {
-      success: false,
-      message:
-        "Layanan email belum terhubung. Harap tambahkan RESEND_API_KEY di file .env Anda.",
-    };
-  }
-
-  const resend = new Resend(apiKey);
-  const fromEmail =
-    process.env.RESEND_FROM_EMAIL?.trim() ||
-    "Baitybites ORM <onboarding@resend.dev>";
 
   const planLabel = data.selectedPlan;
   const timestamp = new Date().toLocaleString("id-ID", {
@@ -46,7 +31,7 @@ export async function sendSubscriptionEmail(
 
   // ── Simpan Permintaan ke Backoffice Leads Store ─────────────────────
   try {
-    saveLead({
+    await saveLead({
       businessName: data.businessName,
       contactName: data.contactName,
       email: data.email,
@@ -109,7 +94,7 @@ export async function sendSubscriptionEmail(
       </div>
 
       <div style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 16px 32px; text-align: center; font-size: 12px; color: #94a3b8;">
-        Email ini dikirim otomatis oleh sistem <strong>Baitybites ORM Platform</strong> via Resend
+        Email ini dikirim otomatis oleh sistem <strong>Baitybites ORM Platform</strong> via Brevo
       </div>
     </div>
   `;
@@ -153,24 +138,19 @@ export async function sendSubscriptionEmail(
   `;
 
   try {
-    // 1. Kirim email notifikasi ke Platform Owner
-    const { error: ownerError } = await resend.emails.send({
-      from: fromEmail,
+    // 1. Kirim email notifikasi ke Platform Owner via Brevo
+    const ownerResult = await sendEmailWithFallback({
       to: PLATFORM_EMAIL,
       replyTo: data.email,
       subject: `🔔 Permintaan Langganan Baru — ${planLabel} (${data.businessName})`,
       html: ownerHtml,
     });
 
-    if (ownerError) {
-      console.error("[Resend Error - Owner]", ownerError);
-      return {
-        success: false,
-        message: `Gagal mengirim ke email admin: ${ownerError.message}`,
-      };
+    if (!ownerResult.success) {
+      console.warn("[Brevo Warning - Owner Email]", ownerResult.error);
     }
 
-    // 2. Kirim email konfirmasi ke Calon Klien (menggunakan fallback simulasi jika sandbox aktif)
+    // 2. Kirim email konfirmasi ke Calon Klien via Brevo
     const clientEmailResult = await sendEmailWithFallback({
       to: data.email,
       subject: `Terima Kasih! Permintaan Langganan ${planLabel} Anda Telah Diterima`,
@@ -178,10 +158,8 @@ export async function sendSubscriptionEmail(
       replyTo: PLATFORM_EMAIL,
     });
 
-    if (clientEmailResult.isSimulated) {
-      console.log(
-        `[sendSubscriptionEmail] Email konfirmasi klien dialihkan ke ${clientEmailResult.deliveredTo} (Sandbox Active)`
-      );
+    if (!clientEmailResult.success) {
+      console.warn("[Brevo Warning - Client Email]", clientEmailResult.error);
     }
 
     return {
@@ -190,7 +168,7 @@ export async function sendSubscriptionEmail(
         "Permintaan langganan berhasil dikirim! Tim Baitybites ORM akan segera menghubungi Anda.",
     };
   } catch (error: unknown) {
-    console.error("[Resend Error]", error);
+    console.error("[Email Error]", error);
     const errorMsg =
       error instanceof Error ? error.message : "Terjadi kesalahan internal";
     return {

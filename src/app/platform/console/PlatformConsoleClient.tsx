@@ -402,8 +402,8 @@ export function PlatformConsoleClient({ leads }: { leads: ClientLead[] }) {
                         <HugeiconsIcon icon={Mail01Icon} size={16} />
                       </div>
                       <div>
-                        <strong>Resend Transactional Email</strong>
-                        <span>id.baitybites@gmail.com • Delivery 99.4%</span>
+                        <strong>Brevo Transactional Email</strong>
+                        <span>id.baitybites@gmail.com • Delivery 99.8%</span>
                       </div>
                     </div>
                     <span className="badge-health badge-health--good">Connected</span>
@@ -561,7 +561,7 @@ export function PlatformConsoleClient({ leads }: { leads: ClientLead[] }) {
                     </div>
                     <div>
                       <strong>Pengaturan Platform</strong>
-                      <span>Kunci API, SMTP Resend, dan kredensial cloud</span>
+                      <span>Kunci API, SMTP Brevo, dan kredensial cloud</span>
                     </div>
                   </Link>
                 </div>
@@ -844,7 +844,7 @@ export function PlatformConsoleClient({ leads }: { leads: ClientLead[] }) {
                 <div className="infra-detail-rows">
                   <div className="infra-row">
                     <span>Provider Email</span>
-                    <strong>Resend.com API Service</strong>
+                    <strong>Brevo Transactional API &amp; SMTP</strong>
                   </div>
                   <div className="infra-row">
                     <span>Pengirim Resmi</span>

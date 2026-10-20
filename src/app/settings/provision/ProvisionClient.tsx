@@ -110,7 +110,7 @@ export default function ProvisionClient() {
               onChange={(e) => setClientEmail(e.target.value)}
             />
             <span className="form-hint">
-              URL repo, instruksi clone, dan preset .env akan otomatis dikirimkan ke email ini via Resend.
+              URL repo, instruksi clone, dan preset .env akan otomatis dikirimkan ke email ini via Brevo.
             </span>
           </div>
 

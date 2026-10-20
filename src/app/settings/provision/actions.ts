@@ -1,9 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { Resend } from "resend";
 import { Client } from "pg";
 import { sendEmailWithFallback } from "@/lib/email-service";
+import { db } from "@/lib/db";
 
 export interface ProvisionRequest {
   clientName: string;
@@ -37,7 +37,7 @@ export interface ProvisionResult {
  * Server Action: Provisioning Client Repository
  * 1. Membuat schema PostgreSQL terisolasi khusus di Neon Database
  * 2. Meng-generate repository dari template master di GitHub
- * 3. Mengirimkan kredensial & preset .env otomatis ke email klien via Resend
+ * 3. Mengirimkan kredensial & preset .env otomatis ke email klien via Brevo
  */
 export async function provisionClientRepository(
   payload: ProvisionRequest
@@ -169,15 +169,12 @@ STORE_ADMIN_PIN="1234"
       }
     }
 
-    // 3. Pengiriman Email Otomatis ke Klien via Resend jika email diisi
+    // 3. Pengiriman Email Otomatis ke Klien via Brevo jika email diisi
     let emailSent = false;
     let emailRecipient: string | undefined = undefined;
 
-    if (payload.clientEmail?.trim() && process.env.RESEND_API_KEY) {
+    if (payload.clientEmail?.trim()) {
       try {
-        const resend = new Resend(process.env.RESEND_API_KEY.trim());
-        const fromEmail =
-          process.env.RESEND_FROM_EMAIL?.trim() || "Baitybites ORM <onboarding@resend.dev>";
 
         const emailHtml = `
           <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 620px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #ffffff;">
@@ -238,11 +235,36 @@ STORE_ADMIN_PIN="1234"
           emailRecipient = emailSendResult.deliveredTo;
         }
       } catch (mailErr: any) {
-        console.warn("Resend automated provision email notice:", mailErr?.message);
+        console.warn("Brevo automated provision email notice:", mailErr?.message);
+      }
+    }
+
+    // Update status lead di database menjadi PROVISIONED jika email cocok
+    if (payload.clientEmail?.trim()) {
+      try {
+        const matchedLead = await db.clientLead.findFirst({
+          where: { email: payload.clientEmail.trim() },
+        });
+        if (matchedLead) {
+          await db.clientLead.update({
+            where: { id: matchedLead.id },
+            data: {
+              status: "PROVISIONED",
+              brandSlug: cleanSlug,
+              repoUrl: finalRepoUrl,
+              dbSchemaName: sanitizedSlugUnderscore,
+              provisionedAt: new Date(),
+            },
+          });
+        }
+      } catch (dbErr: any) {
+        console.warn("Notice: could not update client lead status after provision:", dbErr?.message);
       }
     }
 
     revalidatePath("/settings/provision");
+    revalidatePath("/settings/leads");
+    revalidatePath("/platform/console");
 
     return {
       success: true,

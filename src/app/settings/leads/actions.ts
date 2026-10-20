@@ -9,11 +9,11 @@ import {
 import { sendEmailWithFallback } from "@/lib/email-service";
 
 export async function getLeadsAction(): Promise<ClientLead[]> {
-  return getAllLeads();
+  return await getAllLeads();
 }
 
 /**
- * Update status lead sekaligus otomatis mengirimkan email notifikasi status & invoice ke klien via Resend.
+ * Update status lead sekaligus otomatis mengirimkan email notifikasi status & invoice ke klien via Brevo.
  */
 export async function updateLeadStatusAction(
   id: string,
@@ -27,7 +27,7 @@ export async function updateLeadStatusAction(
   error?: string;
 }> {
   try {
-    const updated = updateLeadStatus(id, status, internalNotes);
+    const updated = await updateLeadStatus(id, status, internalNotes);
     if (!updated) {
       return { success: false, error: "Lead tidak ditemukan" };
     }
@@ -221,7 +221,7 @@ export async function updateLeadStatusAction(
 }
 
 /**
- * Balas pesan / kirim email kustom ke klien via Resend
+ * Balas pesan / kirim email kustom ke klien via Brevo
  */
 export async function sendEmailReplyAction(params: {
   leadId: string;
@@ -265,7 +265,7 @@ export async function sendEmailReplyAction(params: {
     }
 
     // Update status lead to DIHUBUNGI
-    updateLeadStatus(
+    await updateLeadStatus(
       params.leadId,
       "DIHUBUNGI",
       `Email balasan terkirim pada ${new Date().toLocaleDateString("id-ID")}`

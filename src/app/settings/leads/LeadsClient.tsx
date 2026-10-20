@@ -33,6 +33,7 @@ const STATUS_LABELS: Record<LeadStatus, { label: string; badgeClass: string }> =
   DIHUBUNGI: { label: "Sudah Dihubungi", badgeClass: "status-dihubungi" },
   INVOICE_DIKIRIM: { label: "Invoice Terkirim", badgeClass: "status-invoice" },
   LUNAS: { label: "Pembayaran Lunas", badgeClass: "status-lunas" },
+  PROVISIONING: { label: "Sedang Dibuat", badgeClass: "status-provisioning" },
   PROVISIONED: { label: "Instance Siap", badgeClass: "status-provisioned" },
   BATAL: { label: "Dibatalkan", badgeClass: "status-batal" },
 };
@@ -453,7 +454,7 @@ export default function LeadsClient({ initialLeads }: LeadsClientProps) {
         )}
       </div>
 
-      {/* ── Modal Balas Email via Resend ────────────────────────────── */}
+      {/* ── Modal Balas Email via Brevo ─────────────────────────────── */}
       {emailModalOpen && activeEmailLead && (
         <div className="leads-modal-overlay" onClick={() => setEmailModalOpen(false)}>
           <div className="leads-modal" onClick={(e) => e.stopPropagation()}>
@@ -468,7 +469,7 @@ export default function LeadsClient({ initialLeads }: LeadsClientProps) {
             <div className="modal-header">
               <h3>Balas Email Klien</h3>
               <p>
-                Kirim tanggapan langsung ke <strong>{activeEmailLead.email}</strong> via Resend.
+                Kirim tanggapan langsung ke <strong>{activeEmailLead.email}</strong> via Brevo.
               </p>
             </div>
 
@@ -530,7 +531,7 @@ export default function LeadsClient({ initialLeads }: LeadsClientProps) {
                     {emailStatus === "sending" ? (
                       <>
                         <HugeiconsIcon icon={Loading03Icon} size={14} className="spin-icon" />
-                        <span>Mengirim via Resend...</span>
+                        <span>Mengirim via Brevo...</span>
                       </>
                     ) : (
                       <span>Kirim Sekarang</span>
