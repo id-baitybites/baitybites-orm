@@ -16,6 +16,10 @@ import {
   Location01Icon,
   NoteIcon,
   Alert01Icon,
+  Cash01Icon,
+  Building03Icon,
+  CreditCardIcon,
+  DeliveryTruck01Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
@@ -37,11 +41,11 @@ interface CartEntry extends CartItem {
 type Step = 1 | 2 | 3 | "success";
 
 const PAYMENT_OPTIONS = [
-  { value: "CASH",          label: "Tunai",         desc: "Bayar langsung",    icon: "💵" },
-  { value: "QRIS",          label: "QRIS",          desc: "Scan & bayar",      icon: "📱" },
-  { value: "BANK_TRANSFER", label: "Transfer Bank", desc: "BCA / Mandiri dll", icon: "🏦" },
-  { value: "EWALLET",       label: "E-Wallet",      desc: "GoPay / OVO dll",   icon: "💳" },
-  { value: "COD",           label: "COD",           desc: "Bayar di tempat",   icon: "🚚" },
+  { value: "CASH",          label: "Tunai",         desc: "Bayar langsung",    icon: Cash01Icon },
+  { value: "QRIS",          label: "QRIS",          desc: "Scan & bayar",      icon: SmartPhone01Icon },
+  { value: "BANK_TRANSFER", label: "Transfer Bank", desc: "BCA / Mandiri dll", icon: Building03Icon },
+  { value: "EWALLET",       label: "E-Wallet",      desc: "GoPay / OVO dll",   icon: CreditCardIcon },
+  { value: "COD",           label: "COD",           desc: "Bayar di tempat",   icon: DeliveryTruck01Icon },
 ];
 
 const CHANNELS = ["WhatsApp", "WalkIn", "Website", "Tokopedia", "Shopee"] as const;
@@ -502,7 +506,10 @@ export function NewOrderModal({ onClose }: Props) {
                           onClick={() => setPriority("URGENT")}
                         >
                           <input type="radio" name="priority" value="URGENT" readOnly checked={priority === "URGENT"} />
-                          🚨 Urgent
+                          <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
+                            <HugeiconsIcon icon={Alert01Icon} size={14} />
+                            Urgent
+                          </span>
                         </label>
                       </div>
                     </div>
@@ -661,7 +668,9 @@ export function NewOrderModal({ onClose }: Props) {
                         readOnly
                         checked={paymentMethod === opt.value}
                       />
-                      <span className="nom-payment-card__icon">{opt.icon}</span>
+                      <span className="nom-payment-card__icon">
+                        <HugeiconsIcon icon={opt.icon} size={20} strokeWidth={1.8} />
+                      </span>
                       <span className="nom-payment-card__label">{opt.label}</span>
                       <span className="nom-payment-card__desc">{opt.desc}</span>
                     </label>

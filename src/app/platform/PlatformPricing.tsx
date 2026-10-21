@@ -93,8 +93,8 @@ export default function PlatformPricing({ plans }: PlatformPricingProps) {
           <div className="arch-content">
             <h4>Dukungan Dedicated Domain &amp; Repositori Mandiri</h4>
             <p>
-              Platform engine saat ini berjalan di infrastruktur cloud Vercel berperforma tinggi. Ketika Anda bergabung,
-              instance Anda akan memiliki domain terpisah (misal: <code>tokosaya.com</code>) dan URL repositori git sendiri
+              Platform engine saat ini berjalan di infrastruktur komputasi awan global berperforma tinggi. Ketika Anda bergabung,
+              instance Anda akan memiliki domain terpisah (misal: <code>tokosaya.com</code>) dan URL repositori kode sendiri
               lengkap dengan wizard inisialisasi onboarding mandiri.
             </p>
           </div>

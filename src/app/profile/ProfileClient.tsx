@@ -66,9 +66,9 @@ export function ProfileClient({ initialData, justLoggedIn }: ProfileClientProps)
   const [toast, setToast] = useState<{ type: "success" | "error"; message: string } | null>(
     justLoggedIn
       ? {
-          type: "success",
-          message: "Selamat datang kembali! Akun Google Anda berhasil terhubung.",
-        }
+        type: "success",
+        message: "Selamat datang kembali! Akun Google Anda berhasil terhubung.",
+      }
       : null
   );
 

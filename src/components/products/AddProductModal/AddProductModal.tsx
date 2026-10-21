@@ -8,6 +8,7 @@ import {
   CheckmarkCircle02Icon,
   PackageIcon,
   Delete02Icon,
+  AlertCircleIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { enhanceDescriptionWithAi } from "@/app/products/actions";
@@ -191,7 +192,7 @@ export function AddProductModal({
                   gap: "6px",
                 }}
               >
-                <span>{aiNotice.type === "error" ? "⚠️" : "✨"}</span>
+                <HugeiconsIcon icon={aiNotice.type === "error" ? AlertCircleIcon : SparklesIcon} size={15} />
                 <span>{aiNotice.message}</span>
               </div>
             )}

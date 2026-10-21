@@ -11,6 +11,9 @@ import {
   ArrowLeft01Icon,
   CheckmarkCircle02Icon,
   StarIcon,
+  SnowflakeIcon,
+  PackageIcon,
+  ShoppingBag01Icon,
 } from "@hugeicons/core-free-icons";
 import { PublicHeader } from "@/components/public/PublicHeader";
 import { PublicFooter } from "@/components/public/PublicFooter";
@@ -248,11 +251,17 @@ export function OrderCatalogView({ initialCustomer, products = [] }: OrderCatalo
                   ) : (
                     <div className="slide-placeholder-art">
                       <span className="art-emoji">
-                        {currentPromo.category.includes("Cendol")
-                          ? "🥤"
-                          : currentPromo.category.includes("Hampers")
-                          ? "🎁"
-                          : "🥟❄️"}
+                        <HugeiconsIcon
+                          icon={
+                            currentPromo.category.includes("Hampers")
+                              ? PackageIcon
+                              : currentPromo.category.toLowerCase().includes("frozen")
+                              ? SnowflakeIcon
+                              : ShoppingBag01Icon
+                          }
+                          size={56}
+                          style={{ opacity: 0.6 }}
+                        />
                       </span>
                     </div>
                   )}

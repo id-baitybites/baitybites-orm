@@ -143,7 +143,7 @@ export async function updateLeadStatusAction(
         </div>
       `;
     } else if (status === "BUKTI_DITERIMA") {
-      emailSubject = `✅ Bukti Transfer Diterima — Sedang Diverifikasi Tim Kami | ${updated.businessName}`;
+      emailSubject = `Bukti Transfer Diterima — Sedang Diverifikasi Tim Kami | ${updated.businessName}`;
       emailHtml = `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 620px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #ffffff;">
           <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 26px 32px; color: #ffffff;">
@@ -161,7 +161,6 @@ export async function updateLeadStatusAction(
             <div style="background: #fffbeb; border: 1px solid #fcd34d; border-radius: 8px; padding: 18px 20px; margin: 20px 0;">
               <h3 style="margin: 0 0 10px; font-size: 14px; color: #92400e; text-transform: uppercase;">Status Verifikasi:</h3>
               <div style="display: flex; align-items: center; gap: 10px;">
-                <span style="font-size: 24px;">⏳</span>
                 <div>
                   <p style="margin: 0; font-weight: 600; color: #b45309;">Bukti diterima — Menunggu Verifikasi Tim Keuangan</p>
                   <p style="margin: 4px 0 0; font-size: 12px; color: #92400e;">Estimasi verifikasi: 1×24 jam kerja</p>
@@ -182,7 +181,7 @@ export async function updateLeadStatusAction(
         </div>
       `;
     } else if (status === "LUNAS") {
-      emailSubject = `🎉 Pembayaran Diterima — Akses Setup Toko ${updated.businessName} Telah Dibuka`;
+      emailSubject = `Pembayaran Diterima — Akses Setup Toko ${updated.businessName} Telah Dibuka`;
       emailHtml = `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 620px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #ffffff;">
           <div style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); padding: 26px 32px; color: #ffffff;">
@@ -199,7 +198,7 @@ export async function updateLeadStatusAction(
 
             <!-- CTA ONBOARDING -->
             <div style="background: #ecfdf5; border: 2px solid #059669; border-radius: 10px; padding: 22px; margin: 24px 0; text-align: center;">
-              <h3 style="margin: 0 0 6px; font-size: 16px; color: #065f46;">🚀 Mulai Setup &amp; Konfigurasi Toko Anda</h3>
+              <h3 style="margin: 0 0 6px; font-size: 16px; color: #065f46;">Mulai Setup &amp; Konfigurasi Toko Anda</h3>
               <p style="margin: 0 0 16px; font-size: 13px; color: #047857;">Instance Anda telah siap. Klik tombol di bawah untuk melengkapi nama toko, tema warna, dan nomor WhatsApp pemesanan:</p>
               <a href="${onboardingUrl}" style="display: inline-block; background: #059669; color: #ffffff; padding: 13px 26px; border-radius: 8px; font-weight: 700; text-decoration: none; font-size: 14px; box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.25);">
                 Buka Wizard Onboarding Toko &rarr;
@@ -252,7 +251,7 @@ export async function updateLeadStatusAction(
         </div>
       `;
     } else if (status === "PROVISIONED") {
-      emailSubject = `🚀 Instance Siap: Toko Online & OMS ${updated.businessName} Telah Aktif!`;
+      emailSubject = `Instance Siap: Toko Online & OMS ${updated.businessName} Telah Aktif!`;
       emailHtml = `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 620px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #ffffff;">
           <div style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); padding: 26px 32px; color: #ffffff;">
@@ -266,7 +265,7 @@ export async function updateLeadStatusAction(
 
             <!-- CTA UTAMA ONBOARDING -->
             <div style="background: #f5f3ff; border: 2px solid #7c3aed; border-radius: 10px; padding: 22px; margin: 24px 0; text-align: center;">
-              <h3 style="margin: 0 0 6px; font-size: 16px; color: #5b21b6;">🚀 Setup &amp; Onboarding Toko Web Anda</h3>
+              <h3 style="margin: 0 0 6px; font-size: 16px; color: #5b21b6;">Setup &amp; Onboarding Toko Web Anda</h3>
               <p style="margin: 0 0 16px; font-size: 13px; color: #6d28d9;">Mulai kustomisasi nama brand, logo toko, palet warna, dan katalog menu Anda sekarang:</p>
               <a href="${onboardingUrl}" style="display: inline-block; background: #7c3aed; color: #ffffff; padding: 13px 26px; border-radius: 8px; font-weight: 700; text-decoration: none; font-size: 14px; box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.25);">
                 Buka Wizard Onboarding Toko &rarr;
@@ -324,25 +323,25 @@ export async function updateLeadStatusAction(
             <p>Selamat! Proses onboarding dan konfigurasi toko <strong>${updated.businessName}</strong> telah berhasil diselesaikan. Toko Anda sudah siap beroperasi penuh.</p>
 
             <div style="background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 18px 20px; margin: 20px 0;">
-              <h3 style="margin: 0 0 10px; font-size: 14px; color: #0369a1; text-transform: uppercase; letter-spacing: 0.04em;">🔗 Akses Platform Anda:</h3>
+              <h3 style="margin: 0 0 10px; font-size: 14px; color: #0369a1; text-transform: uppercase; letter-spacing: 0.04em;">Akses Platform Anda:</h3>
               <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
                 <tr>
-                  <td style="padding: 7px 0; color: #64748b; width: 180px;">🌐 Web Toko Publik:</td>
+                  <td style="padding: 7px 0; color: #64748b; width: 180px;">Web Toko Publik:</td>
                   <td style="padding: 7px 0;"><a href="${storeUrl}" style="color: #0284c7; font-weight: 600;">${storeUrl}</a></td>
                 </tr>
                 <tr>
-                  <td style="padding: 7px 0; color: #64748b;">⚙️ Dashboard Backoffice:</td>
+                  <td style="padding: 7px 0; color: #64748b;">Dashboard Backoffice:</td>
                   <td style="padding: 7px 0;"><a href="${adminUrl}" style="color: #0284c7; font-weight: 600;">${adminUrl}</a></td>
                 </tr>
                 <tr>
-                  <td style="padding: 7px 0; color: #64748b;">🍳 Kitchen Display (KDS):</td>
+                  <td style="padding: 7px 0; color: #64748b;">Kitchen Display (KDS):</td>
                   <td style="padding: 7px 0;"><a href="${kdsUrl}" style="color: #0284c7; font-weight: 600;">${kdsUrl}</a></td>
                 </tr>
               </table>
             </div>
 
             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 18px 20px; margin: 20px 0;">
-              <h3 style="margin: 0 0 10px; font-size: 14px; color: #334155; text-transform: uppercase;">📋 Langkah Selanjutnya:</h3>
+              <h3 style="margin: 0 0 10px; font-size: 14px; color: #334155; text-transform: uppercase;">Langkah Selanjutnya:</h3>
               <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: #475569; line-height: 1.8;">
                 <li>Tambahkan dan lengkapi katalog menu / produk toko Anda</li>
                 <li>Atur integrasi WhatsApp untuk sistem pemesanan</li>
@@ -362,23 +361,23 @@ export async function updateLeadStatusAction(
         </div>
       `;
     } else if (status === "WEBSITE_AKTIF") {
-      emailSubject = `🌐 Website Toko ${updated.businessName} Resmi Aktif — Selamat Datang di Baitybites ORM!`;
+      emailSubject = `Website Toko ${updated.businessName} Resmi Aktif — Selamat Datang di Baitybites ORM!`;
       emailHtml = `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 620px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #ffffff;">
           <div style="background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); padding: 26px 32px; color: #ffffff;">
             <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; background: rgba(255,255,255,0.2); display: inline-block; padding: 4px 10px; border-radius: 12px; font-weight: 600; margin-bottom: 6px;">
               Aktivasi Resmi Website
             </div>
-            <h1 style="color: #ffffff; margin: 0; font-size: 21px; font-weight: 700;">Website Toko Anda Resmi Aktif! 🎉</h1>
+            <h1 style="color: #ffffff; margin: 0; font-size: 21px; font-weight: 700;">Website Toko Anda Resmi Aktif!</h1>
             <p style="color: rgba(255,255,255,0.9); margin: 6px 0 0; font-size: 13px;">${updated.businessName} &bull; Baitybites ORM SaaS Platform</p>
           </div>
 
           <div style="padding: 28px 32px; color: #0f172a; font-size: 14px; line-height: 1.6;">
             <p style="margin-top: 0;">Halo <strong>${updated.contactName}</strong>,</p>
-            <p>Selamat! Website toko online <strong>${updated.businessName}</strong> telah resmi aktif dan dapat diakses oleh publik. Selamat bergabung bersama keluarga mitra Baitybites ORM! 🙌</p>
+            <p>Selamat! Website toko online <strong>${updated.businessName}</strong> telah resmi aktif dan dapat diakses oleh publik. Selamat bergabung bersama keluarga mitra Baitybites ORM!</p>
 
             <div style="background: #f0fdf4; border: 2px solid #16a34a; border-radius: 10px; padding: 22px; margin: 24px 0; text-align: center;">
-              <h3 style="margin: 0 0 6px; font-size: 16px; color: #14532d;">🌐 Web Toko Publik Anda</h3>
+              <h3 style="margin: 0 0 6px; font-size: 16px; color: #14532d;">Web Toko Publik Anda</h3>
               <p style="margin: 0 0 14px; font-size: 13px; color: #166534;">Bagikan tautan toko Anda kepada pelanggan sekarang:</p>
               <a href="${storeUrl}" style="display: inline-block; background: #16a34a; color: #ffffff; padding: 13px 26px; border-radius: 8px; font-weight: 700; text-decoration: none; font-size: 14px; box-shadow: 0 4px 6px -1px rgba(22, 163, 74, 0.25);">
                 Kunjungi Toko Anda &rarr;
@@ -387,7 +386,7 @@ export async function updateLeadStatusAction(
             </div>
 
             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 18px 20px; margin: 20px 0;">
-              <h3 style="margin: 0 0 12px; font-size: 14px; color: #334155; text-transform: uppercase; letter-spacing: 0.04em;">📋 Informasi Kontrak Layanan SaaS:</h3>
+              <h3 style="margin: 0 0 12px; font-size: 14px; color: #334155; text-transform: uppercase; letter-spacing: 0.04em;">Informasi Kontrak Layanan SaaS:</h3>
               <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
                 <tr>
                   <td style="padding: 7px 0; color: #64748b; width: 160px;">Paket Berlangganan:</td>
@@ -401,7 +400,7 @@ export async function updateLeadStatusAction(
             </div>
 
             <div style="background: #fefce8; border: 1px solid #fde68a; border-radius: 8px; padding: 16px 20px; margin: 20px 0;">
-              <h4 style="margin: 0 0 10px; font-size: 13px; color: #854d0e; text-transform: uppercase;">⚠️ Kewajiban & Ketentuan Layanan:</h4>
+              <h4 style="margin: 0 0 10px; font-size: 13px; color: #854d0e; text-transform: uppercase;">Kewajiban & Ketentuan Layanan:</h4>
               <ul style="margin: 0; padding-left: 20px; font-size: 12px; color: #78350f; line-height: 1.9;">
                 <li>Perpanjang langganan sebelum masa aktif berakhir untuk menghindari suspensi layanan</li>
                 <li>Dilarang mengubah atau mendistribusikan source code platform tanpa izin tertulis</li>

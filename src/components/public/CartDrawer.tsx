@@ -23,6 +23,8 @@ import {
   SparklesIcon,
   Loading03Icon,
   Copy01Icon,
+  SnowflakeIcon,
+  PackageIcon,
 } from "@hugeicons/core-free-icons";
 import {
   createCustomerOrderAction,
@@ -400,7 +402,10 @@ Mohon diproses ya kak. Terima kasih!`;
                   <span>Official Courier: Paxel Indonesia</span>
                 </div>
                 <div className="paxel-cold-pill">
-                  <span>❄️ Cold Chain Ready</span>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
+                    <HugeiconsIcon icon={SnowflakeIcon} size={13} />
+                    Cold Chain Ready
+                  </span>
                 </div>
               </div>
 
@@ -591,8 +596,9 @@ Mohon diproses ya kak. Terima kasih!`;
                   <div className="outlet-details">
                     <strong>{PAXEL_STORE_ORIGIN.name}</strong>
                     <p>{PAXEL_STORE_ORIGIN.address}</p>
-                    <div className="coordinates-pill">
-                      📍 {PAXEL_STORE_ORIGIN.coordinates.lat}, {PAXEL_STORE_ORIGIN.coordinates.lng}
+                    <div className="coordinates-pill" style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
+                      <HugeiconsIcon icon={Location01Icon} size={12} />
+                      <span>{PAXEL_STORE_ORIGIN.coordinates.lat}, {PAXEL_STORE_ORIGIN.coordinates.lng}</span>
                     </div>
                     <div>
                       <a
@@ -755,7 +761,10 @@ Mohon diproses ya kak. Terima kasih!`;
               {createdPaxelAwb && (
                 <div className="paxel-awb-card">
                   <div className="awb-header">
-                    <span className="brand-title">📦 Paxel Official Airway Bill (AWB)</span>
+                    <span className="brand-title" style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                      <HugeiconsIcon icon={PackageIcon} size={15} />
+                      <span>Paxel Official Airway Bill (AWB)</span>
+                    </span>
                     <span className="status-chip">Manifest Siap</span>
                   </div>
                   <div className="awb-code-row">

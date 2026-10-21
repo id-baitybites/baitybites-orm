@@ -39,8 +39,8 @@ const FEATURES = [
   },
   {
     icon: Database01Icon,
-    title: "100% Dedicated Database PostgreSQL",
-    desc: "Bukan multi-tenant bersama. Setiap klien memiliki database PostgreSQL & instance terisolasi sendiri, menjamin integritas data dan performa tinggi.",
+    title: "100% Dedicated Database Terisolasi",
+    desc: "Bukan multi-tenant bersama. Setiap klien memiliki basis data & instance terisolasi sendiri, menjamin integritas data dan performa tinggi.",
   },
   {
     icon: WhatsappIcon,
@@ -75,7 +75,7 @@ const PRICING_PLANS = [
       "Kitchen Display Monitor (1 Layar Dapur)",
       "Panel Super Admin & Manajemen Order",
       "Setup Onboarding Wizard Mandiri",
-      "SSL Certificate & Hosting Vercel Ready",
+      "Sertifikat SSL & Hosting Cloud Siap Pakai",
     ],
   },
   {
@@ -89,11 +89,11 @@ const PRICING_PLANS = [
     features: [
       "Semua fitur paket Starter",
       "Custom Domain Resmi Klien (.id / .com)",
-      "Database PostgreSQL Dedicated (Neon / Supabase)",
+      "Database Terdedikasi Berperforma Tinggi",
       "Multi-user Admin (Super Admin, Kasir, Kitchen Staff)",
       "Modul Manajemen Produksi & Batching Stok",
-      "Integrasi Google OAuth Login Pelanggan",
-      "Backup Database Otomatis & Recovery Tool",
+      "Integrasi Otentikasi & Single Sign-On (SSO) Pelanggan",
+      "Pencadangan Database Otomatis & Pemulihan Data",
       "Dukungan Teknis Prioritas via Email",
     ],
   },
@@ -106,11 +106,11 @@ const PRICING_PLANS = [
     isFeatured: false,
     ctaText: "Konsultasi Enterprise",
     features: [
-      "Kepemilikan Private Repository GitHub Klien",
-      "Akses Penuh Source Code Engine Next.js & Prisma",
-      "Bebas Deploy ke VPS Mandiri, AWS, atau Vercel",
+      "Kepemilikan Repositori Kode Sumber Pribadi Klien",
+      "Akses Penuh Source Code Arsitektur Web Modern",
+      "Bebas Deploy ke Server Mandiri, VPS, atau Cloud",
       "Hapus Seluruh Atribusi Platform (100% Brand Anda)",
-      "Dukungan Integrasi Payment Gateway Khusus (Midtrans/Xendit)",
+      "Dukungan Integrasi Gerbang Pembayaran Digital Khusus",
       "Pendampingan Deploy & Pelatihan Tim IT Klien",
       "Garansi Update Engine & Patch Keamanan",
     ],
@@ -143,10 +143,9 @@ export default function PlatformLandingPage() {
           </Link>
 
           <nav className="platform-landing__header-nav">
-            <a href="#fitur">Fitur Unggulan</a>
-            <a href="#klien-pertama">Klien &amp; Bukti Nyata</a>
+            <a href="#fitur">Fitur</a>
+            <a href="#klien-pertama">Klien Pertama</a>
             <a href="#harga">Daftar Paket &amp; Harga</a>
-            <a href="#arsitektur">Arsitektur Dedicated</a>
           </nav>
 
           <div className="platform-landing__header-actions">
@@ -205,7 +204,7 @@ export default function PlatformLandingPage() {
             <span className="trust-lbl">Komisi per Transaksi</span>
           </div>
           <div className="trust-item">
-            <span className="trust-val">Vercel &amp; Cloud</span>
+            <span className="trust-val">Cloud</span>
             <span className="trust-lbl">High-Availability Hosting</span>
           </div>
         </div>
@@ -215,7 +214,10 @@ export default function PlatformLandingPage() {
       <section id="klien-pertama" className="platform-landing__case-study">
         <div className="case-card">
           <div className="case-card-info">
-            <div className="case-tag">✨ Klien Pertama &amp; Flagship Case Study</div>
+            <div className="case-tag" style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+              <HugeiconsIcon icon={SparklesIcon} size={14} />
+              <span>Klien Pertama &amp; Flagship Case Study</span>
+            </div>
             <h3>Baitybites: Sensasi Risol Mayo Meleleh</h3>
             <p>
               Brand kuliner artisanal <strong>Baitybites</strong> membuktikan keandalan sistem Baitybites ORM
@@ -324,7 +326,7 @@ export default function PlatformLandingPage() {
             &copy; {new Date().getFullYear()} <strong>Baitybites ORM</strong>. Hak cipta dilindungi undang-undang.
           </div>
           <div>
-            Dedicated Instance Engine &bull; Powered by Next.js &amp; PostgreSQL
+            Dedicated Instance Engine &bull; Arsitektur Cloud Berperforma Tinggi
           </div>
         </div>
       </footer>

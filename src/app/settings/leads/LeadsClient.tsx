@@ -16,22 +16,15 @@ import {
   Loading03Icon,
   PencilEdit02Icon,
   ShieldKeyIcon,
+  SparklesIcon,
+  Call02Icon,
+  Invoice01Icon,
+  Upload01Icon,
+  Settings02Icon,
+  Globe02Icon,
+  HelpCircleIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  Sparkles,
-  Phone,
-  Receipt,
-  Upload,
-  CheckCircle2,
-  Settings2,
-  Rocket,
-  PartyPopper,
-  Globe,
-  XCircle,
-  HelpCircle,
-} from "lucide-react";
-import type { LucideIcon } from "lucide-react";
 import {
   updateLeadStatusAction,
   sendEmailReplyAction,
@@ -43,17 +36,17 @@ interface LeadsClientProps {
   initialLeads: ClientLead[];
 }
 
-const STATUS_LABELS: Record<LeadStatus, { label: string; badgeClass: string; Icon: LucideIcon }> = {
-  BARU: { label: "Baru (Perlu Respon)", badgeClass: "status-baru", Icon: Sparkles },
-  DIHUBUNGI: { label: "Sudah Dihubungi", badgeClass: "status-dihubungi", Icon: Phone },
-  INVOICE_DIKIRIM: { label: "Invoice Terkirim", badgeClass: "status-invoice", Icon: Receipt },
-  BUKTI_DITERIMA: { label: "Bukti Diterima", badgeClass: "status-bukti", Icon: Upload },
-  LUNAS: { label: "Pembayaran Lunas", badgeClass: "status-lunas", Icon: CheckCircle2 },
-  PROVISIONING: { label: "Sedang Dibuat", badgeClass: "status-provisioning", Icon: Settings2 },
-  PROVISIONED: { label: "Instance Siap", badgeClass: "status-provisioned", Icon: Rocket },
-  ONBOARDING_SELESAI: { label: "Onboarding Selesai", badgeClass: "status-onboarding", Icon: PartyPopper },
-  WEBSITE_AKTIF: { label: "Website Aktif", badgeClass: "status-aktif", Icon: Globe },
-  BATAL: { label: "Dibatalkan", badgeClass: "status-batal", Icon: XCircle },
+const STATUS_LABELS: Record<LeadStatus, { label: string; badgeClass: string; icon: any }> = {
+  BARU: { label: "Baru (Perlu Respon)", badgeClass: "status-baru", icon: SparklesIcon },
+  DIHUBUNGI: { label: "Sudah Dihubungi", badgeClass: "status-dihubungi", icon: Call02Icon },
+  INVOICE_DIKIRIM: { label: "Invoice Terkirim", badgeClass: "status-invoice", icon: Invoice01Icon },
+  BUKTI_DITERIMA: { label: "Bukti Diterima", badgeClass: "status-bukti", icon: Upload01Icon },
+  LUNAS: { label: "Pembayaran Lunas", badgeClass: "status-lunas", icon: CheckmarkCircle02Icon },
+  PROVISIONING: { label: "Sedang Dibuat", badgeClass: "status-provisioning", icon: Settings02Icon },
+  PROVISIONED: { label: "Instance Siap", badgeClass: "status-provisioned", icon: RocketIcon },
+  ONBOARDING_SELESAI: { label: "Onboarding Selesai", badgeClass: "status-onboarding", icon: SparklesIcon },
+  WEBSITE_AKTIF: { label: "Website Aktif", badgeClass: "status-aktif", icon: Globe02Icon },
+  BATAL: { label: "Dibatalkan", badgeClass: "status-batal", icon: Cancel01Icon },
 };
 
 export default function LeadsClient({ initialLeads }: LeadsClientProps) {
@@ -212,12 +205,12 @@ export default function LeadsClient({ initialLeads }: LeadsClientProps) {
     if (lead.status === "INVOICE_DIKIRIM") {
       const text = encodeURIComponent(
         `Halo Kak ${lead.contactName} (${lead.businessName}),\n\nBerikut rincian tagihan resmi (Invoice) langganan Baitybites ORM Anda:\n\n` +
-        `🧾 *No. Invoice:* ${invoiceNo}\n` +
-        `📦 *Paket:* ${lead.selectedPlan}\n` +
-        `💰 *Total Biaya:* ${planPrice}\n\n` +
+        `*No. Invoice:* ${invoiceNo}\n` +
+        `*Paket:* ${lead.selectedPlan}\n` +
+        `*Total Biaya:* ${planPrice}\n\n` +
         `*Rekening Pembayaran Resmi Vendor:*\n` +
-        `🏦 *BCA:* 880-1234-567 a/n PT Baitybites Solusi Digital\n` +
-        `🏦 *Mandiri:* 137-00-9876543-2 a/n PT Baitybites Solusi Digital\n\n` +
+        `*BCA:* 880-1234-567 a/n PT Baitybites Solusi Digital\n` +
+        `*Mandiri:* 137-00-9876543-2 a/n PT Baitybites Solusi Digital\n\n` +
         `Invoice lengkap telah kami kirimkan ke email Anda (${lead.email}). Mohon kirimkan konfirmasi bukti transfer di sini agar instance dedicated segera di-deploy. Terima kasih!`
       );
       return `https://wa.me/${formattedPhone}?text=${text}`;
@@ -312,56 +305,56 @@ export default function LeadsClient({ initialLeads }: LeadsClientProps) {
             className={`tab-btn ${activeFilter === "BARU" ? "is-active" : ""}`}
             onClick={() => setActiveFilter("BARU")}
           >
-            <Sparkles size={13} /> Baru ({newCount})
+            <HugeiconsIcon icon={SparklesIcon} size={13} /> Baru ({newCount})
           </button>
           <button
             type="button"
             className={`tab-btn ${activeFilter === "DIHUBUNGI" ? "is-active" : ""}`}
             onClick={() => setActiveFilter("DIHUBUNGI")}
           >
-            <Phone size={13} /> Dihubungi
+            <HugeiconsIcon icon={Call02Icon} size={13} /> Dihubungi
           </button>
           <button
             type="button"
             className={`tab-btn ${activeFilter === "INVOICE_DIKIRIM" ? "is-active" : ""}`}
             onClick={() => setActiveFilter("INVOICE_DIKIRIM")}
           >
-            <Receipt size={13} /> Invoice Terkirim
+            <HugeiconsIcon icon={Invoice01Icon} size={13} /> Invoice Terkirim
           </button>
           <button
             type="button"
             className={`tab-btn ${activeFilter === "BUKTI_DITERIMA" ? "is-active" : ""}`}
             onClick={() => setActiveFilter("BUKTI_DITERIMA")}
           >
-            <Upload size={13} /> Bukti Diterima
+            <HugeiconsIcon icon={Upload01Icon} size={13} /> Bukti Diterima
           </button>
           <button
             type="button"
             className={`tab-btn ${activeFilter === "LUNAS" ? "is-active" : ""}`}
             onClick={() => setActiveFilter("LUNAS")}
           >
-            <CheckCircle2 size={13} /> Lunas
+            <HugeiconsIcon icon={CheckmarkCircle02Icon} size={13} /> Lunas
           </button>
           <button
             type="button"
             className={`tab-btn ${activeFilter === "PROVISIONED" ? "is-active" : ""}`}
             onClick={() => setActiveFilter("PROVISIONED")}
           >
-            <Rocket size={13} /> Instance Siap
+            <HugeiconsIcon icon={RocketIcon} size={13} /> Instance Siap
           </button>
           <button
             type="button"
             className={`tab-btn ${activeFilter === "ONBOARDING_SELESAI" ? "is-active" : ""}`}
             onClick={() => setActiveFilter("ONBOARDING_SELESAI")}
           >
-            <PartyPopper size={13} /> Onboarding
+            <HugeiconsIcon icon={SparklesIcon} size={13} /> Onboarding
           </button>
           <button
             type="button"
             className={`tab-btn ${activeFilter === "WEBSITE_AKTIF" ? "is-active" : ""}`}
             onClick={() => setActiveFilter("WEBSITE_AKTIF")}
           >
-            <Globe size={13} /> Website Aktif
+            <HugeiconsIcon icon={Globe02Icon} size={13} /> Website Aktif
           </button>
         </div>
 
@@ -400,7 +393,7 @@ export default function LeadsClient({ initialLeads }: LeadsClientProps) {
                 const statusMeta = STATUS_LABELS[lead.status] || {
                   label: lead.status,
                   badgeClass: "",
-                  Icon: HelpCircle,
+                  icon: HelpCircleIcon,
                 };
                 return (
                   <tr key={lead.id}>
@@ -457,7 +450,7 @@ export default function LeadsClient({ initialLeads }: LeadsClientProps) {
                     <td>
                       <div className="status-cell">
                         <div className={`status-badge-wrap ${statusMeta.badgeClass}`}>
-                          <statusMeta.Icon size={13} />
+                          <HugeiconsIcon icon={statusMeta.icon} size={13} />
                         </div>
                         <select
                           className={`status-select ${statusMeta.badgeClass}`}
@@ -609,7 +602,7 @@ export default function LeadsClient({ initialLeads }: LeadsClientProps) {
                     {emailStatus === "sending" ? (
                       <>
                         <HugeiconsIcon icon={Loading03Icon} size={14} className="spin-icon" />
-                        <span>Mengirim via Brevo...</span>
+                        <span>Mengirim email notifikasi...</span>
                       </>
                     ) : (
                       <span>Kirim Sekarang</span>

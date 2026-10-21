@@ -217,7 +217,7 @@ export default function DemoHubPage() {
             <div className="faq-item">
               <h4>Di mana sistem ini di-hosting?</h4>
               <p>
-                Engine Next.js ini dioptimalkan khusus untuk deployment serverless berkecepatan tinggi di <strong>Vercel</strong> dengan database PostgreSQL terisolasi di <strong>Neon</strong>.
+                Aplikasi ini dioptimalkan khusus untuk deployment komputasi awan serverless berkecepatan tinggi dengan basis data terisolasi yang terdedikasi untuk setiap instance.
               </p>
             </div>
           </div>

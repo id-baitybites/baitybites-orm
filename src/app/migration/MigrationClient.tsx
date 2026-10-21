@@ -19,6 +19,7 @@ import {
   ArrowReloadHorizontalIcon,
   FloppyDiskIcon,
   ArrowMoveUpRightIcon,
+  ArrowRight01Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
@@ -651,7 +652,7 @@ function EnvironmentMigratorSuite({
         <div className="mig-env-suite__group">
           <label htmlFor="env-db-url">
             1. Target Database PostgreSQL (Pooled URL)
-            <span className="hint">Neon / Supabase / AWS / VPS</span>
+            <span className="hint">Penyedia Basis Data Cloud / VPS</span>
           </label>
           <div className="mig-env-suite__input-action-row">
             <input
@@ -781,8 +782,9 @@ function EnvironmentMigratorSuite({
 
         {creds.nextAuthUrl && (
           <div className="mig-env-suite__callback-card">
-            <span className="mig-env-suite__callback-card-title">
-              💡 Salin URL Callback ini ke Google Cloud Console (Authorized Redirect URIs):
+            <span className="mig-env-suite__callback-card-title" style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+              <HugeiconsIcon icon={InformationCircleIcon} size={14} />
+              Salin URL Callback ini ke Google Cloud Console (Authorized Redirect URIs):
             </span>
             <code className="mig-env-suite__callback-card-url">
               {creds.nextAuthUrl.replace(/\/+$/, "")}/api/auth/callback/google
@@ -836,7 +838,7 @@ function EnvironmentMigratorSuite({
           <div className="mig-env-suite__generator-header">
             <span className="mig-env-suite__generator-title">
               <HugeiconsIcon icon={CheckmarkCircle02Icon} size={16} />
-              Bundle .env Siap Pakai untuk Server / Vercel Baru
+              Bundle .env Siap Pakai untuk Server / Cloud Baru
             </span>
             <button
               type="button"
@@ -850,8 +852,9 @@ function EnvironmentMigratorSuite({
 
           <pre className="mig-env-suite__generator-pre">{generatedEnv}</pre>
 
-          <p style={{ margin: 0, fontSize: "11px", color: "#a1a1aa", lineHeight: 1.5 }}>
-            👉 <strong>Langkah Terakhir:</strong> Salin teks di atas, lalu tempelkan ke menu <em>Vercel Project Settings → Environment Variables</em> atau ke file <code>.env</code> di VPS baru Anda. Restart / Redeploy aplikasi untuk menerapkan seluruh perubahan secara permanen.
+          <p style={{ margin: 0, fontSize: "11px", color: "#a1a1aa", lineHeight: 1.5, display: "flex", alignItems: "flex-start", gap: "6px" }}>
+            <HugeiconsIcon icon={ArrowRight01Icon} size={14} style={{ flexShrink: 0, marginTop: "2px" }} />
+            <span><strong>Langkah Terakhir:</strong> Salin teks di atas, lalu tempelkan ke menu <em>Project Settings → Environment Variables</em> penyedia hosting Anda atau ke file <code>.env</code> di VPS baru Anda. Restart / Redeploy aplikasi untuk menerapkan seluruh perubahan secara permanen.</span>
           </p>
         </div>
       )}

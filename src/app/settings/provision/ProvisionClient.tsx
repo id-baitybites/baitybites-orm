@@ -12,6 +12,8 @@ import {
   AlertCircleIcon,
   FolderOpenIcon,
   LinkSquare02Icon,
+  SecurityCheckIcon,
+  RocketIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { provisionClientRepository, type ProvisionResult } from "./actions";
@@ -108,7 +110,7 @@ export default function ProvisionClient() {
               onChange={(e) => setClientEmail(e.target.value)}
             />
             <span className="form-hint">
-              URL repo, instruksi clone, dan preset .env akan otomatis dikirimkan ke email ini via Brevo.
+              URL repo, instruksi clone, dan preset .env akan otomatis dikirimkan ke email ini.
             </span>
           </div>
 
@@ -126,12 +128,15 @@ export default function ProvisionClient() {
             </div>
 
             <div className="form-group">
-              <label>Target Akun GitHub</label>
+              <label>Target Organisasi / Akun Repositori</label>
               <div className="readonly-display-box">
                 <span className="readonly-value">{TARGET_ORG}</span>
-                <span className="lock-tag">🔒 Akun Resmi</span>
+                <span className="lock-tag">
+                  <HugeiconsIcon icon={SecurityCheckIcon} size={14} />
+                  <span>Akun Resmi</span>
+                </span>
               </div>
-              <span className="form-hint">Dikelola otomatis di bawah akun GitHub resmi vendor Anda.</span>
+              <span className="form-hint">Dikelola otomatis di bawah akun repositori resmi vendor Anda.</span>
             </div>
           </div>
 
@@ -139,7 +144,10 @@ export default function ProvisionClient() {
             <label>Master Template Source (Upstream Core)</label>
             <div className="readonly-display-box">
               <span className="readonly-value">{TEMPLATE_REPO}</span>
-              <span className="lock-tag">🔒 Cetak Biru Master</span>
+              <span className="lock-tag">
+                <HugeiconsIcon icon={SecurityCheckIcon} size={14} />
+                <span>Cetak Biru Master</span>
+              </span>
             </div>
             <span className="form-hint">Cetak biru resmi Baitybites ORM yang otomatis disalin untuk klien.</span>
           </div>
@@ -157,7 +165,8 @@ export default function ProvisionClient() {
           </div>
 
           <div className="form-hint" style={{ marginTop: "0.25rem", display: "flex", alignItems: "center", gap: "6px", color: "#059669" }}>
-            <span>🔒 Otomatisasi GitHub &amp; skema database diamankan via environment secret server-side (GITHUB_PROVISION_TOKEN).</span>
+            <HugeiconsIcon icon={SecurityCheckIcon} size={14} />
+            <span>Otomatisasi repositori &amp; skema database diamankan via environment secret server-side.</span>
           </div>
 
           <button type="submit" className="btn-submit" disabled={isPending}>
@@ -216,18 +225,24 @@ export default function ProvisionClient() {
                     rel="noopener noreferrer"
                     className="action-btn action-btn--vscode"
                   >
-                    <span>🚀 Buka di VS Code Web (vscode.dev)</span>
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                      <HugeiconsIcon icon={RocketIcon} size={16} />
+                      Buka di VS Code Web (vscode.dev)
+                    </span>
                     <HugeiconsIcon icon={LinkSquare02Icon} size={16} />
                   </a>
 
-                  {/* Buka GitHub Template Generator Langsung */}
+                  {/* Buka Template Generator Langsung */}
                   <a
                     href={directTemplateUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="action-btn action-btn--template"
                   >
-                    <span>📋 Salin dari GitHub Template Langsung</span>
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                      <HugeiconsIcon icon={Copy01Icon} size={16} />
+                      Salin dari Template Repositori
+                    </span>
                     <HugeiconsIcon icon={LinkSquare02Icon} size={16} />
                   </a>
 
@@ -238,7 +253,10 @@ export default function ProvisionClient() {
                     rel="noopener noreferrer"
                     className="action-btn action-btn--github"
                   >
-                    <span>🌐 Buka Repo GitHub Klien</span>
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                      <HugeiconsIcon icon={LinkSquare02Icon} size={16} />
+                      Buka Repositori Kode Klien
+                    </span>
                     <HugeiconsIcon icon={LinkSquare02Icon} size={16} />
                   </a>
                 </div>
@@ -290,7 +308,10 @@ export default function ProvisionClient() {
                 )}
 
                 <div className="steps-guide">
-                  <h4>💡 Yang Perlu Dikirim ke Klien:</h4>
+                  <h4 style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                    <HugeiconsIcon icon={AlertCircleIcon} size={16} />
+                    Yang Perlu Dikirim ke Klien:
+                  </h4>
                   <ol>
                     <li>Kirimkan URL repository atau link vscode.dev di atas.</li>
                     <li>Instruksikan klien membuka terminal dan ketik <code>npm install && npm run dev</code>.</li>

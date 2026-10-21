@@ -15,6 +15,8 @@ import {
   Key01Icon,
   ShieldKeyIcon,
   CheckmarkCircle02Icon,
+  LockKeyIcon,
+  AlertCircleIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { superAdminLoginAction } from "@/app/login/actions";
@@ -114,14 +116,18 @@ function AdminLoginForm() {
               lineHeight: 1.5,
             }}
           >
-            🔐 <strong>Autentikasi Diperlukan:</strong> Silakan login menggunakan akun Client Admin Anda terlebih dahulu untuk mengakses panduan konfigurasi setup onboarding toko.
+            <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+              <HugeiconsIcon icon={LockKeyIcon} size={15} />
+              <strong>Autentikasi Diperlukan:</strong>
+            </span>{" "}
+            Silakan login menggunakan akun Client Admin Anda terlebih dahulu untuk mengakses panduan konfigurasi setup onboarding toko.
           </div>
         )}
 
         {/* Alerts */}
         {errorMsg && (
           <div className="admin-login__alert admin-login__alert--error" role="alert">
-            <span>⚠️</span>
+            <HugeiconsIcon icon={AlertCircleIcon} size={16} />
             <span>{errorMsg}</span>
           </div>
         )}

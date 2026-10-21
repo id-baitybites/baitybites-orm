@@ -89,12 +89,12 @@ export async function sendSubscriptionEmail(
         </table>
 
         <div style="margin-top: 24px; padding: 14px 18px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; color: #475569;">
-          💡 <strong>Tips:</strong> Anda bisa langsung membalas email ini untuk berkorespondensi langsung dengan calon klien (<span style="color: #4f46e5;">${data.email}</span>).
+          <strong>Tips:</strong> Anda bisa langsung membalas email ini untuk berkorespondensi langsung dengan calon klien (<span style="color: #4f46e5;">${data.email}</span>).
         </div>
       </div>
 
       <div style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 16px 32px; text-align: center; font-size: 12px; color: #94a3b8;">
-        Email ini dikirim otomatis oleh sistem <strong>Baitybites ORM Platform</strong> via Brevo
+        Email ini dikirim otomatis oleh sistem <strong>Baitybites ORM Platform</strong>.
       </div>
     </div>
   `;

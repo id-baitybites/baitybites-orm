@@ -10,6 +10,8 @@ import {
   Clock01Icon,
   FireIcon,
   Location01Icon,
+  AlertCircleIcon,
+  PackageIcon,
 } from "@hugeicons/core-free-icons";
 import { PublicHeader } from "@/components/public/PublicHeader";
 import { PublicFooter } from "@/components/public/PublicFooter";
@@ -161,7 +163,7 @@ export function TrackingOrderView({
         <div className="tracking-content__inner">
           {errorMessage && (
             <div className="error-box">
-              <span style={{ fontSize: 24 }}>⚠️</span>
+              <HugeiconsIcon icon={AlertCircleIcon} size={24} style={{ color: "var(--color-danger, #ef4444)" }} />
               <div>
                 <strong>Pesanan Tidak Ditemukan</strong>
                 <p>{errorMessage}</p>
@@ -256,7 +258,9 @@ export function TrackingOrderView({
               {trackResult.paxelAwb && (
                 <div className="paxel-courier-box">
                   <div className="paxel-info">
-                    <span className="courier-logo">📦</span>
+                    <span className="courier-logo">
+                      <HugeiconsIcon icon={PackageIcon} size={20} />
+                    </span>
                     <div>
                       <strong>Pengiriman Resmi Paxel Cold-Chain</strong>
                       <span>Nomor Resi AWB: <strong>{trackResult.paxelAwb}</strong></span>

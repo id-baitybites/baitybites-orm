@@ -19,6 +19,7 @@ import {
   Book01Icon,
   ArrowMoveUpRightIcon,
   PackageIcon,
+  SecurityCheckIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import type { ClientLead } from "@/lib/leads-store";
@@ -55,7 +56,7 @@ const INITIAL_TENANTS: TenantInstance[] = [
     plan: "Business Pro",
     mrr: 1500000,
     status: "PRODUCTION",
-    dbSchema: "neondb_baitybites (Dedicated)",
+    dbSchema: "db_baitybites (Dedicated)",
     createdAt: "10 Okt 2026",
     activeOrdersToday: 18,
     revenueToday: 842000,
@@ -73,7 +74,7 @@ const INITIAL_TENANTS: TenantInstance[] = [
     plan: "Starter Instance",
     mrr: 750000,
     status: "ONBOARDING",
-    dbSchema: "neondb_kuelestari (Dedicated)",
+    dbSchema: "db_kuelestari (Dedicated)",
     createdAt: "12 Okt 2026",
     activeOrdersToday: 2,
     revenueToday: 125000,
@@ -91,7 +92,7 @@ const INITIAL_TENANTS: TenantInstance[] = [
     plan: "Business Pro",
     mrr: 1500000,
     status: "TRIAL",
-    dbSchema: "neondb_kopinusantara (Provisioning)",
+    dbSchema: "db_kopinusantara (Provisioning)",
     createdAt: "12 Okt 2026",
     activeOrdersToday: 0,
     revenueToday: 0,
@@ -121,14 +122,14 @@ const AUDIT_EVENTS: AuditEvent[] = [
     time: "1 jam yang lalu",
     type: "PROVISION",
     title: "Instance Provisioning Disiapkan",
-    description: "Konfigurasi repository GitHub untuk slug kuelestari berhasil di-generate.",
+    description: "Konfigurasi repositori kode untuk slug kuelestari berhasil di-generate.",
   },
   {
     id: "evt-03",
     time: "3 jam yang lalu",
     type: "DATABASE",
     title: "Backup Database Otomatis Selesai",
-    description: "Neon PostgreSQL snapshot tersimpan aman di region us-east-2.",
+    description: "Snapshot basis data cloud tersimpan aman di region cluster terdedikasi.",
   },
   {
     id: "evt-04",
@@ -171,7 +172,10 @@ export function PlatformConsoleClient({ leads }: { leads: ClientLead[] }) {
       <header className="console-pro-header">
         <div className="console-pro-header__left">
           <div className="platform-brand-chip">
-            <span className="chip-badge">👑 VENDOR ENGINE</span>
+            <span className="chip-badge">
+              <HugeiconsIcon icon={SecurityCheckIcon} size={13} />
+              <span>VENDOR ENGINE</span>
+            </span>
             <span className="chip-version">v2.4.0 Multi-Tenant</span>
             <span className="chip-status">
               <span className="pulse-dot" />
@@ -264,7 +268,7 @@ export function PlatformConsoleClient({ leads }: { leads: ClientLead[] }) {
             99.98% <span className="value-unit">Uptime</span>
           </div>
           <div className="kpi-card__trend kpi-trend--positive">
-            <span>● Neon PG Dedicated</span>
+            <span>● Dedicated Database</span>
             <span className="trend-sub">Latency 34ms</span>
           </div>
         </div>
@@ -348,7 +352,7 @@ export function PlatformConsoleClient({ leads }: { leads: ClientLead[] }) {
                   </div>
                   <div className="meta-block">
                     <span className="meta-lbl">Database Schema</span>
-                    <span className="meta-val">neondb_baitybites</span>
+                    <span className="meta-val">db_baitybites</span>
                   </div>
                   <div className="meta-block">
                     <span className="meta-lbl">Pesanan Hari Ini</span>
@@ -389,8 +393,8 @@ export function PlatformConsoleClient({ leads }: { leads: ClientLead[] }) {
                         <HugeiconsIcon icon={Database01Icon} size={16} />
                       </div>
                       <div>
-                        <strong>Neon PostgreSQL Database</strong>
-                        <span>Pool koneksi: 3/20 aktif • US-East-2</span>
+                        <strong>Dedicated Cloud Database</strong>
+                        <span>Pool koneksi: 3/20 aktif • Cloud Cluster</span>
                       </div>
                     </div>
                     <span className="badge-health badge-health--good">Normal (34ms)</span>
@@ -402,7 +406,7 @@ export function PlatformConsoleClient({ leads }: { leads: ClientLead[] }) {
                         <HugeiconsIcon icon={Mail01Icon} size={16} />
                       </div>
                       <div>
-                        <strong>Brevo Transactional Email</strong>
+                        <strong>Transactional Email Gateway</strong>
                         <span>id.baitybites@gmail.com • Delivery 99.8%</span>
                       </div>
                     </div>
@@ -415,8 +419,8 @@ export function PlatformConsoleClient({ leads }: { leads: ClientLead[] }) {
                         <HugeiconsIcon icon={RocketIcon} size={16} />
                       </div>
                       <div>
-                        <strong>Vercel Serverless Compute</strong>
-                        <span>Region sin1 (Singapore) Edge Deployment</span>
+                        <strong>Serverless Cloud Compute</strong>
+                        <span>Region Edge Deployment</span>
                       </div>
                     </div>
                     <span className="badge-health badge-health--good">Operational</span>
@@ -504,7 +508,7 @@ export function PlatformConsoleClient({ leads }: { leads: ClientLead[] }) {
                               <Link
                                 href={`/settings/provision?name=${encodeURIComponent(lead.businessName)}&email=${encodeURIComponent(lead.email)}`}
                                 className="btn-mini-provision"
-                                title="Buat Repo GitHub"
+                                title="Provision Instance Klien"
                               >
                                 Provision
                               </Link>
@@ -531,7 +535,7 @@ export function PlatformConsoleClient({ leads }: { leads: ClientLead[] }) {
                     </div>
                     <div>
                       <strong>Instance Provisioner</strong>
-                      <span>Setup repository GitHub &amp; skema database klien baru</span>
+                      <span>Setup repositori kode &amp; skema basis data klien baru</span>
                     </div>
                   </Link>
 
@@ -561,7 +565,7 @@ export function PlatformConsoleClient({ leads }: { leads: ClientLead[] }) {
                     </div>
                     <div>
                       <strong>Pengaturan Platform</strong>
-                      <span>Kunci API, SMTP Brevo, dan kredensial cloud</span>
+                      <span>Kunci API, SMTP Email, dan kredensial cloud</span>
                     </div>
                   </Link>
                 </div>
@@ -780,21 +784,21 @@ export function PlatformConsoleClient({ leads }: { leads: ClientLead[] }) {
             <div className="infra-grid">
               <div className="pro-card">
                 <div className="pro-card__header">
-                  <h3>Database Fleet (PostgreSQL)</h3>
+                  <h3>Database Fleet Dedicated</h3>
                   <span className="badge-health badge-health--good">Operational</span>
                 </div>
                 <div className="infra-detail-rows">
                   <div className="infra-row">
                     <span>Provider</span>
-                    <strong>Neon Serverless Cloud</strong>
+                    <strong>Cloud Database Serverless</strong>
                   </div>
                   <div className="infra-row">
                     <span>Region Hosting</span>
-                    <strong>AWS us-east-2 (Ohio)</strong>
+                    <strong>Regional Cluster (Asia-Southeast)</strong>
                   </div>
                   <div className="infra-row">
                     <span>Connection Pool</span>
-                    <strong>PgBouncer Active (Port 5432 / 6543)</strong>
+                    <strong>Connection Pooling Active</strong>
                   </div>
                   <div className="infra-row">
                     <span>Pemisahan Multi-Tenant</span>
@@ -815,11 +819,11 @@ export function PlatformConsoleClient({ leads }: { leads: ClientLead[] }) {
                 <div className="infra-detail-rows">
                   <div className="infra-row">
                     <span>Framework Platform</span>
-                    <strong>Next.js 16 (App Router)</strong>
+                    <strong>Modern Web Engine (App Architecture)</strong>
                   </div>
                   <div className="infra-row">
                     <span>Edge CDN &amp; DNS</span>
-                    <strong>Vercel Global Edge Network</strong>
+                    <strong>Global Edge Cloud Network</strong>
                   </div>
                   <div className="infra-row">
                     <span>Routing Latency</span>
@@ -827,7 +831,7 @@ export function PlatformConsoleClient({ leads }: { leads: ClientLead[] }) {
                   </div>
                   <div className="infra-row">
                     <span>SSL Certificate</span>
-                    <strong className="text-emerald">Let&apos;s Encrypt Auto-Renewal</strong>
+                    <strong className="text-emerald">Auto-Renewing TLS/SSL</strong>
                   </div>
                   <div className="infra-row">
                     <span>Build &amp; Deploy Status</span>
@@ -844,7 +848,7 @@ export function PlatformConsoleClient({ leads }: { leads: ClientLead[] }) {
                 <div className="infra-detail-rows">
                   <div className="infra-row">
                     <span>Provider Email</span>
-                    <strong>Brevo Transactional API &amp; SMTP</strong>
+                    <strong>Transactional Mail Relay &amp; SMTP</strong>
                   </div>
                   <div className="infra-row">
                     <span>Pengirim Resmi</span>

@@ -16,6 +16,9 @@ import {
   StarIcon,
   Loading03Icon,
   Add01Icon,
+  SnowflakeIcon,
+  FlashIcon,
+  Store01Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { PublicHeader } from "@/components/public/PublicHeader";
@@ -893,21 +896,27 @@ export function PublicLandingView({
 
             <div className="cta-features">
               <div className="feature-item">
-                <span className="feat-icon">❄️</span>
+                <span className="feat-icon">
+                  <HugeiconsIcon icon={SnowflakeIcon} size={20} />
+                </span>
                 <div>
                   <strong>Paxel Cold-Chain</strong>
                   <span>Garansi tetap dingin &amp; higienis sampai depan pintu</span>
                 </div>
               </div>
               <div className="feature-item">
-                <span className="feat-icon">⚡</span>
+                <span className="feat-icon">
+                  <HugeiconsIcon icon={FlashIcon} size={20} />
+                </span>
                 <div>
                   <strong>Same Day Delivery</strong>
                   <span>Pesan pagi, nikmati hangat/dingin di hari yang sama</span>
                 </div>
               </div>
               <div className="feature-item">
-                <span className="feat-icon">🏪</span>
+                <span className="feat-icon">
+                  <HugeiconsIcon icon={Store01Icon} size={20} />
+                </span>
                 <div>
                   <strong>Self Pickup Tersedia</strong>
                   <span>Ambil langsung bebas ongkir di outlet Sawangan</span>

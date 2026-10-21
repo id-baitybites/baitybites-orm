@@ -382,7 +382,9 @@ export function CmsClient({
             <HugeiconsIcon icon={SparklesIcon} size={22} strokeWidth={1.8} />
           </div>
           <div className="cms-stat-card__details">
-            <span className="cms-stat-card__val">{avgRating} ★</span>
+            <span className="cms-stat-card__val" style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
+              {avgRating} <HugeiconsIcon icon={StarIcon} size={18} style={{ color: "#f59e0b" }} />
+            </span>
             <span className="cms-stat-card__lbl">Rata-rata Rating Kepuasan</span>
           </div>
         </div>
@@ -741,7 +743,14 @@ export function CmsClient({
                         title="Klik untuk mengubah moderasi tampil di web"
                         style={{ background: "transparent", border: "none", cursor: "pointer" }}
                       >
-                        {t.isFeatured ? "✓ Ditampilkan di Beranda" : "Disimpan (Draft)"}
+                        {t.isFeatured ? (
+                          <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
+                            <HugeiconsIcon icon={CheckmarkCircle02Icon} size={12} />
+                            Ditampilkan di Beranda
+                          </span>
+                        ) : (
+                          "Disimpan (Draft)"
+                        )}
                       </button>
                       <span style={{ fontSize: "11px", color: "var(--color-text-muted)" }}>
                         Urutan Tampil: #{t.displayOrder}
@@ -996,9 +1005,9 @@ export function CmsClient({
               <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
                 {[
                   "Nikmati Diskon 20% Pembelian Risol Frozen Khusus Order via WhatsApp!",
-                  "🎉 Pre-Order Hampers Idul Fitri / Liburan Dibuka! Kuota Terbatas.",
-                  "✨ Gratis Ongkir Sameday untuk Pesanan Minimal Rp 75.000 Hari Ini!",
-                  "🔥 Risol Mayo Double Cheese Ready to Eat Fresh Digoreng Tiap Pukul 14.00",
+                  "Pre-Order Hampers Idul Fitri / Liburan Dibuka! Kuota Terbatas.",
+                  "Gratis Ongkir Sameday untuk Pesanan Minimal Rp 75.000 Hari Ini!",
+                  "Risol Mayo Double Cheese Ready to Eat Fresh Digoreng Tiap Pukul 14.00",
                 ].map((txt, idx) => (
                   <button
                     key={idx}

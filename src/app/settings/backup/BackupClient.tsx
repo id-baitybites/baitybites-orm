@@ -166,10 +166,10 @@ export function BackupClient({
         <div className="banner-text">
           <strong>Sistem Otomasi Pencadangan Aktif</strong>
           <p>
-            1. <strong>GitHub Actions Cron</strong>: Berjalan otomatis setiap hari pukul
-            02:00 WIB (19:00 UTC) via workflow <code>db-backup.yml</code> dengan retensi 30 hari.
+            1. <strong>Penjadwal Otomatis Utama (Daily Cloud Job)</strong>: Berjalan otomatis setiap hari pukul
+            02:00 WIB (19:00 UTC) via workflow pencadangan data dengan retensi 30 hari.
             <br />
-            2. <strong>Vercel Serverless Cron</strong>: Terhubung ke endpoint <code>/api/cron/db-backup</code> untuk menjamin integritas data secara independen.
+            2. <strong>Serverless Backup Endpoint</strong>: Terhubung ke endpoint <code>/api/cron/db-backup</code> untuk menjamin integritas data secara independen.
           </p>
         </div>
       </div>

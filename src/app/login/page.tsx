@@ -15,6 +15,9 @@ import {
   Key01Icon,
   CheckmarkCircle02Icon,
   ShoppingBag01Icon,
+  AlertCircleIcon,
+  SparklesIcon,
+  StarIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { superAdminLoginAction } from "@/app/login/actions";
@@ -152,14 +155,14 @@ function LoginFormInner() {
         {/* Notifikasi Error / Success */}
         {errorMsg && (
           <div className="login-page__notice login-page__notice--error">
-            <span>⚠️</span>
+            <HugeiconsIcon icon={AlertCircleIcon} size={16} />
             <span>{errorMsg}</span>
           </div>
         )}
 
         {successMsg && (
           <div className="login-page__notice login-page__notice--success">
-            <span>✨</span>
+            <HugeiconsIcon icon={SparklesIcon} size={16} />
             <span>{successMsg}</span>
           </div>
         )}
@@ -217,7 +220,10 @@ function LoginFormInner() {
                 )}`}
                 className="btn-quick-customer"
               >
-                <span>👤 Budi Santoso (Pelanggan Baru)</span>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                  <HugeiconsIcon icon={UserIcon} size={15} />
+                  Budi Santoso (Pelanggan Baru)
+                </span>
                 <span>Masuk &rarr;</span>
               </a>
               <a
@@ -226,7 +232,10 @@ function LoginFormInner() {
                 )}`}
                 className="btn-quick-customer"
               >
-                <span>⭐ Siti Rahma (Pelanggan Setia)</span>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                  <HugeiconsIcon icon={StarIcon} size={15} />
+                  Siti Rahma (Pelanggan Setia)
+                </span>
                 <span>Masuk &rarr;</span>
               </a>
             </div>

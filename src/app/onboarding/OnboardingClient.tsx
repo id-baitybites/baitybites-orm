@@ -20,6 +20,7 @@ import {
   Location01Icon,
   MailAtSign01Icon,
   Call02Icon,
+  InformationCircleIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
@@ -189,7 +190,10 @@ NODE_ENV="production"`;
                 <HugeiconsIcon icon={CheckmarkCircle02Icon} size={28} style={{ color: "#10b981" }} />
               </div>
               <div>
-                <h1 style={{ color: "#10b981" }}>🎉 Sistem Berhasil Diinisialisasi!</h1>
+                <h1 style={{ color: "#10b981", display: "flex", alignItems: "center", gap: "8px" }}>
+                  <HugeiconsIcon icon={SparklesIcon} size={24} />
+                  <span>Sistem Berhasil Diinisialisasi!</span>
+                </h1>
                 <p>{onboardingResult.message}</p>
               </div>
             </div>
@@ -227,12 +231,20 @@ NODE_ENV="production"`;
 
             {onboardingResult.dbMigrated && (
               <div style={{ padding: "10px 14px", borderRadius: "8px", background: "#eff6ff", border: "1px solid #bfdbfe", fontSize: "12px", color: "#1e40af", marginBottom: "16px" }}>
-                <strong>✅ Database Target di-Provision:</strong> Schema PostgreSQL berhasil di-push via <code>prisma db push</code>. Instance toko siap digunakan.
+                <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
+                  <HugeiconsIcon icon={CheckmarkCircle02Icon} size={14} />
+                  <strong>Database Target di-Provision:</strong>
+                </span>{" "}
+                Schema PostgreSQL berhasil di-push via <code>prisma db push</code>. Instance toko siap digunakan.
               </div>
             )}
             {onboardingResult.dbSkipped && (
               <div style={{ padding: "10px 14px", borderRadius: "8px", background: "#f0fdf4", border: "1px solid #bbf7d0", fontSize: "12px", color: "#166534", marginBottom: "16px" }}>
-                <strong>ℹ️ Database:</strong> Menggunakan schema server yang sudah ada — tidak perlu migrasi.
+                <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
+                  <HugeiconsIcon icon={InformationCircleIcon} size={14} />
+                  <strong>Database:</strong>
+                </span>{" "}
+                Menggunakan schema server yang sudah ada — tidak perlu migrasi.
               </div>
             )}
 
@@ -473,7 +485,7 @@ NODE_ENV="production"`;
                     <input
                       id="cfg-db"
                       type="text"
-                      placeholder="postgresql://user:password@host-pooler.neon.tech/neondb?sslmode=require"
+                      placeholder="postgresql://user:password@host-pooler.example.com/database?sslmode=require"
                       value={formData.databaseUrl}
                       onChange={(e) => {
                         setFormData({ ...formData, databaseUrl: e.target.value });

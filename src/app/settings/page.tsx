@@ -22,6 +22,7 @@ import {
   PrinterIcon,
   UserIcon,
   Database01Icon,
+  InformationCircleIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { AppShell } from "@/components/layout/AppShell/AppShell";
@@ -346,7 +347,7 @@ function IntegrasiWASection() {
             <input type="password" placeholder="EAA..." />
           </label>
           <div className="settings-api-note">
-            <span>ℹ️</span>
+            <HugeiconsIcon icon={InformationCircleIcon} size={16} />
             <span>
               Dapatkan token dari{" "}
               <a href="https://developers.facebook.com/apps" target="_blank" rel="noopener noreferrer">
@@ -504,7 +505,7 @@ function KonfigurasiInstanceSection() {
         <div>
           <strong style={{ color: "#065f46" }}>Database Terisolasi (Multi-Tenant Active)</strong>
           <p style={{ color: "#047857", margin: "4px 0 0", fontSize: "13px" }}>
-            Toko Anda berjalan di atas skema database mandiri <code>toko_kue_ibu_lestari</code> di Neon PostgreSQL.
+            Toko Anda berjalan di atas skema database mandiri <code>toko_kue_ibu_lestari</code> yang terisolasi.
             Seluruh pesanan, katalog kue, dan data transaksi 100% terpisah dan tidak tercampur dengan toko mitra lainnya.
           </p>
         </div>
@@ -578,17 +579,20 @@ function KonfigurasiInstanceSection() {
         <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "8px", padding: "14px 16px", fontSize: "13px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
             <span style={{ color: "#64748b" }}>Status Skema Database:</span>
-            <strong style={{ color: "#059669" }}>🟢 Aktif &amp; Terisolasi</strong>
+            <strong style={{ color: "#059669", display: "inline-flex", alignItems: "center", gap: "6px" }}>
+              <HugeiconsIcon icon={CheckmarkCircle02Icon} size={14} />
+              Aktif &amp; Terisolasi
+            </strong>
           </div>
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
-            <span style={{ color: "#64748b" }}>Nama Skema Neon:</span>
+            <span style={{ color: "#64748b" }}>Nama Skema Database:</span>
             <code style={{ background: "#ffffff", padding: "2px 6px", border: "1px solid #cbd5e1", borderRadius: "4px" }}>
               toko_kue_ibu_lestari
             </code>
           </div>
           <div style={{ display: "flex", justifyContent: "space-between" }}>
             <span style={{ color: "#64748b" }}>Pemisahan Data Multi-Klien:</span>
-            <span style={{ color: "#0f172a", fontWeight: 600 }}>Tingkat Namespace PostgreSQL (Zero Collision)</span>
+            <span style={{ color: "#0f172a", fontWeight: 600 }}>Tingkat Namespace Database (Zero Collision)</span>
           </div>
         </div>
       </div>
@@ -598,7 +602,7 @@ function KonfigurasiInstanceSection() {
         <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "8px", padding: "14px 16px", fontSize: "13px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", flexWrap: "wrap" }}>
           <div style={{ maxWidth: "450px" }}>
             <strong style={{ color: "#0f172a", display: "block", marginBottom: "4px" }}>Pencadangan Database &amp; Recovery Tool</strong>
-            <span style={{ color: "#64748b" }}>Otomasi aktif via GitHub Actions (02:00 WIB) &amp; Vercel Cron. Buat snapshot on-demand atau pulihkan data kapan saja.</span>
+            <span style={{ color: "#64748b" }}>Otomasi aktif terjadwal harian (02:00 WIB) via penjadwal cloud. Buat snapshot on-demand atau pulihkan data kapan saja.</span>
           </div>
           <Link
             href="/settings/backup"
@@ -628,7 +632,14 @@ function KonfigurasiInstanceSection() {
           onClick={handleSaveEnv}
           style={{ width: "100%", justifyContent: "center" }}
         >
-          {savedLocally ? "✅ Konfigurasi Toko Berhasil Disimpan!" : "Simpan Konfigurasi Toko"}
+          {savedLocally ? (
+            <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+              <HugeiconsIcon icon={CheckmarkCircle02Icon} size={16} />
+              Konfigurasi Toko Berhasil Disimpan!
+            </span>
+          ) : (
+            "Simpan Konfigurasi Toko"
+          )}
         </button>
       </div>
     </div>

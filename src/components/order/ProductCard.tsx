@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { SparklesIcon, CheckmarkCircle02Icon, ShoppingBag01Icon } from "@hugeicons/core-free-icons";
+import { SparklesIcon, CheckmarkCircle02Icon, ShoppingBag01Icon, SnowflakeIcon, PackageIcon } from "@hugeicons/core-free-icons";
 
 export interface CatalogProduct {
   id: string;
@@ -32,14 +32,7 @@ export function ProductCard({ product, onAddToCart, inCartQty = 0 }: ProductCard
   const isFrozen = product.category.toLowerCase().includes("frozen");
   const isDrink = product.category.toLowerCase().includes("minuman") || product.category.toLowerCase().includes("cendol");
 
-  // Format kategori ringkas untuk badge visual di foto
-  const shortCategory = isFrozen
-    ? "Risol ❄"
-    : isDrink
-    ? "Minuman 🥤"
-    : product.category.toLowerCase().includes("hampers") || product.category.toLowerCase().includes("box")
-    ? "Hampers 🎁"
-    : "Risol ✨";
+  const isHampers = product.category.toLowerCase().includes("hampers") || product.category.toLowerCase().includes("box");
 
   // Hitung angka stok numerik jika ada
   const stockNum = typeof product.stock === "number" ? product.stock : parseInt(String(product.stock), 10);
@@ -72,8 +65,11 @@ export function ProductCard({ product, onAddToCart, inCartQty = 0 }: ProductCard
     <article className={`bb-product-card ${product.isHighlighted ? "is-highlighted" : ""}`}>
       {/* ── Visual Media & Floating Badge ── */}
       <div className="bb-product-card__visual">
-        <span className={`category-tag ${isFrozen ? "is-frozen" : ""}`}>
-          {shortCategory}
+        <span className={`category-tag ${isFrozen ? "is-frozen" : ""}`} style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
+          {isFrozen && <HugeiconsIcon icon={SnowflakeIcon} size={11} strokeWidth={2} />}
+          {isHampers && <HugeiconsIcon icon={PackageIcon} size={11} strokeWidth={2} />}
+          {!isFrozen && !isDrink && !isHampers && <HugeiconsIcon icon={SparklesIcon} size={11} strokeWidth={2} />}
+          <span>{isFrozen ? "Risol Frozen" : isDrink ? "Minuman" : isHampers ? "Hampers" : "Risol"}</span>
         </span>
 
         {product.tag && (
@@ -94,7 +90,7 @@ export function ProductCard({ product, onAddToCart, inCartQty = 0 }: ProductCard
         ) : (
           <div className="product-placeholder-graphic">
             <span className="food-emoji">
-              {isDrink ? "🥤" : isFrozen ? "🥟❄️" : "🥐"}
+              <HugeiconsIcon icon={isFrozen ? SnowflakeIcon : isHampers ? PackageIcon : ShoppingBag01Icon} size={36} style={{ opacity: 0.6 }} />
             </span>
           </div>
         )}
