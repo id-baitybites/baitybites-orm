@@ -13,19 +13,19 @@ async function seedAdmins() {
 
   // 1. Admin Platform (Owner Baitybites ORM)
   await pool.query(
-    `INSERT INTO admins (id, username, display_name, password_hash, pin_hash, is_active, created_at, updated_at, created_by)
-     VALUES ('adm-platform-01', 'superadmin', 'Platform Owner (Baitybites ORM)', $1, $2, true, NOW(), NOW(), 'SYSTEM')
+    `INSERT INTO admins (id, username, display_name, password_hash, pin_hash, role, is_active, created_at, updated_at, created_by)
+     VALUES ('adm-platform-01', 'superadmin', 'Platform Owner (Baitybites ORM)', $1, $2, 'PLATFORM_OWNER', true, NOW(), NOW(), 'SYSTEM')
      ON CONFLICT (username) DO UPDATE
-     SET password_hash = $1, pin_hash = $2, display_name = 'Platform Owner (Baitybites ORM)', is_active = true, updated_at = NOW()`,
+     SET password_hash = $1, pin_hash = $2, role = 'PLATFORM_OWNER', display_name = 'Platform Owner (Baitybites ORM)', is_active = true, updated_at = NOW()`,
     [pwPlatform, pinPlatform]
   );
 
   // 2. Admin Client Demo Baitybites
   await pool.query(
-    `INSERT INTO admins (id, username, display_name, password_hash, pin_hash, is_active, created_at, updated_at, created_by)
-     VALUES ('adm-client-01', 'admin.baitybites', 'Admin Demo Toko Baitybites', $1, $2, true, NOW(), NOW(), 'PLATFORM')
+    `INSERT INTO admins (id, username, display_name, password_hash, pin_hash, role, is_active, created_at, updated_at, created_by)
+     VALUES ('adm-client-01', 'admin.baitybites', 'Admin Demo Toko Baitybites', $1, $2, 'SUPER_ADMIN', true, NOW(), NOW(), 'PLATFORM')
      ON CONFLICT (username) DO UPDATE
-     SET password_hash = $1, pin_hash = $2, display_name = 'Admin Demo Toko Baitybites', is_active = true, updated_at = NOW()`,
+     SET password_hash = $1, pin_hash = $2, role = 'SUPER_ADMIN', display_name = 'Admin Demo Toko Baitybites', is_active = true, updated_at = NOW()`,
     [pwClient, pinClient]
   );
 

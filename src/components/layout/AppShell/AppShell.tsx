@@ -152,14 +152,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <Link href="/orders" className="app-shell__brand">
               {process.env.NEXT_PUBLIC_STORE_NAME &&
               process.env.NEXT_PUBLIC_STORE_NAME.toLowerCase() !== "baitybites" ? (
-                <span
-                  style={{
-                    fontSize: "1.15rem",
-                    fontWeight: 800,
-                    color: "#f8fafc",
-                    letterSpacing: "-0.02em",
-                  }}
-                >
+                <span className="brand-tenant-title">
                   {process.env.NEXT_PUBLIC_STORE_NAME}
                 </span>
               ) : (
@@ -217,40 +210,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
             {role && (
               <span
-                style={{
-                  fontSize: "0.7rem",
-                  fontWeight: 700,
-                  padding: "3px 8px",
-                  borderRadius: "6px",
-                  background:
-                    role === "PLATFORM_OWNER"
-                      ? "rgba(79, 70, 229, 0.2)"
-                      : role === "KASIR"
-                      ? "rgba(16, 185, 129, 0.2)"
-                      : role === "KITCHEN_STAFF"
-                      ? "rgba(217, 119, 6, 0.2)"
-                      : "rgba(234, 88, 12, 0.2)",
-                  color:
-                    role === "PLATFORM_OWNER"
-                      ? "#a5b4fc"
-                      : role === "KASIR"
-                      ? "#6ee7b7"
-                      : role === "KITCHEN_STAFF"
-                      ? "#fcd34d"
-                      : "#fdba74",
-                  border:
-                    role === "PLATFORM_OWNER"
-                      ? "1px solid rgba(79, 70, 229, 0.4)"
-                      : role === "KASIR"
-                      ? "1px solid rgba(16, 185, 129, 0.4)"
-                      : role === "KITCHEN_STAFF"
-                      ? "1px solid rgba(217, 119, 6, 0.4)"
-                      : "1px solid rgba(234, 88, 12, 0.4)",
-                  letterSpacing: "0.02em",
-                  textTransform: "uppercase",
-                  display: "inline-flex",
-                  alignItems: "center",
-                }}
+                className={`app-shell__role-tag ${
+                  role === "PLATFORM_OWNER"
+                    ? "app-shell__role-tag--owner"
+                    : role === "KASIR"
+                    ? "app-shell__role-tag--kasir"
+                    : role === "KITCHEN_STAFF"
+                    ? "app-shell__role-tag--kitchen"
+                    : "app-shell__role-tag--admin"
+                }`}
               >
                 {role === "PLATFORM_OWNER"
                   ? "Owner"
@@ -327,7 +295,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="app-shell__footer-brand">
             {process.env.NEXT_PUBLIC_STORE_NAME &&
             process.env.NEXT_PUBLIC_STORE_NAME.toLowerCase() !== "baitybites" ? (
-              <span style={{ fontSize: "1.2rem", fontWeight: 800, color: "#f8fafc" }}>
+              <span className="footer-brand-title">
                 {process.env.NEXT_PUBLIC_STORE_NAME}
               </span>
             ) : (
@@ -336,7 +304,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 alt="Store Logo"
                 width={140}
                 height={38}
-                style={{ height: "auto", width: "auto", maxHeight: "38px" }}
+                className="footer-brand-logo"
               />
             )}
           </div>

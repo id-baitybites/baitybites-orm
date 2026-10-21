@@ -214,7 +214,7 @@ export default function PlatformLandingPage() {
       <section id="klien-pertama" className="platform-landing__case-study">
         <div className="case-card">
           <div className="case-card-info">
-            <div className="case-tag" style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+            <div className="case-tag">
               <HugeiconsIcon icon={SparklesIcon} size={14} />
               <span>Klien Pertama &amp; Flagship Case Study</span>
             </div>

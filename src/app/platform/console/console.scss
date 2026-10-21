@@ -19,8 +19,6 @@
   justify-content: space-between;
   align-items: flex-start;
   gap: 1.5rem;
-  padding-bottom: 1.75rem;
-  border-bottom: 1px solid #e2e8f0;
   margin-bottom: 1.75rem;
 
   @media (max-width: 960px) {
@@ -39,12 +37,15 @@
       background: #f1f5f9;
       border: 1px solid #cbd5e1;
       border-radius: 20px;
-      font-size: 0.74rem;
+      font-size: 0.65rem;
       font-weight: 550;
       color: #334155;
       margin-bottom: 0.6rem;
 
       .chip-badge {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
         color: #4f46e5;
         font-weight: 700;
         letter-spacing: 0.03em;
@@ -59,7 +60,7 @@
         align-items: center;
         gap: 0.35rem;
         color: #059669;
-        font-weight: 600;
+        font-weight: 400;
         background: #ecfdf5;
         padding: 0.1rem 0.45rem;
         border-radius: 10px;
@@ -77,7 +78,7 @@
     }
 
     h1 {
-      font-size: 1.75rem;
+      font-size: 1.25rem;
       font-weight: 700;
       color: #0f172a;
       letter-spacing: -0.02em;
@@ -86,11 +87,9 @@
     }
 
     .header-subtitle {
-      font-size: 0.92rem;
       color: #64748b;
       margin: 0;
       max-width: 780px;
-      line-height: 1.55;
     }
   }
 
@@ -109,8 +108,8 @@
       background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
       color: #ffffff;
       border-radius: 7px;
-      font-size: 0.86rem;
-      font-weight: 600;
+      font-size: 0.825rem;
+      font-weight: 400;
       text-decoration: none;
       box-shadow: 0 2px 4px rgba(14, 165, 233, 0.25);
       transition: all 0.15s ease;
@@ -131,7 +130,7 @@
       color: #0f172a;
       border: 1px solid #cbd5e1;
       border-radius: 7px;
-      font-size: 0.86rem;
+      font-size: 0.825rem;
       font-weight: 550;
       text-decoration: none;
       transition: all 0.15s ease;
@@ -179,7 +178,6 @@
 
   .kpi-card {
     background: #ffffff;
-    border: 1px solid #e2e8f0;
     border-radius: 10px;
     padding: 1.25rem 1.35rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
@@ -198,11 +196,10 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 0.6rem;
 
       .kpi-label {
-        font-size: 0.78rem;
-        font-weight: 600;
+        font-size: 0.65rem;
+        font-weight: 400;
         text-transform: uppercase;
         letter-spacing: 0.04em;
         color: #64748b;
@@ -239,14 +236,13 @@
 
     &__value {
       font-size: 1.65rem;
-      font-weight: 750;
+      font-weight: 600;
       color: #0f172a;
       letter-spacing: -0.02em;
-      margin-bottom: 0.5rem;
 
       .value-unit {
-        font-size: 0.95rem;
-        font-weight: 500;
+        font-size: 0.65rem;
+        font-weight: 400;
         color: #64748b;
       }
     }
@@ -255,12 +251,12 @@
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      font-size: 0.78rem;
+      font-size: 0.65rem;
       flex-wrap: wrap;
 
       &.kpi-trend--positive {
         color: #059669;
-        font-weight: 600;
+        font-weight: 400;
       }
 
       .trend-sub {
@@ -273,7 +269,7 @@
         color: #065f46;
         padding: 0.15rem 0.45rem;
         border-radius: 5px;
-        font-weight: 600;
+        font-weight: 400;
       }
 
       .badge-sub-setup {
@@ -281,7 +277,7 @@
         color: #475569;
         padding: 0.15rem 0.45rem;
         border-radius: 5px;
-        font-weight: 500;
+        font-weight: 400;
       }
 
       .badge-sub-alert {
@@ -289,7 +285,7 @@
         color: #b91c1c;
         padding: 0.15rem 0.45rem;
         border-radius: 5px;
-        font-weight: 600;
+        font-weight: 400;
       }
     }
   }
@@ -312,7 +308,7 @@
     background: transparent;
     border: none;
     border-bottom: 2px solid transparent;
-    font-size: 0.88rem;
+    font-size: 0.825rem;
     font-weight: 550;
     color: #64748b;
     cursor: pointer;
@@ -327,7 +323,7 @@
     &.is-active {
       color: #0284c7;
       border-bottom-color: #0284c7;
-      font-weight: 650;
+      font-weight: 400;
       background: transparent;
     }
 
@@ -339,7 +335,7 @@
       background: #ef4444;
       color: #ffffff;
       border-radius: 10px;
-      font-size: 0.72rem;
+      font-size: 0.65rem;
       font-weight: 700;
     }
   }
@@ -348,7 +344,6 @@
 /* ── Pro Cards & Shared Elements ──────────────────────────────────────── */
 .pro-card {
   background: #ffffff;
-  border: 1px solid #e2e8f0;
   border-radius: 10px;
   padding: 1.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
@@ -361,7 +356,7 @@
     gap: 1rem;
 
     h3 {
-      font-size: 1.12rem;
+      font-size: 1rem;
       font-weight: 700;
       color: #0f172a;
       margin: 0;
@@ -369,17 +364,17 @@
     }
 
     .card-kicker {
-      font-size: 0.74rem;
+      font-size: 0.65rem;
       text-transform: uppercase;
       letter-spacing: 0.04em;
       color: #0284c7;
-      font-weight: 650;
+      font-weight: 400;
       display: block;
       margin-bottom: 0.2rem;
     }
 
     .card-subtext {
-      font-size: 0.84rem;
+      font-size: 0.825rem;
       color: #64748b;
       margin-top: 0.2rem;
       display: block;
@@ -389,8 +384,8 @@
       display: inline-flex;
       align-items: center;
       gap: 0.35rem;
-      font-size: 0.82rem;
-      font-weight: 600;
+      font-size: 0.825rem;
+      font-weight: 400;
       color: #0284c7;
       text-decoration: none;
 
@@ -401,8 +396,8 @@
   }
 
   &--featured {
-    border-color: #bfdbfe;
-    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    border: 1px solid #bfdbfe;
+    background: linear-gradient(180deg, #ffffff 0%, #dfe6ee 100%);
   }
 }
 
@@ -413,7 +408,7 @@
   gap: 0.35rem;
   padding: 0.25rem 0.65rem;
   border-radius: 20px;
-  font-size: 0.74rem;
+  font-size: 0.65rem;
   font-weight: 700;
   letter-spacing: 0.02em;
 
@@ -445,12 +440,12 @@
 }
 
 .pill-neutral {
-  font-size: 0.74rem;
+  font-size: 0.65rem;
   color: #64748b;
   background: #f1f5f9;
   padding: 0.2rem 0.55rem;
   border-radius: 12px;
-  font-weight: 500;
+  font-weight: 400;
 }
 
 /* ── TAB 1: OVERVIEW GRIDS ────────────────────────────────────────────── */
@@ -480,7 +475,7 @@
     flex-direction: column;
 
     .meta-lbl {
-      font-size: 0.74rem;
+      font-size: 0.65rem;
       color: #64748b;
       font-weight: 550;
       text-transform: uppercase;
@@ -488,10 +483,9 @@
     }
 
     .meta-val {
-      font-size: 0.92rem;
-      font-weight: 650;
+      font-size: 0.65rem;
+      font-weight: 400;
       color: #0f172a;
-      margin-top: 0.15rem;
 
       &.highlight-domain {
         color: #0284c7;
@@ -501,10 +495,9 @@
 }
 
 .card-desc {
-  font-size: 0.88rem;
+  font-size: 0.7rem;
   color: #475569;
-  line-height: 1.55;
-  margin: 0 0 1.25rem;
+  margin: 0 0 1rem;
 }
 
 .pro-card__actions {
@@ -520,8 +513,8 @@
     background: #0f172a;
     color: #ffffff;
     border-radius: 6px;
-    font-size: 0.85rem;
-    font-weight: 600;
+    font-size: 0.825rem;
+    font-weight: 400;
     text-decoration: none;
     transition: background 0.15s ease;
 
@@ -539,7 +532,7 @@
     color: #0f172a;
     border: 1px solid #cbd5e1;
     border-radius: 6px;
-    font-size: 0.85rem;
+    font-size: 0.825rem;
     font-weight: 550;
     text-decoration: none;
     transition: all 0.15s ease;
@@ -555,8 +548,8 @@
     align-items: center;
     padding: 0.55rem 0.85rem;
     color: #64748b;
-    font-size: 0.85rem;
-    font-weight: 500;
+    font-size: 0.825rem;
+    font-weight: 400;
     text-decoration: none;
 
     &:hover {
@@ -587,13 +580,13 @@
       gap: 0.75rem;
 
       strong {
-        font-size: 0.88rem;
+        font-size: 0.825rem;
         color: #0f172a;
         display: block;
       }
 
       span {
-        font-size: 0.76rem;
+        font-size: 0.65rem;
         color: #64748b;
       }
 
@@ -627,8 +620,8 @@
     }
 
     .badge-health {
-      font-size: 0.74rem;
-      font-weight: 600;
+      font-size: 0.65rem;
+      font-weight: 400;
       padding: 0.15rem 0.5rem;
       border-radius: 12px;
 
@@ -649,9 +642,9 @@
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
-    font-size: 0.82rem;
+    font-size: 0.825rem;
     color: #0284c7;
-    font-weight: 600;
+    font-weight: 400;
     text-decoration: none;
 
     &:hover {
@@ -679,12 +672,12 @@
 .leads-mini-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.84rem;
+  font-size: 0.825rem;
 
   th {
     text-align: left;
     padding: 0.5rem 0.65rem;
-    font-size: 0.74rem;
+    font-size: 0.65rem;
     text-transform: uppercase;
     letter-spacing: 0.04em;
     color: #64748b;
@@ -698,7 +691,7 @@
     vertical-align: middle;
 
     .table-sub {
-      font-size: 0.74rem;
+      font-size: 0.65rem;
       color: #94a3b8;
       margin-top: 0.1rem;
     }
@@ -708,7 +701,7 @@
     background: #f1f5f9;
     padding: 0.2rem 0.5rem;
     border-radius: 4px;
-    font-size: 0.74rem;
+    font-size: 0.65rem;
     font-weight: 550;
     color: #334155;
   }
@@ -717,7 +710,7 @@
     display: inline-block;
     padding: 0.15rem 0.5rem;
     border-radius: 10px;
-    font-size: 0.72rem;
+    font-size: 0.65rem;
     font-weight: 700;
 
     &--baru {
@@ -746,8 +739,8 @@
       color: #047857;
       border: 1px solid #a7f3d0;
       border-radius: 4px;
-      font-size: 0.74rem;
-      font-weight: 600;
+      font-size: 0.65rem;
+      font-weight: 400;
       text-decoration: none;
 
       &:hover {
@@ -762,8 +755,8 @@
       color: #0284c7;
       border: 1px solid #bae6fd;
       border-radius: 4px;
-      font-size: 0.74rem;
-      font-weight: 600;
+      font-size: 0.65rem;
+      font-weight: 400;
       text-decoration: none;
 
       &:hover {
@@ -800,13 +793,13 @@
 
     strong {
       display: block;
-      font-size: 0.88rem;
+      font-size: 0.825rem;
       color: #0f172a;
     }
 
     span {
       display: block;
-      font-size: 0.76rem;
+      font-size: 0.65rem;
       color: #64748b;
       margin-top: 0.1rem;
     }
@@ -861,7 +854,7 @@
         background: #ffffff;
         border: 1px solid #cbd5e1;
         border-radius: 6px;
-        font-size: 0.82rem;
+        font-size: 0.825rem;
         font-weight: 550;
         color: #475569;
         cursor: pointer;
@@ -888,7 +881,7 @@
         padding: 0.5rem 0.85rem;
         border: 1px solid #cbd5e1;
         border-radius: 6px;
-        font-size: 0.84rem;
+        font-size: 0.825rem;
         outline: none;
 
         &:focus {
@@ -948,7 +941,7 @@
           background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
           color: #ffffff;
           font-weight: 700;
-          font-size: 0.95rem;
+          font-size: 0.65rem;
           display: grid;
           place-items: center;
         }
@@ -962,7 +955,7 @@
         }
 
         .tenant-category {
-          font-size: 0.74rem;
+          font-size: 0.65rem;
           color: #64748b;
         }
       }
@@ -976,7 +969,7 @@
       padding: 0.85rem 1rem;
       border-radius: 8px;
       margin-bottom: 1rem;
-      font-size: 0.82rem;
+      font-size: 0.825rem;
 
       .detail-item {
         display: flex;
@@ -988,7 +981,7 @@
         }
 
         .detail-value {
-          font-weight: 600;
+          font-weight: 400;
           color: #0f172a;
 
           &.domain-link {
@@ -997,7 +990,7 @@
 
           &.code-snippet {
             font-family: monospace;
-            font-size: 0.74rem;
+            font-size: 0.65rem;
             color: #475569;
           }
         }
@@ -1019,13 +1012,13 @@
         flex-direction: column;
 
         .stat-number {
-          font-size: 0.88rem;
+          font-size: 0.825rem;
           font-weight: 700;
           color: #0f172a;
         }
 
         .stat-text {
-          font-size: 0.68rem;
+          font-size: 0.65rem;
           color: #64748b;
           margin-top: 0.1rem;
         }
@@ -1046,8 +1039,8 @@
         background: #0f172a;
         color: #ffffff;
         border-radius: 6px;
-        font-size: 0.82rem;
-        font-weight: 600;
+        font-size: 0.825rem;
+        font-weight: 400;
         text-decoration: none;
         transition: background 0.15s ease;
 
@@ -1066,7 +1059,7 @@
         color: #0f172a;
         border: 1px solid #cbd5e1;
         border-radius: 6px;
-        font-size: 0.82rem;
+        font-size: 0.825rem;
         font-weight: 550;
         text-decoration: none;
         transition: all 0.15s ease;
@@ -1088,12 +1081,12 @@
   .leads-full-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.86rem;
+    font-size: 0.825rem;
 
     th {
       text-align: left;
       padding: 0.75rem 0.85rem;
-      font-size: 0.74rem;
+      font-size: 0.65rem;
       text-transform: uppercase;
       letter-spacing: 0.04em;
       color: #64748b;
@@ -1108,18 +1101,18 @@
       vertical-align: middle;
 
       .date-stamp {
-        font-size: 0.78rem;
+        font-size: 0.65rem;
         color: #64748b;
       }
 
       .pic-text {
-        font-size: 0.78rem;
+        font-size: 0.65rem;
         color: #64748b;
       }
 
       .lead-msg-cell {
         max-width: 240px;
-        font-size: 0.8rem;
+        font-size: 0.825rem;
         color: #475569;
         font-style: italic;
       }
@@ -1151,7 +1144,7 @@
       padding: 0.65rem 0.85rem;
       background: #f8fafc;
       border-radius: 6px;
-      font-size: 0.84rem;
+      font-size: 0.825rem;
 
       span {
         color: #64748b;
@@ -1237,18 +1230,18 @@
           margin-bottom: 0.35rem;
 
           strong {
-            font-size: 0.92rem;
+            font-size: 0.65rem;
             color: #0f172a;
           }
 
           .timeline-time {
-            font-size: 0.74rem;
+            font-size: 0.65rem;
             color: #94a3b8;
           }
         }
 
         .timeline-desc {
-          font-size: 0.84rem;
+          font-size: 0.825rem;
           color: #475569;
           margin: 0 0 0.6rem;
           line-height: 1.5;
@@ -1256,7 +1249,7 @@
 
         .timeline-tag {
           display: inline-block;
-          font-size: 0.68rem;
+          font-size: 0.65rem;
           font-weight: 700;
           text-transform: uppercase;
           padding: 0.15rem 0.45rem;
@@ -1292,10 +1285,12 @@
     transform: scale(0.95);
     box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
   }
+
   70% {
     transform: scale(1);
     box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
   }
+
   100% {
     transform: scale(0.95);
     box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);

@@ -148,7 +148,7 @@
           padding: 3px 10px;
           border-radius: 6px;
           cursor: pointer;
-          font-weight: 600;
+          font-weight: 400;
           transition: all 0.15s ease;
 
           &:hover {
@@ -281,6 +281,7 @@
               font-size: 13px;
               color: #475569;
             }
+
             span {
               font-size: 11px;
               color: #94a3b8;
@@ -292,6 +293,7 @@
               background: #ff7a00;
               color: #ffffff;
             }
+
             .step-label strong {
               color: #0f172a;
             }
@@ -302,6 +304,7 @@
               background: #10b981;
               color: #ffffff;
             }
+
             .step-label strong {
               color: #10b981;
             }
@@ -392,7 +395,7 @@
             }
 
             .item-name {
-              font-weight: 600;
+              font-weight: 400;
               color: #1e293b;
             }
 

@@ -474,15 +474,15 @@ async function main() {
     {
       username: "superadmin",
       displayName: "Super Administrator",
-      password: "baitybites2026",
-      pin: "9988",
+      password: "superadmin2026",
+      pin: "8899",
       role: "PLATFORM_OWNER" as const,
     },
     {
       username: "admin.baitybites",
       displayName: "Admin Baitybites",
       password: "baitybites2026",
-      pin: "9988",
+      pin: "1234",
       role: "SUPER_ADMIN" as const,
     },
   ];

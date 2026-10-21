@@ -15,6 +15,232 @@ export async function getLeadsAction(): Promise<ClientLead[]> {
 }
 
 /**
+ * 1. KURASI PENERBITAN INVOICE
+ * Memeriksa kelayakan dan menerbitkan invoice resmi ke klien via Brevo.
+ */
+export async function curateInvoiceAction(params: {
+  leadId: string;
+  invoiceNumber: string;
+  invoiceAmount: number;
+  paymentBank: string;
+  customNotes?: string;
+}): Promise<{ success: boolean; lead?: ClientLead; message: string }> {
+  try {
+    const leads = await getAllLeads();
+    const lead = leads.find((l) => l.id === params.leadId);
+    if (!lead) return { success: false, message: "Data klien tidak ditemukan." };
+
+    // Pemeriksaan syarat: Hanya status BARU atau DIHUBUNGI yang boleh diterbitkan invoice
+    if (lead.status !== "BARU" && lead.status !== "DIHUBUNGI") {
+      return {
+        success: false,
+        message: `Peningkatan status ditolak: Status saat ini "${lead.status}" tidak diizinkan untuk penerbitan invoice awal.`,
+      };
+    }
+
+    const res = await updateLeadStatusAction(
+      lead.id,
+      "INVOICE_DIKIRIM",
+      params.customNotes || `Invoice ${params.invoiceNumber} diterbitkan dengan tujuan transfer ${params.paymentBank}`
+    );
+
+    if (!res.success) {
+      return { success: false, message: res.error || "Gagal memperbarui status invoice." };
+    }
+
+    return {
+      success: true,
+      lead: res.lead,
+      message: `Invoice resmi (${params.invoiceNumber}) berhasil diterbitkan dan dikirimkan ke ${res.emailRecipient || lead.email}!`,
+    };
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Terjadi kesalahan internal";
+    return { success: false, message: msg };
+  }
+}
+
+/**
+ * 2. KURASI & VERIFIKASI PEMBAYARAN
+ * Memeriksa mutasi/bukti transfer sebelum mengizinkan status LUNAS.
+ */
+export async function curatePaymentVerificationAction(params: {
+  leadId: string;
+  bankName: string;
+  senderName: string;
+  referenceCode?: string;
+  notes?: string;
+}): Promise<{ success: boolean; lead?: ClientLead; message: string }> {
+  try {
+    const leads = await getAllLeads();
+    const lead = leads.find((l) => l.id === params.leadId);
+    if (!lead) return { success: false, message: "Data klien tidak ditemukan." };
+
+    // Pemeriksaan syarat: Hanya status INVOICE_DIKIRIM atau BUKTI_DITERIMA yang boleh diverifikasi lunas
+    if (lead.status !== "INVOICE_DIKIRIM" && lead.status !== "BUKTI_DITERIMA") {
+      return {
+        success: false,
+        message: `Pemeriksaan ditolak: Status "${lead.status}" belum memiliki tagihan invoice aktif atau sudah diproses.`,
+      };
+    }
+
+    if (!params.bankName || !params.senderName) {
+      return {
+        success: false,
+        message: "Data kurasi tidak lengkap: Nama bank tujuan dan nama pengirim wajib diverifikasi.",
+      };
+    }
+
+    // Update data pembayaran dan ubah status ke LUNAS
+    const updated = await updateLeadStatus(
+      lead.id,
+      "LUNAS",
+      params.notes || `Pembayaran diverifikasi lunas via ${params.bankName} a.n. ${params.senderName} (Ref: ${params.referenceCode || "-"})`,
+      {
+        paidAt: new Date(),
+        paymentBankName: params.bankName,
+        paymentSenderName: params.senderName,
+      }
+    );
+
+    if (!updated) {
+      return { success: false, message: "Gagal menyimpan verifikasi pembayaran di database." };
+    }
+
+    // Trigger email konfirmasi pelunasan
+    await updateLeadStatusAction(lead.id, "LUNAS");
+
+    return {
+      success: true,
+      lead: updated,
+      message: `Pembayaran ${lead.businessName} telah terverifikasi lunas. Akses persiapan instance kini dibuka!`,
+    };
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Terjadi kesalahan internal";
+    return { success: false, message: msg };
+  }
+}
+
+/**
+ * 3. KURASI PERSIAPAN INSTANCE (TECHNICAL SETUP)
+ * Memeriksa apakah data teknis instance telah disiapkan sebelum mengizinkan status PROVISIONED.
+ */
+export async function curateProvisionInstanceAction(params: {
+  leadId: string;
+  subdomain: string;
+  repoUrl?: string;
+  dbSchemaName?: string;
+  contractMonths: number;
+}): Promise<{ success: boolean; lead?: ClientLead; message: string }> {
+  try {
+    const leads = await getAllLeads();
+    const lead = leads.find((l) => l.id === params.leadId);
+    if (!lead) return { success: false, message: "Data klien tidak ditemukan." };
+
+    // Pemeriksaan syarat: Instance HANYA boleh disiapkan jika status sudah LUNAS!
+    if (lead.status !== "LUNAS" && lead.status !== "PROVISIONING") {
+      return {
+        success: false,
+        message: `Pemeriksaan ditolak: Instance dilarang disiapkan sebelum status pembayaran diverifikasi LUNAS (Status saat ini: ${lead.status}).`,
+      };
+    }
+
+    if (!params.subdomain || params.subdomain.trim().length < 3) {
+      return {
+        success: false,
+        message: "Validasi gagal: Subdomain toko wajib diisi minimal 3 karakter.",
+      };
+    }
+
+    const startDate = new Date();
+    const endDate = new Date();
+    endDate.setMonth(endDate.getMonth() + (params.contractMonths || 1));
+
+    const cleanDomain = params.subdomain.includes(".")
+      ? params.subdomain
+      : `${params.subdomain.toLowerCase().replace(/[^a-z0-9-]/g, "")}.baitybites.id`;
+
+    const updated = await updateLeadStatus(
+      lead.id,
+      "PROVISIONED",
+      `Instance teknis berhasil dikurasi & siap: Domain ${cleanDomain}, Skema DB: ${params.dbSchemaName || "tenant_default"}`,
+      {
+        customDomain: cleanDomain,
+        repoUrl: params.repoUrl || `https://github.com/baitybites/${params.subdomain.toLowerCase().replace(/[^a-z0-9-]/g, "")}`,
+        dbSchemaName: params.dbSchemaName || `tenant_${params.subdomain.toLowerCase().replace(/[^a-z0-9_]/g, "")}`,
+        provisionedAt: new Date(),
+        contractStartDate: startDate,
+        contractEndDate: endDate,
+      }
+    );
+
+    if (!updated) {
+      return { success: false, message: "Gagal menyimpan data provisioning instance." };
+    }
+
+    return {
+      success: true,
+      lead: updated,
+      message: `Instance toko "${lead.businessName}" (${cleanDomain}) telah siap! Langkah berikutnya: Serah terima kredensial & Go Live.`,
+    };
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Terjadi kesalahan internal";
+    return { success: false, message: msg };
+  }
+}
+
+/**
+ * 4. KURASI SERAH TERIMA & GO LIVE (HANDOVER)
+ * Memeriksa instance dan mengirimkan kredensial resmi sebelum mengaktifkan status WEBSITE_AKTIF.
+ */
+export async function curateHandoverAndGoLiveAction(leadId: string): Promise<{
+  success: boolean;
+  lead?: ClientLead;
+  message: string;
+}> {
+  try {
+    const leads = await getAllLeads();
+    const lead = leads.find((l) => l.id === leadId);
+    if (!lead) return { success: false, message: "Data klien tidak ditemukan." };
+
+    // Pemeriksaan syarat: Hanya instance yang sudah PROVISIONED yang boleh diaktifkan Go Live!
+    if (lead.status !== "PROVISIONED" && lead.status !== "ONBOARDING_SELESAI") {
+      return {
+        success: false,
+        message: `Pemeriksaan ditolak: Instance belum berstatus PROVISIONED (Ready). Selesaikan konfigurasi instance terlebih dahulu.`,
+      };
+    }
+
+    // 1. Buat akun Admin & kirim kredensial via Brevo
+    const inviteRes = await sendOnboardingInviteAction(lead.id);
+    if (!inviteRes.success) {
+      return {
+        success: false,
+        message: `Gagal mengirim email kredensial ke klien: ${inviteRes.message}`,
+      };
+    }
+
+    // 2. Aktifkan status WEBSITE_AKTIF
+    const updated = await updateLeadStatus(
+      lead.id,
+      "WEBSITE_AKTIF",
+      `Website resmi diaktifkan & data kredensial terkirim ke klien (${inviteRes.emailRecipient})`,
+      {
+        activatedAt: new Date(),
+      }
+    );
+
+    return {
+      success: true,
+      lead: updated || undefined,
+      message: `🎉 Kredensial dan panduan onboarding berhasil dikirim ke ${inviteRes.emailRecipient}. Website "${lead.businessName}" kini resmi LIVE!`,
+    };
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Terjadi kesalahan internal";
+    return { success: false, message: msg };
+  }
+}
+
+/**
  * Update status lead sekaligus otomatis mengirimkan email notifikasi status & invoice ke klien via Brevo.
  */
 export async function updateLeadStatusAction(
@@ -67,7 +293,7 @@ export async function updateLeadStatusAction(
       emailHtml = `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 620px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #ffffff;">
           <div style="background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%); padding: 26px 32px; color: #ffffff;">
-            <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; background: rgba(255,255,255,0.2); display: inline-block; padding: 4px 10px; border-radius: 12px; font-weight: 600; margin-bottom: 6px;">
+            <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; background: rgba(255,255,255,0.2); display: inline-block; padding: 4px 10px; border-radius: 12px; font-weight: 400; margin-bottom: 6px;">
               Dokumen Tagihan Resmi
             </div>
             <h1 style="color: #ffffff; margin: 0; font-size: 21px; font-weight: 700;">Invoice Pembayaran Lisensi</h1>
@@ -82,7 +308,7 @@ export async function updateLeadStatusAction(
               <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
                 <tr>
                   <td style="padding: 6px 0; color: #64748b; width: 140px;">Paket Pilihan:</td>
-                  <td style="padding: 6px 0; font-weight: 600; color: #4f46e5;">${updated.selectedPlan} (${planTag})</td>
+                  <td style="padding: 6px 0; font-weight: 400; color: #4f46e5;">${updated.selectedPlan} (${planTag})</td>
                 </tr>
                 <tr>
                   <td style="padding: 6px 0; color: #64748b;">Total Tagihan:</td>
@@ -147,7 +373,7 @@ export async function updateLeadStatusAction(
       emailHtml = `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 620px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #ffffff;">
           <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 26px 32px; color: #ffffff;">
-            <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; background: rgba(255,255,255,0.2); display: inline-block; padding: 4px 10px; border-radius: 12px; font-weight: 600; margin-bottom: 6px;">
+            <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; background: rgba(255,255,255,0.2); display: inline-block; padding: 4px 10px; border-radius: 12px; font-weight: 400; margin-bottom: 6px;">
               Konfirmasi Penerimaan Bukti
             </div>
             <h1 style="color: #ffffff; margin: 0; font-size: 21px; font-weight: 700;">Bukti Transfer Telah Kami Terima</h1>
@@ -162,7 +388,7 @@ export async function updateLeadStatusAction(
               <h3 style="margin: 0 0 10px; font-size: 14px; color: #92400e; text-transform: uppercase;">Status Verifikasi:</h3>
               <div style="display: flex; align-items: center; gap: 10px;">
                 <div>
-                  <p style="margin: 0; font-weight: 600; color: #b45309;">Bukti diterima — Menunggu Verifikasi Tim Keuangan</p>
+                  <p style="margin: 0; font-weight: 400; color: #b45309;">Bukti diterima — Menunggu Verifikasi Tim Keuangan</p>
                   <p style="margin: 4px 0 0; font-size: 12px; color: #92400e;">Estimasi verifikasi: 1×24 jam kerja</p>
                 </div>
               </div>
@@ -185,7 +411,7 @@ export async function updateLeadStatusAction(
       emailHtml = `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 620px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #ffffff;">
           <div style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); padding: 26px 32px; color: #ffffff;">
-            <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; background: rgba(255,255,255,0.2); display: inline-block; padding: 4px 10px; border-radius: 12px; font-weight: 600; margin-bottom: 6px;">
+            <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; background: rgba(255,255,255,0.2); display: inline-block; padding: 4px 10px; border-radius: 12px; font-weight: 400; margin-bottom: 6px;">
               Konfirmasi Pelunasan
             </div>
             <h1 style="color: #ffffff; margin: 0; font-size: 21px; font-weight: 700;">Pembayaran Telah Diverifikasi</h1>
@@ -232,7 +458,7 @@ export async function updateLeadStatusAction(
       emailHtml = `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #ffffff;">
           <div style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); padding: 24px 30px; color: #ffffff;">
-            <h1 style="color: #ffffff; margin: 0; font-size: 19px; font-weight: 600;">Baitybites ORM Platform</h1>
+            <h1 style="color: #ffffff; margin: 0; font-size: 19px; font-weight: 400;">Baitybites ORM Platform</h1>
             <p style="color: rgba(255,255,255,0.85); margin: 4px 0 0; font-size: 13px;">Pembaruan Status Pengajuan</p>
           </div>
 
@@ -242,7 +468,7 @@ export async function updateLeadStatusAction(
             <p>Saat ini status pengajuan Anda adalah: <strong style="color: #0284c7;">Sudah Dihubungi</strong>. Tim kami siap mendampingi Anda dalam menentukan arsitektur dan kebutuhan peluncuran toko online Anda.</p>
             ${internalNotes ? `<div style="background: #f8fafc; border-left: 3px solid #0284c7; padding: 10px 14px; margin: 16px 0; font-size: 13px; color: #475569;">${internalNotes}</div>` : ""}
             <div style="margin: 20px 0; text-align: center;">
-              <a href="${onboardingUrl}" style="display: inline-block; background: #0284c7; color: #ffffff; padding: 10px 20px; border-radius: 6px; font-weight: 600; text-decoration: none; font-size: 13px;">
+              <a href="${onboardingUrl}" style="display: inline-block; background: #0284c7; color: #ffffff; padding: 10px 20px; border-radius: 6px; font-weight: 400; text-decoration: none; font-size: 13px;">
                 Lihat Simulasi Setup Toko &rarr;
               </a>
             </div>
@@ -280,15 +506,15 @@ export async function updateLeadStatusAction(
               <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
                 <tr>
                   <td style="padding: 6px 0; color: #64748b; width: 170px;">1. Web Toko Publik:</td>
-                  <td style="padding: 6px 0;"><a href="${storeUrl}" style="color: #7c3aed; font-weight: 600;">${storeUrl}</a></td>
+                  <td style="padding: 6px 0;"><a href="${storeUrl}" style="color: #7c3aed; font-weight: 400;">${storeUrl}</a></td>
                 </tr>
                 <tr>
                   <td style="padding: 6px 0; color: #64748b;">2. Backoffice &amp; Kasir:</td>
-                  <td style="padding: 6px 0;"><a href="${adminUrl}" style="color: #7c3aed; font-weight: 600;">${adminUrl}</a></td>
+                  <td style="padding: 6px 0;"><a href="${adminUrl}" style="color: #7c3aed; font-weight: 400;">${adminUrl}</a></td>
                 </tr>
                 <tr>
                   <td style="padding: 6px 0; color: #64748b;">3. Display Dapur (KDS):</td>
-                  <td style="padding: 6px 0;"><a href="${kdsUrl}" style="color: #7c3aed; font-weight: 600;">${kdsUrl}</a></td>
+                  <td style="padding: 6px 0;"><a href="${kdsUrl}" style="color: #7c3aed; font-weight: 400;">${kdsUrl}</a></td>
                 </tr>
               </table>
               <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #cbd5e1; font-size: 12px; color: #64748b;">
@@ -311,7 +537,7 @@ export async function updateLeadStatusAction(
       emailHtml = `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 620px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #ffffff;">
           <div style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); padding: 26px 32px; color: #ffffff;">
-            <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; background: rgba(255,255,255,0.2); display: inline-block; padding: 4px 10px; border-radius: 12px; font-weight: 600; margin-bottom: 6px;">
+            <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; background: rgba(255,255,255,0.2); display: inline-block; padding: 4px 10px; border-radius: 12px; font-weight: 400; margin-bottom: 6px;">
               Konfigurasi Selesai
             </div>
             <h1 style="color: #ffffff; margin: 0; font-size: 21px; font-weight: 700;">Onboarding Toko Berhasil Diselesaikan</h1>
@@ -327,15 +553,15 @@ export async function updateLeadStatusAction(
               <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
                 <tr>
                   <td style="padding: 7px 0; color: #64748b; width: 180px;">Web Toko Publik:</td>
-                  <td style="padding: 7px 0;"><a href="${storeUrl}" style="color: #0284c7; font-weight: 600;">${storeUrl}</a></td>
+                  <td style="padding: 7px 0;"><a href="${storeUrl}" style="color: #0284c7; font-weight: 400;">${storeUrl}</a></td>
                 </tr>
                 <tr>
                   <td style="padding: 7px 0; color: #64748b;">Dashboard Backoffice:</td>
-                  <td style="padding: 7px 0;"><a href="${adminUrl}" style="color: #0284c7; font-weight: 600;">${adminUrl}</a></td>
+                  <td style="padding: 7px 0;"><a href="${adminUrl}" style="color: #0284c7; font-weight: 400;">${adminUrl}</a></td>
                 </tr>
                 <tr>
                   <td style="padding: 7px 0; color: #64748b;">Kitchen Display (KDS):</td>
-                  <td style="padding: 7px 0;"><a href="${kdsUrl}" style="color: #0284c7; font-weight: 600;">${kdsUrl}</a></td>
+                  <td style="padding: 7px 0;"><a href="${kdsUrl}" style="color: #0284c7; font-weight: 400;">${kdsUrl}</a></td>
                 </tr>
               </table>
             </div>
@@ -365,7 +591,7 @@ export async function updateLeadStatusAction(
       emailHtml = `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 620px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #ffffff;">
           <div style="background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); padding: 26px 32px; color: #ffffff;">
-            <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; background: rgba(255,255,255,0.2); display: inline-block; padding: 4px 10px; border-radius: 12px; font-weight: 600; margin-bottom: 6px;">
+            <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; background: rgba(255,255,255,0.2); display: inline-block; padding: 4px 10px; border-radius: 12px; font-weight: 400; margin-bottom: 6px;">
               Aktivasi Resmi Website
             </div>
             <h1 style="color: #ffffff; margin: 0; font-size: 21px; font-weight: 700;">Website Toko Anda Resmi Aktif!</h1>
@@ -390,7 +616,7 @@ export async function updateLeadStatusAction(
               <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
                 <tr>
                   <td style="padding: 7px 0; color: #64748b; width: 160px;">Paket Berlangganan:</td>
-                  <td style="padding: 7px 0; font-weight: 600; color: #16a34a;">${updated.selectedPlan}</td>
+                  <td style="padding: 7px 0; font-weight: 400; color: #16a34a;">${updated.selectedPlan}</td>
                 </tr>
                 <tr>
                   <td style="padding: 7px 0; color: #64748b;">Tanggal Aktif:</td>
@@ -467,7 +693,7 @@ export async function sendEmailReplyAction(params: {
     const htmlBody = `
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #ffffff;">
         <div style="background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%); padding: 24px 30px; color: #ffffff;">
-          <h1 style="color: #ffffff; margin: 0; font-size: 19px; font-weight: 600;">Baitybites ORM Platform</h1>
+          <h1 style="color: #ffffff; margin: 0; font-size: 19px; font-weight: 400;">Baitybites ORM Platform</h1>
           <p style="color: rgba(255,255,255,0.85); margin: 4px 0 0; font-size: 13px;">Tanggapan Resmi Tim Platform</p>
         </div>
 
@@ -577,7 +803,7 @@ export async function sendOnboardingInviteAction(leadId: string): Promise<{
   const emailHtml = `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 620px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #ffffff;">
       <div style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); padding: 26px 32px; color: #ffffff;">
-        <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; background: rgba(255,255,255,0.18); display: inline-block; padding: 4px 10px; border-radius: 12px; font-weight: 600; margin-bottom: 6px;">
+        <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; background: rgba(255,255,255,0.18); display: inline-block; padding: 4px 10px; border-radius: 12px; font-weight: 400; margin-bottom: 6px;">
           Kredensial Akses Klien
         </div>
         <h1 style="color: #ffffff; margin: 0; font-size: 21px; font-weight: 700;">Aktivasi Akun Client Admin</h1>
@@ -596,7 +822,7 @@ export async function sendOnboardingInviteAction(leadId: string): Promise<{
           <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
             <tr>
               <td style="padding: 6px 0; color: #64748b; width: 160px;">Portal Login:</td>
-              <td style="padding: 6px 0;"><a href="${loginUrl}" style="color: #4f46e5; font-weight: 600;">${baseUrl}/admin</a></td>
+              <td style="padding: 6px 0;"><a href="${loginUrl}" style="color: #4f46e5; font-weight: 400;">${baseUrl}/admin</a></td>
             </tr>
             <tr>
               <td style="padding: 6px 0; color: #64748b;">Username:</td>
@@ -612,7 +838,7 @@ export async function sendOnboardingInviteAction(leadId: string): Promise<{
             </tr>
             <tr>
               <td style="padding: 6px 0; color: #64748b;">Hak Akses / Role:</td>
-              <td style="padding: 6px 0; font-weight: 600; color: #059669;">SUPER_ADMIN (Owner Toko)</td>
+              <td style="padding: 6px 0; font-weight: 400; color: #059669;">SUPER_ADMIN (Owner Toko)</td>
             </tr>
           </table>
         </div>
@@ -642,15 +868,15 @@ export async function sendOnboardingInviteAction(leadId: string): Promise<{
           <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
             <tr>
               <td style="padding: 5px 0; color: #64748b; width: 180px;">Web E-Commerce Publik:</td>
-              <td style="padding: 5px 0;"><a href="${storeUrl}" style="color: #2563eb; font-weight: 600;">Lihat Tampilan Toko Publik &rarr;</a></td>
+              <td style="padding: 5px 0;"><a href="${storeUrl}" style="color: #2563eb; font-weight: 400;">Lihat Tampilan Toko Publik &rarr;</a></td>
             </tr>
             <tr>
               <td style="padding: 5px 0; color: #64748b;">Dashboard Kasir &amp; OMS:</td>
-              <td style="padding: 5px 0;"><a href="${adminUrl}" style="color: #2563eb; font-weight: 600;">Buka Portal Backoffice Admin &rarr;</a></td>
+              <td style="padding: 5px 0;"><a href="${adminUrl}" style="color: #2563eb; font-weight: 400;">Buka Portal Backoffice Admin &rarr;</a></td>
             </tr>
             <tr>
               <td style="padding: 5px 0; color: #64748b;">Kitchen Display (KDS):</td>
-              <td style="padding: 5px 0;"><a href="${kdsUrl}" style="color: #2563eb; font-weight: 600;">Buka Layar Display Dapur &rarr;</a></td>
+              <td style="padding: 5px 0;"><a href="${kdsUrl}" style="color: #2563eb; font-weight: 400;">Buka Layar Display Dapur &rarr;</a></td>
             </tr>
           </table>
         </div>
@@ -686,6 +912,84 @@ export async function sendOnboardingInviteAction(leadId: string): Promise<{
   return {
     success: true,
     message: `Kredensial Client Admin berhasil dikirim ke ${emailResult.deliveredTo}!`,
+    emailRecipient: emailResult.deliveredTo,
+  };
+}
+
+/**
+ * Kirim ulang email resume / konfirmasi formulir berlangganan ke calon klien via Brevo
+ */
+export async function resendSubscriptionResumeAction(leadId: string): Promise<{
+  success: boolean;
+  message: string;
+  emailRecipient?: string;
+}> {
+  const leads = await getAllLeads();
+  const lead = leads.find((l) => l.id === leadId);
+  if (!lead || !lead.email) {
+    return { success: false, message: "Data calon klien atau email tidak ditemukan." };
+  }
+
+  const platformEmail = "id.baitybites@gmail.com";
+  const planLabel = lead.selectedPlan;
+
+  const clientHtml = `
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #ffffff;">
+      <div style="background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%); padding: 28px 32px; color: #ffffff;">
+        <h1 style="color: #ffffff; margin: 0; font-size: 20px; font-weight: 400;">Baitybites ORM</h1>
+        <p style="color: rgba(255,255,255,0.85); margin: 6px 0 0; font-size: 13px;">Dedicated F&amp;B Engine &amp; E-Commerce Platform</p>
+      </div>
+
+      <div style="padding: 28px 32px;">
+        <p style="font-size: 15px; color: #0f172a; line-height: 1.6; margin-top: 0;">
+          Halo <strong>${lead.contactName}</strong>,
+        </p>
+        <p style="font-size: 14px; color: #334155; line-height: 1.6;">
+          Terima kasih telah mengajukan permohonan berlangganan paket <strong style="color: #4f46e5;">${planLabel}</strong> di platform Baitybites ORM.
+          Kami telah menerima permohonan Anda dan tim kami akan segera menghubungi Anda dalam waktu <strong>1×24 jam</strong> kerja untuk proses aktivasi dan persiapan instance.
+        </p>
+
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px 20px; margin: 20px 0;">
+          <p style="margin: 0 0 8px; font-size: 12px; font-weight: 400; color: #64748b; text-transform: uppercase; letter-spacing: 0.04em;">Ringkasan Data:</p>
+          <p style="margin: 0; font-size: 13px; color: #0f172a; line-height: 1.6;">
+            <strong>Paket:</strong> ${planLabel}<br />
+            <strong>Nama Bisnis:</strong> ${lead.businessName}<br />
+            <strong>Email:</strong> ${lead.email}<br />
+            <strong>WhatsApp/Telepon:</strong> ${lead.phone}
+          </p>
+        </div>
+
+        <p style="font-size: 13px; color: #64748b; line-height: 1.5; margin-bottom: 0;">
+          Jika Anda memiliki pertanyaan mendesak, silakan balas email ini atau hubungi kami di <a href="mailto:${platformEmail}" style="color: #4f46e5; text-decoration: none;">${platformEmail}</a>.
+        </p>
+      </div>
+
+      <div style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 16px 32px; text-align: center; font-size: 12px; color: #94a3b8;">
+        &copy; ${new Date().getFullYear()} <strong>Baitybites ORM</strong> &bull; Hak cipta dilindungi undang-undang.
+      </div>
+    </div>
+  `;
+
+  const emailResult = await sendEmailWithFallback({
+    to: lead.email,
+    subject: `Terima Kasih! Permintaan Langganan ${planLabel} Anda Telah Diterima`,
+    html: clientHtml,
+    replyTo: platformEmail,
+  });
+
+  if (!emailResult.success) {
+    return { success: false, message: `Gagal mengirim email: ${emailResult.error}` };
+  }
+
+  await updateLeadStatus(
+    lead.id,
+    lead.status,
+    `Email resume langganan dikirim ulang via Brevo pada ${new Date().toLocaleString("id-ID")}`
+  );
+
+  return {
+    success: true,
+    message: `Email resume langganan berhasil dikirim ulang ke ${emailResult.deliveredTo}!`,
     emailRecipient: emailResult.deliveredTo,
   };
 }

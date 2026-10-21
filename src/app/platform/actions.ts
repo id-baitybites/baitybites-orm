@@ -1,6 +1,6 @@
 "use server";
 
-import { saveLead } from "@/lib/leads-store";
+import { saveLead, updateLeadStatus } from "@/lib/leads-store";
 import { sendEmailWithFallback } from "@/lib/email-service";
 
 export interface SubscriptionRequest {
@@ -30,8 +30,9 @@ export async function sendSubscriptionEmail(
   });
 
   // ── Simpan Permintaan ke Backoffice Leads Store ─────────────────────
+  let savedLeadId: string | null = null;
   try {
-    await saveLead({
+    const saved = await saveLead({
       businessName: data.businessName,
       contactName: data.contactName,
       email: data.email,
@@ -39,6 +40,7 @@ export async function sendSubscriptionEmail(
       selectedPlan: planLabel,
       message: data.message,
     });
+    savedLeadId = saved.id;
   } catch (err) {
     console.error("[sendSubscriptionEmail] Gagal menyimpan ke leads-store:", err);
   }
@@ -47,45 +49,44 @@ export async function sendSubscriptionEmail(
   const ownerHtml = `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #ffffff;">
       <div style="background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%); padding: 28px 32px; color: #ffffff;">
-        <div style="display: inline-block; padding: 4px 10px; background: rgba(255, 255, 255, 0.2); border-radius: 20px; font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 8px;">
+        <div style="display: inline-block; padding: 4px 10px; background: rgba(255, 255, 255, 0.2); border-radius: 20px; font-size: 11px; font-weight: 400; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 8px;">
           Pemberitahuan Langganan Baru
         </div>
-        <h1 style="color: #ffffff; margin: 0; font-size: 20px; font-weight: 600;">Permintaan Langganan: ${planLabel}</h1>
+        <h1 style="color: #ffffff; margin: 0; font-size: 20px; font-weight: 400;">Permintaan Langganan: ${planLabel}</h1>
         <p style="color: rgba(255,255,255,0.85); margin: 6px 0 0; font-size: 13px;">${timestamp}</p>
       </div>
 
       <div style="padding: 28px 32px;">
         <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
           <tr>
-            <td style="padding: 10px 0; color: #64748b; width: 140px; vertical-align: top; font-weight: 500;">Paket Pilihan</td>
-            <td style="padding: 10px 0; font-weight: 600; color: #4f46e5;">${planLabel}</td>
+            <td style="padding: 10px 0; color: #64748b; width: 140px; vertical-align: top; font-weight: 400;">Paket Pilihan</td>
+            <td style="padding: 10px 0; font-weight: 400; color: #4f46e5;">${planLabel}</td>
           </tr>
           <tr style="border-top: 1px solid #f1f5f9;">
-            <td style="padding: 10px 0; color: #64748b; vertical-align: top; font-weight: 500;">Nama Bisnis</td>
+            <td style="padding: 10px 0; color: #64748b; vertical-align: top; font-weight: 400;">Nama Bisnis</td>
             <td style="padding: 10px 0; color: #0f172a; font-weight: 550;">${data.businessName}</td>
           </tr>
           <tr style="border-top: 1px solid #f1f5f9;">
-            <td style="padding: 10px 0; color: #64748b; vertical-align: top; font-weight: 500;">Nama Kontak</td>
+            <td style="padding: 10px 0; color: #64748b; vertical-align: top; font-weight: 400;">Nama Kontak</td>
             <td style="padding: 10px 0; color: #0f172a;">${data.contactName}</td>
           </tr>
           <tr style="border-top: 1px solid #f1f5f9;">
-            <td style="padding: 10px 0; color: #64748b; vertical-align: top; font-weight: 500;">Email Calon Klien</td>
+            <td style="padding: 10px 0; color: #64748b; vertical-align: top; font-weight: 400;">Email Calon Klien</td>
             <td style="padding: 10px 0;"><a href="mailto:${data.email}" style="color: #4f46e5; text-decoration: none;">${data.email}</a></td>
           </tr>
           <tr style="border-top: 1px solid #f1f5f9;">
-            <td style="padding: 10px 0; color: #64748b; vertical-align: top; font-weight: 500;">Nomor WhatsApp/HP</td>
+            <td style="padding: 10px 0; color: #64748b; vertical-align: top; font-weight: 400;">Nomor WhatsApp/HP</td>
             <td style="padding: 10px 0; color: #0f172a;">
-              <a href="https://wa.me/${data.phone.replace(/[^0-9]/g, "")}" style="color: #059669; text-decoration: none; font-weight: 500;">${data.phone}</a>
+              <a href="https://wa.me/${data.phone.replace(/[^0-9]/g, "")}" style="color: #059669; text-decoration: none; font-weight: 400;">${data.phone}</a>
             </td>
           </tr>
-          ${
-            data.message
-              ? `<tr style="border-top: 1px solid #f1f5f9;">
-                  <td style="padding: 10px 0; color: #64748b; vertical-align: top; font-weight: 500;">Pesan Tambahan</td>
+          ${data.message
+      ? `<tr style="border-top: 1px solid #f1f5f9;">
+                  <td style="padding: 10px 0; color: #64748b; vertical-align: top; font-weight: 400;">Pesan Tambahan</td>
                   <td style="padding: 10px 0; color: #334155; line-height: 1.5;">${data.message}</td>
                 </tr>`
-              : ""
-          }
+      : ""
+    }
         </table>
 
         <div style="margin-top: 24px; padding: 14px 18px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; color: #475569;">
@@ -103,7 +104,7 @@ export async function sendSubscriptionEmail(
   const clientHtml = `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #ffffff;">
       <div style="background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%); padding: 28px 32px; color: #ffffff;">
-        <h1 style="color: #ffffff; margin: 0; font-size: 20px; font-weight: 600;">Baitybites ORM</h1>
+        <h1 style="color: #ffffff; margin: 0; font-size: 20px; font-weight: 400;">Baitybites ORM</h1>
         <p style="color: rgba(255,255,255,0.85); margin: 6px 0 0; font-size: 13px;">Dedicated F&amp;B Engine &amp; E-Commerce Platform</p>
       </div>
 
@@ -117,7 +118,7 @@ export async function sendSubscriptionEmail(
         </p>
 
         <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px 20px; margin: 20px 0;">
-          <p style="margin: 0 0 8px; font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.04em;">Ringkasan Data:</p>
+          <p style="margin: 0 0 8px; font-size: 12px; font-weight: 400; color: #64748b; text-transform: uppercase; letter-spacing: 0.04em;">Ringkasan Data:</p>
           <p style="margin: 0; font-size: 13px; color: #0f172a; line-height: 1.6;">
             <strong>Paket:</strong> ${planLabel}<br />
             <strong>Nama Bisnis:</strong> ${data.businessName}<br />
@@ -160,6 +161,17 @@ export async function sendSubscriptionEmail(
 
     if (!clientEmailResult.success) {
       console.warn("[Brevo Warning - Client Email]", clientEmailResult.error);
+      if (savedLeadId) {
+        try {
+          await updateLeadStatus(
+            savedLeadId,
+            "BARU",
+            `⚠️ Email resume konfirmasi gagal terkirim otomatis (${clientEmailResult.error || "Gagal Brevo"}). Gunakan tombol "Kirim Resume" di menu Leads.`
+          );
+        } catch {
+          // ignore
+        }
+      }
     }
 
     return {

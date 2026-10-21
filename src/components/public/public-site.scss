@@ -56,7 +56,7 @@
 
     a {
       font-size: 14px;
-      font-weight: 500;
+      font-weight: 400;
       color: var(--text-secondary, #475569);
       text-decoration: none;
       transition: color 150ms ease;
@@ -70,7 +70,7 @@
 
       &.is-active {
         color: var(--color-primary, #ff7a00);
-        font-weight: 600;
+        font-weight: 400;
 
         &::after {
           content: "";
@@ -103,7 +103,7 @@
       background: transparent;
       color: #0f172a;
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 400;
       cursor: pointer;
       text-decoration: none;
       transition: all 150ms ease;
@@ -126,7 +126,7 @@
       background: #ffffff;
       color: #1e293b;
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 400;
       cursor: pointer;
       text-decoration: none;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
@@ -157,7 +157,7 @@
       text-decoration: none;
       color: #0f172a;
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 400;
       padding-right: 6px;
 
       .customer-header-avatar {
@@ -201,7 +201,7 @@
       background: #0f172a;
       color: #ffffff;
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 400;
       cursor: pointer;
       text-decoration: none;
       transition: all 150ms ease;
@@ -294,7 +294,7 @@
     a {
       padding: 10px 0;
       font-size: 15px;
-      font-weight: 500;
+      font-weight: 400;
       color: #334155;
       text-decoration: none;
       border-bottom: 1px solid #f1f5f9;
@@ -464,7 +464,7 @@
         backdrop-filter: blur(10px);
         color: #ffffff;
         font-size: 15px;
-        font-weight: 600;
+        font-weight: 400;
         text-decoration: none;
         transition: all 180ms ease;
 
@@ -489,7 +489,7 @@
         align-items: center;
         gap: 8px;
         font-size: 13.5px;
-        font-weight: 600;
+        font-weight: 400;
         color: #e2e8f0;
 
         svg {
@@ -645,7 +645,7 @@
       padding: 8px 18px;
       border-radius: 9999px;
       font-size: 12.5px;
-      font-weight: 600;
+      font-weight: 400;
       cursor: pointer;
       transition: all 180ms ease;
       backdrop-filter: blur(8px);
@@ -773,7 +773,7 @@
         background: rgba(15, 23, 42, 0.85);
         color: #ffffff;
         font-size: 11px;
-        font-weight: 600;
+        font-weight: 400;
         padding: 4px 10px;
         border-radius: 9999px;
         backdrop-filter: blur(4px);
@@ -821,7 +821,7 @@
           border: 1px solid #e2e8f0;
           color: #0f172a;
           font-size: 12px;
-          font-weight: 600;
+          font-weight: 400;
           display: inline-flex;
           align-items: center;
           justify-content: center;
@@ -861,7 +861,7 @@
           small {
             font-size: 11px;
             color: #94a3b8;
-            font-weight: 500;
+            font-weight: 400;
           }
         }
       }
@@ -980,7 +980,7 @@
         .pending-hint {
           font-size: 11px;
           color: #d97706;
-          font-weight: 500;
+          font-weight: 400;
           font-style: italic;
         }
       }
@@ -1040,7 +1040,7 @@
       background: #0f172a;
       color: #ffffff;
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 400;
       border-radius: 9999px;
       text-decoration: none;
       transition: all 0.2s ease;
@@ -1120,7 +1120,7 @@
       .status-timestamp {
         font-size: 12px;
         color: #94a3b8;
-        font-weight: 500;
+        font-weight: 400;
       }
     }
 
@@ -1191,7 +1191,7 @@
 
       .rating-label {
         font-size: 13px;
-        font-weight: 600;
+        font-weight: 400;
         color: #334155;
       }
 
@@ -1223,7 +1223,7 @@
 
       .rating-text {
         font-size: 13px;
-        font-weight: 600;
+        font-weight: 400;
         color: #f59e0b;
         min-width: 70px;
       }
@@ -1270,7 +1270,7 @@
 
       .form-error {
         color: #ef4444;
-        font-weight: 500;
+        font-weight: 400;
       }
     }
 
@@ -1284,7 +1284,7 @@
       border-radius: 12px;
       padding: 12px 24px;
       font-size: 14px;
-      font-weight: 600;
+      font-weight: 400;
       cursor: pointer;
       transition: all 0.2s ease;
 
@@ -1617,7 +1617,7 @@
         background: var(--color-primary, #ff7a00);
         color: #ffffff;
         font-size: 12px;
-        font-weight: 600;
+        font-weight: 400;
         cursor: pointer;
 
         &:hover {

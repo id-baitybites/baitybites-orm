@@ -159,12 +159,12 @@ export default function ProvisionClient() {
               checked={isPrivate}
               onChange={(e) => setIsPrivate(e.target.checked)}
             />
-            <label htmlFor="private-check" style={{ cursor: "pointer", margin: 0 }}>
+            <label htmlFor="private-check">
               <span>Jadikan Repository Private (Direkomendasikan untuk Klien Berbayar)</span>
             </label>
           </div>
 
-          <div className="form-hint" style={{ marginTop: "0.25rem", display: "flex", alignItems: "center", gap: "6px", color: "#059669" }}>
+          <div className="form-hint form-hint--security">
             <HugeiconsIcon icon={SecurityCheckIcon} size={14} />
             <span>Otomatisasi repositori &amp; skema database diamankan via environment secret server-side.</span>
           </div>
@@ -200,7 +200,7 @@ export default function ProvisionClient() {
             {result.success && (
               <>
                 {result.emailSent && (
-                  <div className="result-banner is-success" style={{ background: "#eff6ff", borderColor: "#bfdbfe", color: "#1e40af" }}>
+                  <div className="result-banner is-info">
                     <HugeiconsIcon icon={CheckmarkCircle02Icon} size={18} />
                     <span>
                       Instruksi &amp; preset .env berhasil dikirimkan ke email: <strong>{result.emailRecipient}</strong>!
@@ -209,7 +209,7 @@ export default function ProvisionClient() {
                 )}
 
                 {result.schemaCreated && (
-                  <div className="result-banner is-success" style={{ background: "#ecfdf5", borderColor: "#a7f3d0", color: "#065f46" }}>
+                  <div className="result-banner is-schema">
                     <HugeiconsIcon icon={CheckmarkCircle02Icon} size={18} />
                     <span>
                       Skema database terisolasi <code>{result.schemaName}</code> aktif di Neon PostgreSQL. Data 100% terpisah dari klien lain!
@@ -225,7 +225,7 @@ export default function ProvisionClient() {
                     rel="noopener noreferrer"
                     className="action-btn action-btn--vscode"
                   >
-                    <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                    <span>
                       <HugeiconsIcon icon={RocketIcon} size={16} />
                       Buka di VS Code Web (vscode.dev)
                     </span>
@@ -239,7 +239,7 @@ export default function ProvisionClient() {
                     rel="noopener noreferrer"
                     className="action-btn action-btn--template"
                   >
-                    <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                    <span>
                       <HugeiconsIcon icon={Copy01Icon} size={16} />
                       Salin dari Template Repositori
                     </span>
@@ -253,7 +253,7 @@ export default function ProvisionClient() {
                     rel="noopener noreferrer"
                     className="action-btn action-btn--github"
                   >
-                    <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                    <span>
                       <HugeiconsIcon icon={LinkSquare02Icon} size={16} />
                       Buka Repositori Kode Klien
                     </span>
@@ -301,14 +301,14 @@ export default function ProvisionClient() {
                         {copiedKey === "envPreset" ? "Tersalin!" : "Salin .env"}
                       </button>
                     </div>
-                    <pre style={{ fontSize: "0.74rem", background: "#f8fafc", padding: "0.5rem", borderRadius: "4px", overflowX: "auto", margin: 0, maxHeight: "150px" }}>
+                    <pre>
                       <code>{result.envPreset}</code>
                     </pre>
                   </div>
                 )}
 
                 <div className="steps-guide">
-                  <h4 style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  <h4>
                     <HugeiconsIcon icon={AlertCircleIcon} size={16} />
                     Yang Perlu Dikirim ke Klien:
                   </h4>
@@ -322,9 +322,9 @@ export default function ProvisionClient() {
             )}
           </div>
         ) : (
-          <div style={{ textAlign: "center", padding: "3rem 1rem", color: "var(--text-secondary)" }}>
-            <HugeiconsIcon icon={FolderOpenIcon} size={48} style={{ opacity: 0.3, marginBottom: "0.75rem" }} />
-            <p style={{ margin: 0, fontSize: "0.9rem" }}>
+          <div className="provision-empty">
+            <HugeiconsIcon icon={FolderOpenIcon} size={48} className="empty-icon" />
+            <p>
               Isi data brand klien di samping untuk menghasilkan tautan GitHub Repository &amp; akses vscode.dev secara otomatis.
             </p>
           </div>

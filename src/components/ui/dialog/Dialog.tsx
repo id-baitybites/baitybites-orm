@@ -38,11 +38,11 @@ export function DialogContent({
 
 export function DialogHeader({
   children,
-}: {
-  children: React.ReactNode;
-}) {
+  className = "",
+  ...props
+}: React.ComponentProps<"div">) {
   return (
-    <div className="dialog__header">
+    <div className={`dialog__header ${className}`} {...props}>
       {children}
     </div>
   );
@@ -50,11 +50,11 @@ export function DialogHeader({
 
 export function DialogTitle({
   children,
-}: {
-  children: React.ReactNode;
-}) {
+  className = "",
+  ...props
+}: React.ComponentProps<typeof DialogPrimitive.Title>) {
   return (
-    <DialogPrimitive.Title className="dialog__title">
+    <DialogPrimitive.Title className={`dialog__title ${className}`} {...props}>
       {children}
     </DialogPrimitive.Title>
   );
@@ -62,11 +62,11 @@ export function DialogTitle({
 
 export function DialogDescription({
   children,
-}: {
-  children: React.ReactNode;
-}) {
+  className = "",
+  ...props
+}: React.ComponentProps<typeof DialogPrimitive.Description>) {
   return (
-    <DialogPrimitive.Description className="dialog__description">
+    <DialogPrimitive.Description className={`dialog__description ${className}`} {...props}>
       {children}
     </DialogPrimitive.Description>
   );

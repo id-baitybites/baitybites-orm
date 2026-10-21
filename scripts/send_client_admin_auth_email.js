@@ -17,7 +17,7 @@ async function sendAuthEmail() {
   const emailHtml = `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 620px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #ffffff;">
       <div style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); padding: 28px 32px; color: #ffffff;">
-        <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; background: rgba(255,255,255,0.18); display: inline-block; padding: 4px 10px; border-radius: 12px; font-weight: 600; margin-bottom: 6px;">
+        <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; background: rgba(255,255,255,0.18); display: inline-block; padding: 4px 10px; border-radius: 12px; font-weight: 400; margin-bottom: 6px;">
           Kredensial Akses Klien
         </div>
         <h1 style="color: #ffffff; margin: 0; font-size: 21px; font-weight: 700;">Aktivasi Akun Client Admin</h1>
@@ -36,7 +36,7 @@ async function sendAuthEmail() {
           <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
             <tr>
               <td style="padding: 6px 0; color: #64748b; width: 160px;">Portal Login:</td>
-              <td style="padding: 6px 0;"><a href="${loginUrl}" style="color: #4f46e5; font-weight: 600;">${baseUrl}/admin</a></td>
+              <td style="padding: 6px 0;"><a href="${loginUrl}" style="color: #4f46e5; font-weight: 400;">${baseUrl}/admin</a></td>
             </tr>
             <tr>
               <td style="padding: 6px 0; color: #64748b;">Username:</td>
@@ -52,7 +52,7 @@ async function sendAuthEmail() {
             </tr>
             <tr>
               <td style="padding: 6px 0; color: #64748b;">Hak Akses / Role:</td>
-              <td style="padding: 6px 0; font-weight: 600; color: #059669;">SUPER_ADMIN (Pemilik Toko)</td>
+              <td style="padding: 6px 0; font-weight: 400; color: #059669;">SUPER_ADMIN (Pemilik Toko)</td>
             </tr>
           </table>
         </div>

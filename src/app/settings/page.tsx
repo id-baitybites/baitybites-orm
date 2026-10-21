@@ -3,39 +3,32 @@
 import { useState } from "react";
 import Link from "next/link";
 import {
-  Store01Icon,
-  Notification01Icon,
-  UserStar01Icon,
-  WhatsappIcon,
-  Settings01Icon,
-  FloppyDiskIcon,
-  CheckmarkCircle02Icon,
-  ArrowRight01Icon,
   Building02Icon,
-  Call02Icon,
-  Location01Icon,
-  MailAtSign01Icon,
-  Clock01Icon,
-  ShoppingBag01Icon,
-  ArrowUpDownIcon,
-  Note01Icon,
-  PrinterIcon,
-  UserIcon,
   Database01Icon,
-  InformationCircleIcon,
+  Invoice01Icon,
+  Notification01Icon,
+  RocketIcon,
+  UserStar01Icon,
+  CheckmarkCircle02Icon,
+  FloppyDiskIcon,
+  ArrowRight01Icon,
+  Globe02Icon,
+  Mail01Icon,
+  Call02Icon,
+  SecurityCheckIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { AppShell } from "@/components/layout/AppShell/AppShell";
 import "./settings.scss";
 
-// ─── Section config ───────────────────────────────────────────────────────────
+// ─── Section Configuration for Platform Owner SaaS ───────────────────────────
 const SECTIONS = [
-  { id: "profil-bisnis", label: "Profil Bisnis", icon: Store01Icon },
-  { id: "konfigurasi-instance", label: "Konfigurasi Toko & Database", icon: Database01Icon },
-  { id: "notifikasi", label: "Notifikasi", icon: Notification01Icon },
-  { id: "pengguna-akses", label: "Pengguna & Akses", icon: UserStar01Icon },
-  { id: "integrasi-wa", label: "Integrasi WhatsApp", icon: WhatsappIcon },
-  { id: "preferensi-order", label: "Preferensi Order", icon: Settings01Icon },
+  { id: "profil-platform", label: "Profil Platform & Vendor", icon: Building02Icon },
+  { id: "multi-tenant-engine", label: "Multi-Tenant & Database", icon: Database01Icon },
+  { id: "billing-vendor", label: "Rekening Billing Vendor", icon: Invoice01Icon },
+  { id: "gateway-notifikasi", label: "Email & Notifikasi Gateway", icon: Notification01Icon },
+  { id: "paket-lisensi", label: "Paket Lisensi & Kuota", icon: RocketIcon },
+  { id: "pengguna-akses", label: "Tim Superadmin Platform", icon: UserStar01Icon },
 ];
 
 // ─── Toggle Component ─────────────────────────────────────────────────────────
@@ -72,614 +65,566 @@ function SettingsToggle({
   );
 }
 
-// ─── Section: Profil Bisnis ───────────────────────────────────────────────────
-function ProfilBisnisSection() {
+// ─── 1. Profil Platform & Vendor ─────────────────────────────────────────────
+function ProfilPlatformSection() {
+  const [platformName, setPlatformName] = useState("Baitybites ORM (OMS Engine)");
+  const [legalEntity, setLegalEntity] = useState("PT Baitybites Teknologi Nusantara");
+  const [platformUrl, setPlatformUrl] = useState("https://baitybites.site");
+  const [supportEmail, setSupportEmail] = useState("support@baitybites.site");
+  const [hotlinePhone, setHotlinePhone] = useState("+62 812 8765 4321");
+
   return (
     <div className="settings-panel__body">
-      <div className="settings-section-group">
-        <p className="settings-section-group__title">Identitas Bisnis</p>
-        <label className="settings-field">
-          <span>
-            <HugeiconsIcon icon={Building02Icon} size={14} />
-            Nama Bisnis
-          </span>
-          <input defaultValue="Baitybites" type="text" placeholder="Nama toko / bisnis" />
-        </label>
-        <label className="settings-field">
-          <span>
-            <HugeiconsIcon icon={MailAtSign01Icon} size={14} />
-            Email Operasional
-          </span>
-          <input defaultValue="hello@baitybites.id" type="email" placeholder="email@domain.com" />
-        </label>
-        <label className="settings-field">
-          <span>
-            <HugeiconsIcon icon={Call02Icon} size={14} />
-            Nomor WhatsApp Utama
-          </span>
-          <input defaultValue="+62 812 0000 0000" type="tel" placeholder="+62 8xx xxxx xxxx" />
-        </label>
-      </div>
-
-      <div className="settings-section-group">
-        <p className="settings-section-group__title">Lokasi & Operasional</p>
-        <label className="settings-field">
-          <span>
-            <HugeiconsIcon icon={Location01Icon} size={14} />
-            Alamat Toko / Dapur
-          </span>
-          <textarea
-            defaultValue="Jl. Contoh No. 1, Jakarta Selatan, DKI Jakarta 12345"
-            rows={3}
-            placeholder="Alamat lengkap"
-          />
-        </label>
-        <div className="settings-field-row">
-          <label className="settings-field">
-            <span>
-              <HugeiconsIcon icon={Clock01Icon} size={14} />
-              Jam Buka
-            </span>
-            <input defaultValue="07:00" type="time" />
-          </label>
-          <label className="settings-field">
-            <span>
-              <HugeiconsIcon icon={Clock01Icon} size={14} />
-              Jam Tutup
-            </span>
-            <input defaultValue="21:00" type="time" />
-          </label>
-        </div>
-        <label className="settings-field">
-          <span>Catatan Operasional</span>
-          <textarea
-            defaultValue=""
-            rows={2}
-            placeholder="Contoh: Tutup setiap hari Minggu. Min. order 5 pcs."
-          />
-        </label>
-      </div>
-    </div>
-  );
-}
-
-// ─── Section: Notifikasi ──────────────────────────────────────────────────────
-function NotifikasiSection() {
-  return (
-    <div className="settings-panel__body">
-      <div className="settings-section-group">
-        <p className="settings-section-group__title">Notifikasi Order</p>
-        <SettingsToggle
-          id="notif-order-baru"
-          label="Order Baru Masuk"
-          description="Kirim notifikasi ke admin saat ada pesanan baru yang diterima dari WhatsApp atau form online."
-          defaultChecked
-        />
-        <SettingsToggle
-          id="notif-order-diproses"
-          label="Order Mulai Diproses"
-          description="Notifikasi saat order berpindah ke status 'Diproses' oleh tim kitchen."
-          defaultChecked
-        />
-        <SettingsToggle
-          id="notif-order-siap"
-          label="Order Siap Kirim / Ambil"
-          description="Pemberitahuan ketika pesanan selesai diproduksi dan siap untuk pengiriman atau ambil mandiri."
-          defaultChecked
-        />
-      </div>
-
-      <div className="settings-section-group">
-        <p className="settings-section-group__title">Notifikasi Produksi</p>
-        <SettingsToggle
-          id="notif-stok"
-          label="Peringatan Stok Menipis"
-          description="Notifikasi otomatis jika item produksi mendekati batas minimum yang ditentukan."
-        />
-        <SettingsToggle
-          id="notif-jadwal"
-          label="Pengingat Jadwal Produksi Harian"
-          description="Ingatkan tim setiap pagi pukul 06:00 tentang jadwal produksi hari ini."
-          defaultChecked
-        />
-      </div>
-
-      <div className="settings-section-group">
-        <p className="settings-section-group__title">Saluran Notifikasi</p>
-        <SettingsToggle
-          id="notif-wa-admin"
-          label="Kirim via WhatsApp ke Admin"
-          description="Forward notifikasi penting ke nomor WhatsApp admin utama yang terdaftar."
-          defaultChecked
-        />
-        <SettingsToggle
-          id="notif-browser"
-          label="Notifikasi Browser (Push)"
-          description="Tampilkan notifikasi browser saat dasbor OMS sedang terbuka di perangkat."
-        />
-      </div>
-    </div>
-  );
-}
-
-// ─── Section: Pengguna & Akses ────────────────────────────────────────────────
-function PenggunaAksesSection() {
-  return (
-    <div className="settings-panel__body">
-      <div className="settings-info-card">
-        <HugeiconsIcon icon={UserStar01Icon} size={20} />
+      <div className="settings-info-card settings-info-card--success">
+        <HugeiconsIcon icon={CheckmarkCircle02Icon} size={20} />
         <div>
-          <strong>Manajemen Admin OMS</strong>
+          <strong>Platform Core Engine Operasional</strong>
           <p>
-            Kelola akun admin, atur peran, dan kontrol hak akses ke fitur OMS dari halaman khusus
-            Pengguna &amp; Akses.
-          </p>
-        </div>
-        <Link href="/settings/admins" className="settings-info-card__cta">
-          Buka Halaman Admin
-          <HugeiconsIcon icon={ArrowRight01Icon} size={14} strokeWidth={2} />
-        </Link>
-      </div>
-
-      <div className="settings-section-group">
-        <p className="settings-section-group__title">Kebijakan Keamanan</p>
-        <SettingsToggle
-          id="akses-pin-wajib"
-          label="Wajibkan Security PIN saat Login Admin"
-          description="Setiap admin harus memasukkan PIN 4-digit selain username dan password."
-          defaultChecked
-        />
-        <SettingsToggle
-          id="akses-sesi-otomatis"
-          label="Auto-logout Setelah Tidak Aktif 2 Jam"
-          description="Sesi admin akan otomatis berakhir jika tidak ada aktivitas selama 2 jam."
-          defaultChecked
-        />
-        <SettingsToggle
-          id="akses-log-aktivitas"
-          label="Catat Log Aktivitas Admin"
-          description="Simpan riwayat aktivitas setiap admin (login, ubah order, hapus data) untuk audit."
-        />
-      </div>
-
-      <div className="settings-section-group">
-        <p className="settings-section-group__title">Kontrol Akses Fitur</p>
-        <SettingsToggle
-          id="akses-kitchen-publik"
-          label="Kitchen Display Tanpa Login"
-          description="Izinkan halaman Kitchen Display diakses tanpa autentikasi admin (untuk layar dapur)."
-          defaultChecked
-        />
-        <SettingsToggle
-          id="akses-tracking-publik"
-          label="Tracking Order Publik"
-          description="Pelanggan dapat melacak status pesanan tanpa login melalui halaman tracking."
-          defaultChecked
-        />
-      </div>
-    </div>
-  );
-}
-
-// ─── Section: Integrasi WhatsApp ──────────────────────────────────────────────
-function IntegrasiWASection() {
-  const [waMode, setWaMode] = useState<"manual" | "api">("manual");
-
-  return (
-    <div className="settings-panel__body">
-      <div className="settings-section-group">
-        <p className="settings-section-group__title">Mode Integrasi</p>
-        <div className="settings-radio-group">
-          <label className={`settings-radio-card ${waMode === "manual" ? "is-selected" : ""}`}>
-            <input
-              type="radio"
-              name="wa-mode"
-              value="manual"
-              checked={waMode === "manual"}
-              onChange={() => setWaMode("manual")}
-            />
-            <div>
-              <strong>Manual (Link wa.me)</strong>
-              <small>
-                Tombol pesan membuka WhatsApp dengan template pesan otomatis. Tidak butuh API key.
-                Cocok untuk bisnis kecil–menengah.
-              </small>
-            </div>
-          </label>
-          <label className={`settings-radio-card ${waMode === "api" ? "is-selected" : ""}`}>
-            <input
-              type="radio"
-              name="wa-mode"
-              value="api"
-              checked={waMode === "api"}
-              onChange={() => setWaMode("api")}
-            />
-            <div>
-              <strong>WhatsApp Business API</strong>
-              <small>
-                Integrasi penuh dengan WhatsApp Cloud API untuk pengiriman pesan otomatis, konfirmasi
-                order, dan tracking real-time.
-              </small>
-            </div>
-          </label>
-        </div>
-      </div>
-
-      <div className="settings-section-group">
-        <p className="settings-section-group__title">Nomor & Template</p>
-        <label className="settings-field">
-          <span>
-            <HugeiconsIcon icon={WhatsappIcon} size={14} />
-            Nomor WhatsApp Bisnis
-          </span>
-          <input defaultValue="+62 812 0000 0000" type="tel" placeholder="+62 8xx xxxx xxxx" />
-        </label>
-        <label className="settings-field">
-          <span>
-            <HugeiconsIcon icon={Note01Icon} size={14} />
-            Template Pesan Order Baru
-          </span>
-          <textarea
-            defaultValue={`Halo Baitybites! Saya ingin memesan:\n\n{{order_detail}}\n\nNama: {{nama}}\nAlamat: {{alamat}}\n\nMohon dikonfirmasi. Terima kasih!`}
-            rows={6}
-            placeholder="Template pesan otomatis"
-          />
-          <small className="settings-field__hint">
-            Gunakan <code>{"{{order_detail}}"}</code>, <code>{"{{nama}}"}</code>,{" "}
-            <code>{"{{alamat}}"}</code> sebagai variabel dinamis.
-          </small>
-        </label>
-      </div>
-
-      {waMode === "api" && (
-        <div className="settings-section-group">
-          <p className="settings-section-group__title">Konfigurasi WhatsApp Cloud API</p>
-          <label className="settings-field">
-            <span>Phone Number ID</span>
-            <input type="text" placeholder="Contoh: 123456789012345" />
-          </label>
-          <label className="settings-field">
-            <span>WhatsApp Business Account ID</span>
-            <input type="text" placeholder="Contoh: 987654321098765" />
-          </label>
-          <label className="settings-field">
-            <span>Access Token</span>
-            <input type="password" placeholder="EAA..." />
-          </label>
-          <div className="settings-api-note">
-            <HugeiconsIcon icon={InformationCircleIcon} size={16} />
-            <span>
-              Dapatkan token dari{" "}
-              <a href="https://developers.facebook.com/apps" target="_blank" rel="noopener noreferrer">
-                Meta for Developers
-              </a>
-              . Token harus memiliki izin <code>whatsapp_business_messaging</code>.
-            </span>
-          </div>
-        </div>
-      )}
-
-      <div className="settings-section-group">
-        <p className="settings-section-group__title">Otomatisasi Pesan</p>
-        <SettingsToggle
-          id="wa-konfirmasi-otomatis"
-          label="Kirim Konfirmasi Order Otomatis"
-          description="Kirim pesan konfirmasi ke pelanggan segera setelah order diterima dan diverifikasi admin."
-          defaultChecked
-        />
-        <SettingsToggle
-          id="wa-status-update"
-          label="Update Status Real-time ke Pelanggan"
-          description="Beritahu pelanggan saat pesanan berpindah status: Diproses → Siap Kirim → Terkirim."
-        />
-      </div>
-    </div>
-  );
-}
-
-// ─── Section: Preferensi Order ────────────────────────────────────────────────
-function PreferensiOrderSection() {
-  return (
-    <div className="settings-panel__body">
-      <div className="settings-section-group">
-        <p className="settings-section-group__title">Alur Penerimaan Order</p>
-        <SettingsToggle
-          id="order-verifikasi-manual"
-          label="Verifikasi Manual oleh Admin"
-          description="Setiap order baru wajib dikonfirmasi admin sebelum masuk ke antrean kitchen."
-          defaultChecked
-        />
-        <SettingsToggle
-          id="order-auto-assign"
-          label="Auto-assign Order ke Kitchen"
-          description="Order yang sudah diverifikasi langsung diteruskan ke kitchen tanpa langkah manual."
-          defaultChecked
-        />
-        <SettingsToggle
-          id="order-allow-edit"
-          label="Izinkan Edit Order Setelah Konfirmasi"
-          description="Admin dapat mengubah detail order setelah dikonfirmasi jika ada permintaan pelanggan."
-        />
-      </div>
-
-      <div className="settings-section-group">
-        <p className="settings-section-group__title">Penomoran & Referensi Order</p>
-        <div className="settings-field-row">
-          <label className="settings-field">
-            <span>
-              <HugeiconsIcon icon={ShoppingBag01Icon} size={14} />
-              Prefix Nomor Order
-            </span>
-            <input defaultValue="BB" type="text" maxLength={5} placeholder="BB" />
-          </label>
-          <label className="settings-field">
-            <span>
-              <HugeiconsIcon icon={ArrowUpDownIcon} size={14} />
-              Urutan Tampilan Order
-            </span>
-            <select defaultValue="newest">
-              <option value="newest">Terbaru di atas</option>
-              <option value="oldest">Terlama di atas</option>
-              <option value="priority">Prioritas</option>
-            </select>
-          </label>
-        </div>
-      </div>
-
-      <div className="settings-section-group">
-        <p className="settings-section-group__title">Pengiriman & Pengambilan</p>
-        <SettingsToggle
-          id="order-self-pickup"
-          label="Aktifkan Opsi Ambil Sendiri (Pickup)"
-          description="Tampilkan opsi 'Ambil di Toko' saat pelanggan melakukan pemesanan."
-          defaultChecked
-        />
-        <SettingsToggle
-          id="order-delivery"
-          label="Aktifkan Opsi Pengiriman"
-          description="Pelanggan dapat memilih pengiriman via kurir atau ojek online."
-          defaultChecked
-        />
-        <label className="settings-field">
-          <span>Radius Pengiriman Maksimum (km)</span>
-          <input defaultValue="15" type="number" min={1} max={100} />
-        </label>
-      </div>
-
-      <div className="settings-section-group">
-        <p className="settings-section-group__title">Pencetakan & Dokumentasi</p>
-        <SettingsToggle
-          id="order-auto-print"
-          label="Cetak Struk Otomatis Saat Order Terkonfirmasi"
-          description="Kirim perintah cetak ke printer thermal saat order baru dikonfirmasi admin."
-        />
-        <label className="settings-field">
-          <span>
-            <HugeiconsIcon icon={PrinterIcon} size={14} />
-            IP Address Printer Thermal
-          </span>
-          <input defaultValue="" type="text" placeholder="192.168.1.xxx" />
-        </label>
-        <SettingsToggle
-          id="order-include-notes"
-          label="Sertakan Catatan Pelanggan di Struk"
-          description="Tampilkan kolom 'Catatan Khusus' dari pelanggan pada struk cetak."
-          defaultChecked
-        />
-      </div>
-
-      <div className="settings-section-group">
-        <p className="settings-section-group__title">Minimum & Batas Order</p>
-        <div className="settings-field-row">
-          <label className="settings-field">
-            <span>Minimum Nilai Order (Rp)</span>
-            <input defaultValue="25000" type="number" min={0} step={1000} />
-          </label>
-          <label className="settings-field">
-            <span>Maksimum Item per Order</span>
-            <input defaultValue="20" type="number" min={1} max={100} />
-          </label>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ─── Section: Konfigurasi Instance (No-Code Env) ─────────────────────────────
-function KonfigurasiInstanceSection() {
-  const [storeName, setStoreName] = useState("Toko Kue Ibu Lestari");
-  const [storeUrl, setStoreUrl] = useState("https://toko-kue-ibu-lestari.baitybites.site");
-  const [storePin, setStorePin] = useState("1234");
-  const [waPhone, setWaPhone] = useState("081298765432");
-  const [savedLocally, setSavedLocally] = useState(false);
-
-  function handleSaveEnv() {
-    setSavedLocally(true);
-    setTimeout(() => setSavedLocally(false), 2500);
-  }
-
-  return (
-    <div className="settings-panel__body">
-      <div className="settings-info-card" style={{ background: "#ecfdf5", borderColor: "#a7f3d0" }}>
-        <HugeiconsIcon icon={CheckmarkCircle02Icon} size={20} style={{ color: "#059669", flexShrink: 0 }} />
-        <div>
-          <strong style={{ color: "#065f46" }}>Database Terisolasi (Multi-Tenant Active)</strong>
-          <p style={{ color: "#047857", margin: "4px 0 0", fontSize: "13px" }}>
-            Toko Anda berjalan di atas skema database mandiri <code>toko_kue_ibu_lestari</code> yang terisolasi.
-            Seluruh pesanan, katalog kue, dan data transaksi 100% terpisah dan tidak tercampur dengan toko mitra lainnya.
+            Pusat konfigurasi global vendor Baitybites ORM untuk mengorkestrasi seluruh tenant kuliner F&amp;B,
+            infrastruktur database terisolasi, serta gerbang komunikasi transaksional.
           </p>
         </div>
       </div>
 
       <div className="settings-section-group">
-        <p className="settings-section-group__title">Identitas Toko Online (No-Code)</p>
+        <p className="settings-section-group__title">Identitas Resmi SaaS &amp; Badan Usaha Vendor</p>
         <label className="settings-field">
           <span>
             <HugeiconsIcon icon={Building02Icon} size={14} />
-            Nama Brand Toko (NEXT_PUBLIC_STORE_NAME)
+            Nama Platform SaaS
           </span>
           <input
-            value={storeName}
-            onChange={(e) => setStoreName(e.target.value)}
+            value={platformName}
+            onChange={(e) => setPlatformName(e.target.value)}
             type="text"
-            placeholder="Nama toko kuliner Anda"
+            placeholder="Baitybites ORM"
           />
         </label>
 
         <label className="settings-field">
           <span>
-            <HugeiconsIcon icon={Store01Icon} size={14} />
-            Alamat Web Toko Publik (NEXT_PUBLIC_APP_URL)
+            <HugeiconsIcon icon={Building02Icon} size={14} />
+            Badan Usaha / Legalitas Vendor
           </span>
           <input
-            value={storeUrl}
-            onChange={(e) => setStoreUrl(e.target.value)}
-            type="url"
-            placeholder="https://namatoko.baitybites.site"
+            value={legalEntity}
+            onChange={(e) => setLegalEntity(e.target.value)}
+            type="text"
+            placeholder="PT / CV Vendor"
           />
         </label>
+
+        <div className="settings-field-row">
+          <label className="settings-field">
+            <span>
+              <HugeiconsIcon icon={Globe02Icon} size={14} />
+              Domain Utama Platform (Root URL)
+            </span>
+            <input
+              value={platformUrl}
+              onChange={(e) => setPlatformUrl(e.target.value)}
+              type="url"
+              placeholder="https://domain-platform.com"
+            />
+          </label>
+
+          <label className="settings-field">
+            <span>
+              <HugeiconsIcon icon={Mail01Icon} size={14} />
+              Email Resmi Dukungan &amp; Billing
+            </span>
+            <input
+              value={supportEmail}
+              onChange={(e) => setSupportEmail(e.target.value)}
+              type="email"
+              placeholder="support@domain-platform.com"
+            />
+          </label>
+        </div>
 
         <label className="settings-field">
           <span>
             <HugeiconsIcon icon={Call02Icon} size={14} />
-            Nomor WhatsApp Terima Pesanan (NEXT_PUBLIC_WHATSAPP_PHONE)
+            Nomor Hotline WhatsApp Dukungan Klien (B2B)
           </span>
           <input
-            value={waPhone}
-            onChange={(e) => setWaPhone(e.target.value)}
+            value={hotlinePhone}
+            onChange={(e) => setHotlinePhone(e.target.value)}
             type="tel"
-            placeholder="0812xxxxxxxx"
+            placeholder="+62 8xx xxxx xxxx"
           />
+          <span className="settings-field__hint">
+            Nomor resmi vendor yang tercantum pada lampiran invoice langganan dan footer onboarding klien.
+          </span>
         </label>
       </div>
 
       <div className="settings-section-group">
-        <p className="settings-section-group__title">Kredensial Keamanan Kasir &amp; Dapur Toko</p>
+        <p className="settings-section-group__title">Ekosistem Platform Owner &amp; Navigasi Cepat</p>
+        <div className="settings-ecosystem-grid">
+          <Link href="/platform/console" className="ecosystem-card">
+            <div className="card-badge">Live Monitor</div>
+            <strong>Platform Owner Console</strong>
+            <p>Pantau metrik MRR, kurasi prospek baru, dan ringkasan seluruh tenant aktif.</p>
+          </Link>
+          <Link href="/settings/leads" className="ecosystem-card">
+            <div className="card-badge">Kurasi Leads</div>
+            <strong>Permintaan Klien Baru</strong>
+            <p>Proses prospek masuk melalui 4 tahap kurasi (Invoice, Payment, Provision, Handover).</p>
+          </Link>
+          <Link href="/settings/provision" className="ecosystem-card">
+            <div className="card-badge">Generator</div>
+            <strong>Generator Instance Repositori</strong>
+            <p>Otomasi duplikasi repositori blueprint dan isolasi skema Neon PostgreSQL klien baru.</p>
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── 2. Multi-Tenant Engine & Database ───────────────────────────────────────
+function MultiTenantEngineSection() {
+  const [dbProvider] = useState("Neon Serverless PostgreSQL (Singapore Region - ap-southeast-1)");
+  const [masterRepo] = useState("id-baitybites/baitybites-orm");
+  const [targetOrg] = useState("id-baitybites");
+
+  return (
+    <div className="settings-panel__body">
+      <div className="settings-info-card settings-info-card--success">
+        <HugeiconsIcon icon={SecurityCheckIcon} size={20} />
+        <div>
+          <strong>Router Multi-Tenant Database Terisolasi</strong>
+          <p>
+            Arsitektur <em>Schema-per-Tenant</em> aktif via Neon PostgreSQL. Data transaksi, katalog produk,
+            dan konfigurasi tiap klien terpisah 100% pada namespace database mandiri (Zero Collision).
+          </p>
+        </div>
+      </div>
+
+      <div className="settings-section-group">
+        <p className="settings-section-group__title">Konfigurasi Engine &amp; Master Blueprint</p>
         <label className="settings-field">
           <span>
-            <HugeiconsIcon icon={UserStar01Icon} size={14} />
-            Security PIN Kasir Toko (STORE_ADMIN_PIN)
+            <HugeiconsIcon icon={Database01Icon} size={14} />
+            Penyedia Database Multi-Tenant
           </span>
-          <input
-            value={storePin}
-            onChange={(e) => setStorePin(e.target.value)}
-            type="text"
-            maxLength={6}
-            placeholder="1234"
-            style={{ letterSpacing: "0.2em", fontWeight: 700, maxWidth: "200px" }}
-          />
-          <small style={{ color: "#64748b", marginTop: "4px" }}>
-            PIN 4-6 angka yang dimasukkan kasir saat login ke sistem kasir toko Anda.
-          </small>
+          <input value={dbProvider} readOnly className="input-readonly" />
+          <span className="settings-field__hint">
+            Dikelola otomatis via connection string environment server <code>DATABASE_URL</code> dengan mode pooler PgBouncer.
+          </span>
         </label>
+
+        <div className="settings-field-row">
+          <label className="settings-field">
+            <span>
+              <HugeiconsIcon icon={Globe02Icon} size={14} />
+              Target Organisasi GitHub Klien
+            </span>
+            <input value={targetOrg} readOnly className="input-readonly" />
+            <span className="settings-field__hint">
+              Organisasi resmi GitHub tempat repositori private setiap klien digenerate.
+            </span>
+          </label>
+
+          <label className="settings-field">
+            <span>
+              <HugeiconsIcon icon={Building02Icon} size={14} />
+              Master Blueprint Template Repo
+            </span>
+            <input value={masterRepo} readOnly className="input-readonly" />
+            <span className="settings-field__hint">
+              Cetak biru resmi upstream Baitybites ORM yang disalin otomatis ke repositori klien.
+            </span>
+          </label>
+        </div>
       </div>
 
       <div className="settings-section-group">
-        <p className="settings-section-group__title">Status Database Cloud Terdedikasi</p>
-        <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "8px", padding: "14px 16px", fontSize: "13px" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
-            <span style={{ color: "#64748b" }}>Status Skema Database:</span>
-            <strong style={{ color: "#059669", display: "inline-flex", alignItems: "center", gap: "6px" }}>
+        <p className="settings-section-group__title">Status Kapasitas &amp; Router Skema Aktif</p>
+        <div className="instance-status-box">
+          <div className="status-row">
+            <span className="status-label">Status Router Multi-Tenant:</span>
+            <strong className="status-badge">
               <HugeiconsIcon icon={CheckmarkCircle02Icon} size={14} />
-              Aktif &amp; Terisolasi
+              Neon Multi-Tenant Active &amp; Isolated
             </strong>
           </div>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
-            <span style={{ color: "#64748b" }}>Nama Skema Database:</span>
-            <code style={{ background: "#ffffff", padding: "2px 6px", border: "1px solid #cbd5e1", borderRadius: "4px" }}>
-              toko_kue_ibu_lestari
-            </code>
+          <div className="status-row">
+            <span className="status-label">Status Skema Klien Terdaftar:</span>
+            <span className="status-highlight">5 Tenant Schemas (Live &amp; Provisioned)</span>
           </div>
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <span style={{ color: "#64748b" }}>Pemisahan Data Multi-Klien:</span>
-            <span style={{ color: "#0f172a", fontWeight: 600 }}>Tingkat Namespace Database (Zero Collision)</span>
+          <div className="status-row">
+            <span className="status-label">PgBouncer Connection Pooling:</span>
+            <code>Port 6543 (Transaction Pooler - Zero Leak)</code>
+          </div>
+          <div className="status-row">
+            <span className="status-label">Pencegahan Tabrakan Data:</span>
+            <span className="status-highlight">Tingkat Namespace Database (Zero Collision Guaranteed)</span>
           </div>
         </div>
       </div>
 
       <div className="settings-section-group">
-        <p className="settings-section-group__title">Backup &amp; Disaster Recovery</p>
-        <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "8px", padding: "14px 16px", fontSize: "13px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", flexWrap: "wrap" }}>
-          <div style={{ maxWidth: "450px" }}>
-            <strong style={{ color: "#0f172a", display: "block", marginBottom: "4px" }}>Pencadangan Database &amp; Recovery Tool</strong>
-            <span style={{ color: "#64748b" }}>Otomasi aktif terjadwal harian (02:00 WIB) via penjadwal cloud. Buat snapshot on-demand atau pulihkan data kapan saja.</span>
+        <p className="settings-section-group__title">Backup Cloud Terjadwal &amp; Disaster Recovery</p>
+        <div className="backup-callout-card">
+          <div className="callout-info">
+            <strong>Pencadangan Database &amp; Recovery Tool</strong>
+            <span>
+              Otomasi snapshot aktif harian (02:00 WIB / 19:00 UTC) via penjadwal cloud.
+              Buat snapshot on-demand atau pulihkan seluruh database tenant kapan saja.
+            </span>
           </div>
-          <Link
-            href="/settings/backup"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "6px",
-              padding: "8px 14px",
-              background: "#f97316",
-              color: "#ffffff",
-              borderRadius: "6px",
-              fontWeight: 600,
-              fontSize: "13px",
-              textDecoration: "none",
-            }}
-          >
+          <Link href="/settings/backup" className="callout-btn">
             Buka Modul Backup
             <HugeiconsIcon icon={ArrowRight01Icon} size={14} strokeWidth={2} />
           </Link>
         </div>
       </div>
+    </div>
+  );
+}
 
-      <div style={{ marginTop: "1rem" }}>
-        <button
-          type="button"
-          className="settings-page__save"
-          onClick={handleSaveEnv}
-          style={{ width: "100%", justifyContent: "center" }}
-        >
-          {savedLocally ? (
-            <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
-              <HugeiconsIcon icon={CheckmarkCircle02Icon} size={16} />
-              Konfigurasi Toko Berhasil Disimpan!
-            </span>
-          ) : (
-            "Simpan Konfigurasi Toko"
-          )}
-        </button>
+// ─── 3. Billing & Rekening Vendor ───────────────────────────────────────────
+function BillingVendorSection() {
+  const [bcaAccount, setBcaAccount] = useState("8720-9918-22");
+  const [bcaHolder, setBcaHolder] = useState("PT Baitybites Teknologi Nusantara");
+  const [mandiriAccount, setMandiriAccount] = useState("123-00-9876543-1");
+  const [mandiriHolder, setMandiriHolder] = useState("PT Baitybites Teknologi Nusantara");
+  const [invoiceDueDays, setInvoiceDueDays] = useState("3");
+  const [invoiceNote, setInvoiceNote] = useState(
+    "Mohon sertakan Nomor Invoice atau Kode Unik pada berita transfer pembayaran langganan Baitybites ORM."
+  );
+
+  return (
+    <div className="settings-panel__body">
+      <div className="settings-info-card settings-info-card--primary">
+        <HugeiconsIcon icon={Invoice01Icon} size={20} />
+        <div>
+          <strong>Rekening Resmi Penerimaan Langganan Vendor</strong>
+          <p>
+            Rekening bank di bawah ini digunakan secara otomatis pada <strong>Modal Invoice</strong> dan
+            lampiran email penagihan ke klien saat mereka memesan paket langganan Baitybites ORM.
+          </p>
+        </div>
+      </div>
+
+      <div className="settings-section-group">
+        <p className="settings-section-group__title">Rekening Bank Utama (BCA)</p>
+        <div className="settings-field-row">
+          <label className="settings-field">
+            <span>Nomor Rekening BCA</span>
+            <input
+              value={bcaAccount}
+              onChange={(e) => setBcaAccount(e.target.value)}
+              type="text"
+              placeholder="Contoh: 8720-9918-22"
+            />
+          </label>
+          <label className="settings-field">
+            <span>Atas Nama Penerima (Nama Rekening)</span>
+            <input
+              value={bcaHolder}
+              onChange={(e) => setBcaHolder(e.target.value)}
+              type="text"
+              placeholder="PT Baitybites Teknologi Nusantara"
+            />
+          </label>
+        </div>
+      </div>
+
+      <div className="settings-section-group">
+        <p className="settings-section-group__title">Rekening Bank Kedua (Mandiri - Cadangan)</p>
+        <div className="settings-field-row">
+          <label className="settings-field">
+            <span>Nomor Rekening Mandiri</span>
+            <input
+              value={mandiriAccount}
+              onChange={(e) => setMandiriAccount(e.target.value)}
+              type="text"
+              placeholder="Contoh: 123-00-9876543-1"
+            />
+          </label>
+          <label className="settings-field">
+            <span>Atas Nama Penerima</span>
+            <input
+              value={mandiriHolder}
+              onChange={(e) => setMandiriHolder(e.target.value)}
+              type="text"
+              placeholder="PT Baitybites Teknologi Nusantara"
+            />
+          </label>
+        </div>
+      </div>
+
+      <div className="settings-section-group">
+        <p className="settings-section-group__title">Kebijakan Penagihan &amp; Catatan Invoice</p>
+        <label className="settings-field">
+          <span>Batas Waktu Jatuh Tempo Invoice (Hari)</span>
+          <input
+            value={invoiceDueDays}
+            onChange={(e) => setInvoiceDueDays(e.target.value)}
+            type="number"
+            min={1}
+            max={30}
+          />
+          <span className="settings-field__hint">
+            Jumlah hari sebelum invoice kadaluarsa jika belum dilakukan verifikasi mutasi transfer.
+          </span>
+        </label>
+        <label className="settings-field">
+          <span>Catatan Kaki Invoice Resmi</span>
+          <textarea
+            value={invoiceNote}
+            onChange={(e) => setInvoiceNote(e.target.value)}
+            rows={3}
+            placeholder="Catatan transfer untuk klien"
+          />
+        </label>
       </div>
     </div>
   );
 }
 
-// ─── Panel map ────────────────────────────────────────────────────────────────
+// ─── 4. Email & Notifikasi Gateway ───────────────────────────────────────────
+function GatewayNotifikasiSection() {
+  const [senderEmail, setSenderEmail] = useState("system@baitybites.site");
+  const [senderName, setSenderName] = useState("Baitybites ORM Platform");
+
+  return (
+    <div className="settings-panel__body">
+      <div className="settings-section-group">
+        <p className="settings-section-group__title">Pengirim Email Transaksional (Brevo &amp; Resend)</p>
+        <div className="settings-field-row">
+          <label className="settings-field">
+            <span>
+              <HugeiconsIcon icon={Mail01Icon} size={14} />
+              Alamat Email Pengirim (Sender Email)
+            </span>
+            <input
+              value={senderEmail}
+              onChange={(e) => setSenderEmail(e.target.value)}
+              type="email"
+              placeholder="system@baitybites.site"
+            />
+          </label>
+
+          <label className="settings-field">
+            <span>
+              <HugeiconsIcon icon={Building02Icon} size={14} />
+              Nama Tampilan Pengirim (Sender Name)
+            </span>
+            <input
+              value={senderName}
+              onChange={(e) => setSenderName(e.target.value)}
+              type="text"
+              placeholder="Baitybites ORM Platform"
+            />
+          </label>
+        </div>
+        <div className="settings-field">
+          <span className="settings-field__hint">
+            Kredensial API Key diamankan via server environment secret <code>BREVO_API_KEY</code> &amp; <code>RESEND_API_KEY</code>.
+          </span>
+        </div>
+      </div>
+
+      <div className="settings-section-group">
+        <p className="settings-section-group__title">Otomasi Notifikasi Platform SaaS</p>
+        <SettingsToggle
+          id="notif-invoice"
+          label="Kirim Invoice & Rekening Otomatis"
+          description="Otomatis kirimkan email rincian invoice dan rekening transfer vendor saat admin mengklik Kirim Invoice di kurasi Leads."
+          defaultChecked={true}
+        />
+        <SettingsToggle
+          id="notif-onboarding"
+          label="Kirim Undangan Onboarding Klien"
+          description="Otomatis kirimkan tautan wizard onboarding dan kredensial akses saat repositori klien selesai diprovisioning."
+          defaultChecked={true}
+        />
+        <SettingsToggle
+          id="notif-lead-alert"
+          label="Alert Lead Baru ke Platform Owner"
+          description="Kirimkan notifikasi instan ke WhatsApp / Email Vendor saat calon klien baru mengisi form pendaftaran di landing page."
+          defaultChecked={true}
+        />
+        <SettingsToggle
+          id="notif-backup-failure"
+          label="Peringatan Darurat Kegagalan Backup"
+          description="Kirimkan alert prioritas tinggi kepada superadmin jika snapshot database cloud harian mengalami kendala."
+          defaultChecked={true}
+        />
+      </div>
+    </div>
+  );
+}
+
+// ─── 5. Paket Lisensi & Kuota ────────────────────────────────────────────────
+function PaketLisensiSection() {
+  const [gracePeriod, setGracePeriod] = useState("7");
+  const [snapshotRetention, setSnapshotRetention] = useState("30");
+
+  return (
+    <div className="settings-panel__body">
+      <div className="settings-section-group">
+        <p className="settings-section-group__title">Katalog Tingkatan Paket Langganan SaaS</p>
+        <div className="settings-pricing-grid">
+          <div className="pricing-card">
+            <span className="tier-tag">Paket Dasar</span>
+            <h3>Starter Instance</h3>
+            <div className="tier-price">
+              Rp 299.000 <span>/ bulan</span>
+            </div>
+            <ul className="tier-features">
+              <li>1 Cabang Toko Kuliner</li>
+              <li>Maks. 100 Menu / Produk</li>
+              <li>2 Akun Staf / Kasir POS</li>
+              <li>Multi-Tenant Isolated Schema</li>
+              <li>Manual WhatsApp Ordering</li>
+            </ul>
+          </div>
+
+          <div className="pricing-card pricing-card--featured">
+            <span className="tier-tag tier-tag--featured">Paling Populer</span>
+            <h3>Business Pro</h3>
+            <div className="tier-price">
+              Rp 699.000 <span>/ bulan</span>
+            </div>
+            <ul className="tier-features">
+              <li>Hingga 3 Cabang Toko</li>
+              <li>Unlimited Menu / Produk</li>
+              <li>10 Akun Staf (Kasir + Dapur)</li>
+              <li>Kitchen Display System (KDS)</li>
+              <li>Integrasi WhatsApp Bot Otomatis</li>
+            </ul>
+          </div>
+
+          <div className="pricing-card">
+            <span className="tier-tag">Dedicated</span>
+            <h3>Enterprise</h3>
+            <div className="tier-price">
+              Rp 1.499.000 <span>/ bulan</span>
+            </div>
+            <ul className="tier-features">
+              <li>Unlimited Cabang &amp; Outlet</li>
+              <li>Dedicated Neon Branch Database</li>
+              <li>Prioritas SLA 99.9% Uptime</li>
+              <li>Dukungan Custom Domain Mandiri</li>
+              <li>Akses API &amp; Webhook Lengkap</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div className="settings-section-group">
+        <p className="settings-section-group__title">Kebijakan Grace Period &amp; Retensi Data Klien</p>
+        <div className="settings-field-row">
+          <label className="settings-field">
+            <span>Masa Grace Period Penagihan (Hari)</span>
+            <input
+              value={gracePeriod}
+              onChange={(e) => setGracePeriod(e.target.value)}
+              type="number"
+              min={1}
+              max={30}
+            />
+            <span className="settings-field__hint">
+              Waktu toleransi bagi klien untuk memperpanjang langganan sebelum akses instance dinonaktifkan sementara.
+            </span>
+          </label>
+
+          <label className="settings-field">
+            <span>Retensi File Snapshot Cadangan (Hari)</span>
+            <input
+              value={snapshotRetention}
+              onChange={(e) => setSnapshotRetention(e.target.value)}
+              type="number"
+              min={7}
+              max={90}
+            />
+            <span className="settings-field__hint">
+              Lama penyimpanan snapshot database JSON di cloud sebelum file terlama dibersihkan otomatis.
+            </span>
+          </label>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── 6. Tim Superadmin Platform ──────────────────────────────────────────────
+function PenggunaAksesSection() {
+  return (
+    <div className="settings-panel__body">
+      <div className="settings-info-card settings-info-card--primary">
+        <HugeiconsIcon icon={UserStar01Icon} size={20} />
+        <div>
+          <strong>Tata Kelola Superadmin Platform Owner</strong>
+          <p>
+            Kelola akun internal platform yang memiliki wewenang mengonfigurasi router database,
+            mengurasi prospek klien, dan melakukan rilis versi cetak biru Baitybites ORM.
+          </p>
+        </div>
+        <Link href="/settings/admins" className="settings-info-card__cta">
+          Kelola Superadmin
+          <HugeiconsIcon icon={ArrowRight01Icon} size={14} strokeWidth={2} />
+        </Link>
+      </div>
+
+      <div className="settings-section-group">
+        <p className="settings-section-group__title">Standar Keamanan Sesi &amp; Akses Platform</p>
+        <SettingsToggle
+          id="sec-session-timeout"
+          label="Auto-Logout Sesi Superadmin Tidak Aktif"
+          description="Otomatis mengeluarkan sesi superadmin jika tidak ada interaksi selama 60 menit berturut-turut."
+          defaultChecked={true}
+        />
+        <SettingsToggle
+          id="sec-audit-log"
+          label="Pencatatan Audit Log Perubahan Skema"
+          description="Rekam jejak setiap aksi mutasi status leads, eksekusi provisioning repositori, dan pemulihan snapshot database."
+          defaultChecked={true}
+        />
+      </div>
+    </div>
+  );
+}
+
+// ─── Panel Mapping ────────────────────────────────────────────────────────────
 const SECTION_PANEL: Record<
   string,
   { description: string; component: React.ReactNode }
 > = {
-  "profil-bisnis": {
-    description: "Identitas dan informasi operasional bisnis Baitybites yang tampil di dokumen dan komunikasi pelanggan.",
-    component: <ProfilBisnisSection />,
+  "profil-platform": {
+    description: "Identitas resmi platform SaaS, badan usaha vendor, domain publik, dan kontak dukungan B2B.",
+    component: <ProfilPlatformSection />,
   },
-  "konfigurasi-instance": {
-    description: "Atur konfigurasi nama toko, URL publik, nomor WhatsApp, PIN kasir, dan pantau status database terisolasi toko Anda.",
-    component: <KonfigurasiInstanceSection />,
+  "multi-tenant-engine": {
+    description: "Infrastruktur database Neon PostgreSQL, router skema terisolasi, dan master blueprint upstream repositori.",
+    component: <MultiTenantEngineSection />,
   },
-  notifikasi: {
-    description: "Atur saluran dan jenis notifikasi yang diterima admin dan tim operasional.",
-    component: <NotifikasiSection />,
+  "billing-vendor": {
+    description: "Rekening resmi bank vendor untuk penagihan transfer invoice otomatis dan kebijakan jatuh tempo langganan.",
+    component: <BillingVendorSection />,
+  },
+  "gateway-notifikasi": {
+    description: "Pengaturan pengirim email Brevo / Resend dan otomasi notifikasi transaksional onboarding klien.",
+    component: <GatewayNotifikasiSection />,
+  },
+  "paket-lisensi": {
+    description: "Struktur tingkatan paket langganan (tiers), batasan kuota cabang/staf, dan kebijakan retensi data.",
+    component: <PaketLisensiSection />,
   },
   "pengguna-akses": {
-    description: "Kelola akun admin, peran, dan kebijakan keamanan akses ke sistem OMS.",
+    description: "Akses superadmin internal platform dan standar keamanan sesi backoffice.",
     component: <PenggunaAksesSection />,
-  },
-  "integrasi-wa": {
-    description: "Konfigurasi integrasi WhatsApp untuk penerimaan order dan komunikasi otomatis dengan pelanggan.",
-    component: <IntegrasiWASection />,
-  },
-  "preferensi-order": {
-    description: "Tentukan alur kerja order, format penomoran, opsi pengiriman, dan pengaturan pencetakan.",
-    component: <PreferensiOrderSection />,
   },
 };
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
+// ─── Page Component ───────────────────────────────────────────────────────────
 export default function SettingsPage() {
-  const [activeId, setActiveId] = useState("profil-bisnis");
+  const [activeId, setActiveId] = useState("profil-platform");
   const [saved, setSaved] = useState(false);
 
   const activeSection = SECTIONS.find((s) => s.id === activeId)!;
@@ -696,10 +641,10 @@ export default function SettingsPage() {
         {/* HEADING */}
         <header className="settings-page__heading">
           <div>
-            <p className="eyebrow">BAITYBITES OMS / ADMINISTRATION</p>
-            <h1>Pengaturan</h1>
+            <p className="eyebrow">BAITYBITES ORM / PLATFORM OWNER SETTINGS</p>
+            <h1>Pengaturan Platform SaaS</h1>
             <p className="settings-page__desc">
-              Atur preferensi kerja tim, identitas bisnis, dan integrasi operasional Baitybites.
+              Kelola konfigurasi global multi-tenant engine, rekening pembayaran langganan vendor, email transactional gateway, dan tata kelola platform.
             </p>
           </div>
 
@@ -721,7 +666,7 @@ export default function SettingsPage() {
         {/* LAYOUT */}
         <div className="settings-layout">
           {/* ASIDE MENU */}
-          <aside className="settings-menu" aria-label="Menu Pengaturan">
+          <aside className="settings-menu" aria-label="Menu Pengaturan Platform">
             {SECTIONS.map((section) => (
               <button
                 type="button"

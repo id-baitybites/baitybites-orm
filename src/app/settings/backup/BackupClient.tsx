@@ -175,26 +175,7 @@ export function BackupClient({
       </div>
 
       {message && (
-        <div
-          style={{
-            padding: "1rem 1.25rem",
-            borderRadius: "10px",
-            marginBottom: "1.5rem",
-            background:
-              message.type === "success"
-                ? "rgba(16, 185, 129, 0.15)"
-                : "rgba(239, 68, 68, 0.15)",
-            border:
-              message.type === "success"
-                ? "1px solid rgba(16, 185, 129, 0.3)"
-                : "1px solid rgba(239, 68, 68, 0.3)",
-            color: message.type === "success" ? "#a7f3d0" : "#fca5a5",
-            fontSize: "0.9rem",
-            display: "flex",
-            alignItems: "center",
-            gap: "0.75rem",
-          }}
-        >
+        <div className={`backup-page__message ${message.type === "success" ? "backup-page__message--success" : "backup-page__message--error"}`}>
           <HugeiconsIcon
             icon={
               (message.type === "success"
@@ -266,7 +247,7 @@ export function BackupClient({
           <input
             type="file"
             ref={fileInputRef}
-            style={{ display: "none" }}
+            className="hidden-file-input"
             accept=".json"
             onChange={handleFileChange}
           />
@@ -294,7 +275,7 @@ export function BackupClient({
             <HugeiconsIcon
               icon={Clock01Icon as IconSvgElement}
               size={36}
-              style={{ opacity: 0.5, marginBottom: "0.5rem" }}
+              className="empty-icon"
             />
             <p>Belum ada file snapshot di server. Klik &ldquo;Cadangkan Database&rdquo; untuk membuat snapshot pertama.</p>
           </div>
@@ -308,14 +289,14 @@ export function BackupClient({
                   <th>Ukuran</th>
                   <th>Waktu Pembuatan</th>
                   <th>Statistik Record</th>
-                  <th style={{ textAlign: "right" }}>Aksi</th>
+                  <th className="cell-actions">Aksi</th>
                 </tr>
               </thead>
               <tbody>
                 {backups.map((b) => (
                   <tr key={b.filename}>
                     <td>
-                      <code style={{ color: "#38bdf8", fontWeight: 600 }}>
+                      <code className="filename-code">
                         {b.filename}
                       </code>
                     </td>
@@ -342,16 +323,16 @@ export function BackupClient({
                     </td>
                     <td>
                       {b.recordCounts ? (
-                        <span style={{ fontSize: "0.78rem", color: "#94a3b8" }}>
+                        <span className="record-stats">
                           {b.recordCounts.products ?? 0} Prod,{" "}
                           {b.recordCounts.orders ?? 0} Order,{" "}
                           {b.recordCounts.customers ?? 0} Pelanggan
                         </span>
                       ) : (
-                        <span style={{ color: "#64748b" }}>-</span>
+                        <span className="record-empty">-</span>
                       )}
                     </td>
-                    <td style={{ textAlign: "right" }}>
+                    <td className="cell-actions">
                       <button
                         type="button"
                         className="btn-download"
@@ -374,81 +355,34 @@ export function BackupClient({
 
       {/* Restore Confirmation Modal */}
       {showRestoreModal && restorePreview && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(0, 0, 0, 0.75)",
-            backdropFilter: "blur(4px)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 1000,
-            padding: "1rem",
-          }}
-        >
-          <div
-            style={{
-              background: "#111827",
-              border: "1px solid #dc2626",
-              borderRadius: "14px",
-              padding: "2rem",
-              maxWidth: "540px",
-              width: "100%",
-              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "0.75rem",
-                color: "#ef4444",
-                marginBottom: "1rem",
-              }}
-            >
+        <div className="backup-modal-backdrop">
+          <div className="backup-modal">
+            <div className="backup-modal__header">
               <HugeiconsIcon
                 icon={AlertCircleIcon as IconSvgElement}
                 size={24}
               />
-              <h3 style={{ margin: 0, color: "#f8fafc", fontSize: "1.25rem" }}>
+              <h3>
                 Konfirmasi Pemulihan Database
               </h3>
             </div>
 
-            <p
-              style={{
-                fontSize: "0.875rem",
-                color: "#94a3b8",
-                lineHeight: 1.5,
-                marginBottom: "1.25rem",
-              }}
-            >
+            <p className="backup-modal__desc">
               Tindakan ini akan menimpa/memperbarui data saat ini dengan isi file
               snapshot berikut:
             </p>
 
-            <div
-              style={{
-                background: "#030712",
-                border: "1px solid #1f2937",
-                borderRadius: "8px",
-                padding: "1rem",
-                marginBottom: "1.5rem",
-                fontSize: "0.825rem",
-                color: "#e2e8f0",
-              }}
-            >
-              <div style={{ marginBottom: "0.4rem" }}>
+            <div className="backup-modal__preview">
+              <div className="preview-row">
                 <strong>Waktu Snapshot:</strong>{" "}
                 {new Date(restorePreview.meta?.createdAt).toLocaleString("id-ID")}
               </div>
-              <div style={{ marginBottom: "0.4rem" }}>
+              <div className="preview-row">
                 <strong>Generator:</strong> {restorePreview.meta?.generator}
               </div>
-              <div>
+              <div className="preview-row">
                 <strong>Statistik Record:</strong>
-                <ul style={{ margin: "0.4rem 0 0 1rem", padding: 0 }}>
+                <ul className="preview-list">
                   <li>Produk: {restorePreview.meta?.counts?.products ?? 0}</li>
                   <li>Kategori: {restorePreview.meta?.counts?.categories ?? 0}</li>
                   <li>Pelanggan: {restorePreview.meta?.counts?.customers ?? 0}</li>
@@ -457,14 +391,7 @@ export function BackupClient({
               </div>
             </div>
 
-            <p
-              style={{
-                fontSize: "0.85rem",
-                color: "#fca5a5",
-                fontWeight: 600,
-                marginBottom: "0.75rem",
-              }}
-            >
+            <p className="backup-modal__warning">
               Ketik &ldquo;PULIHKAN DATABASE&rdquo; di bawah untuk melanjutkan:
             </p>
 
@@ -473,38 +400,15 @@ export function BackupClient({
               value={confirmInput}
               onChange={(e) => setConfirmInput(e.target.value)}
               placeholder="PULIHKAN DATABASE"
-              style={{
-                width: "100%",
-                padding: "0.75rem 1rem",
-                background: "#1f2937",
-                border: "1px solid #374151",
-                borderRadius: "8px",
-                color: "#ffffff",
-                marginBottom: "1.5rem",
-                fontSize: "0.9rem",
-              }}
+              className="backup-modal__input"
             />
 
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "flex-end",
-                gap: "0.75rem",
-              }}
-            >
+            <div className="backup-modal__actions">
               <button
                 type="button"
                 onClick={() => setShowRestoreModal(false)}
                 disabled={isPending}
-                style={{
-                  padding: "0.65rem 1.25rem",
-                  background: "transparent",
-                  border: "1px solid #374151",
-                  color: "#cbd5e1",
-                  borderRadius: "8px",
-                  cursor: "pointer",
-                  fontSize: "0.875rem",
-                }}
+                className="btn-cancel"
               >
                 Batal
               </button>
@@ -515,22 +419,11 @@ export function BackupClient({
                   isPending ||
                   confirmInput.trim().toUpperCase() !== "PULIHKAN DATABASE"
                 }
-                style={{
-                  padding: "0.65rem 1.25rem",
-                  background:
-                    confirmInput.trim().toUpperCase() === "PULIHKAN DATABASE"
-                      ? "#ef4444"
-                      : "#4b5563",
-                  border: "none",
-                  color: "#ffffff",
-                  borderRadius: "8px",
-                  cursor:
-                    confirmInput.trim().toUpperCase() === "PULIHKAN DATABASE"
-                      ? "pointer"
-                      : "not-allowed",
-                  fontWeight: 600,
-                  fontSize: "0.875rem",
-                }}
+                className={`btn-confirm ${
+                  confirmInput.trim().toUpperCase() === "PULIHKAN DATABASE"
+                    ? "btn-confirm--valid"
+                    : "btn-confirm--invalid"
+                }`}
               >
                 {isPending ? "Memulihkan Database..." : "Ya, Pulihkan Sekarang"}
               </button>

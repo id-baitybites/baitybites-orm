@@ -1,0 +1,31 @@
+.radix-tooltip {
+  &__content {
+    z-index: 10010;
+    padding: 6px 10px;
+    background: #0f172a;
+    color: #ffffff;
+    font-size: 0.65rem;
+    font-weight: 400;
+    line-height: 1.35;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    user-select: none;
+    animation: radix-tooltip-in 0.12s ease-out;
+  }
+
+  &__arrow {
+    fill: #0f172a;
+  }
+}
+
+@keyframes radix-tooltip-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

@@ -241,7 +241,7 @@ STORE_ADMIN_PIN="1234"
         const emailHtml = `
           <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 620px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #ffffff;">
             <div style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); padding: 26px 32px; color: #ffffff;">
-              <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; background: rgba(255,255,255,0.18); display: inline-block; padding: 4px 10px; border-radius: 12px; font-weight: 600; margin-bottom: 6px;">
+              <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; background: rgba(255,255,255,0.18); display: inline-block; padding: 4px 10px; border-radius: 12px; font-weight: 400; margin-bottom: 6px;">
                 Aktivasi Akun &amp; Instance
               </div>
               <h1 style="color: #ffffff; margin: 0; font-size: 21px; font-weight: 700;">Instance Siap &amp; Kredensial Client Admin</h1>
@@ -261,7 +261,7 @@ STORE_ADMIN_PIN="1234"
                 <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
                   <tr>
                     <td style="padding: 6px 0; color: #64748b; width: 160px;">Portal Login:</td>
-                    <td style="padding: 6px 0;"><a href="${loginUrl}" style="color: #4f46e5; font-weight: 600;">${baseUrl}/admin</a></td>
+                    <td style="padding: 6px 0;"><a href="${loginUrl}" style="color: #4f46e5; font-weight: 400;">${baseUrl}/admin</a></td>
                   </tr>
                   <tr>
                     <td style="padding: 6px 0; color: #64748b;">Username:</td>
@@ -277,7 +277,7 @@ STORE_ADMIN_PIN="1234"
                   </tr>
                   <tr>
                     <td style="padding: 6px 0; color: #64748b;">Hak Akses / Role:</td>
-                    <td style="padding: 6px 0; font-weight: 600; color: #059669;">SUPER_ADMIN (Owner Toko)</td>
+                    <td style="padding: 6px 0; font-weight: 400; color: #059669;">SUPER_ADMIN (Owner Toko)</td>
                   </tr>
                 </table>
               </div>
@@ -304,7 +304,7 @@ STORE_ADMIN_PIN="1234"
                   <code style="background: #ffffff; padding: 4px 8px; border: 1px solid #cbd5e1; border-radius: 4px; display: block; margin-top: 4px; font-size: 12px; word-break: break-all;">${finalCloneCommand}</code>
                 </p>
                 <p style="margin: 0 0 8px;"><strong>Editor Cloud Instan (Tanpa Install):</strong><br />
-                  <a href="${finalVscodeDevUrl}" style="color: #0284c7; font-weight: 600;">Buka Langsung di VS Code Web (vscode.dev) &rarr;</a>
+                  <a href="${finalVscodeDevUrl}" style="color: #0284c7; font-weight: 400;">Buka Langsung di VS Code Web (vscode.dev) &rarr;</a>
                 </p>
               </div>
 
@@ -315,7 +315,7 @@ STORE_ADMIN_PIN="1234"
               </div>
 
               <div style="margin: 26px 0 16px;">
-                <p style="margin: 0 0 6px; font-weight: 600;">Alur Otentikasi &amp; Setup:</p>
+                <p style="margin: 0 0 6px; font-weight: 400;">Alur Otentikasi &amp; Setup:</p>
                 <ol style="margin: 0; padding-left: 20px; font-size: 13px; color: #475569;">
                   <li>Klik tombol <strong>Login Client Admin</strong> di atas dan masukkan username serta password resmi Anda.</li>
                   <li>Setelah terotentikasi, sistem akan mengarahkan Anda ke Wizard Setup &amp; Onboarding untuk melengkapi nama brand, warna visual, dan menu toko Anda.</li>

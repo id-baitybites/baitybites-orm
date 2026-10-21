@@ -43,3 +43,6 @@ next-env.d.ts
 
 # database backups (gunakan GitHub Actions artifacts, bukan di repo)
 /backups
+
+# temporary scratchpad / debug scripts
+/scratch

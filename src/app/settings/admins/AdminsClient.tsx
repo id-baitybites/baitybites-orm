@@ -28,14 +28,14 @@ import "./admins.scss";
 function getRoleBadge(role?: string) {
   switch (role) {
     case "PLATFORM_OWNER":
-      return { label: "Platform Owner", bg: "#4f46e5", text: "#ffffff" };
+      return { label: "Platform Owner", className: "admin-card__role-badge--owner" };
     case "KASIR":
-      return { label: "Kasir (POS & Orders)", bg: "#059669", text: "#ffffff" };
+      return { label: "Kasir (POS & Orders)", className: "admin-card__role-badge--kasir" };
     case "KITCHEN_STAFF":
-      return { label: "Kitchen Staff (KDS)", bg: "#d97706", text: "#ffffff" };
+      return { label: "Kitchen Staff (KDS)", className: "admin-card__role-badge--kitchen" };
     case "SUPER_ADMIN":
     default:
-      return { label: "Super Admin", bg: "#ea580c", text: "#ffffff" };
+      return { label: "Super Admin", className: "admin-card__role-badge--super" };
   }
 }
 
@@ -101,23 +101,12 @@ function AdminCard({
           <HugeiconsIcon icon={UserIcon as IconSvgElement} size={20} strokeWidth={1.8} />
         </span>
         <div className="admin-card__info">
-          <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+          <div className="admin-card__name-row">
             <strong className="admin-card__name">
               {admin.displayName}
               {isSelf && <span className="admin-card__self-badge">Anda</span>}
             </strong>
-            <span
-              style={{
-                fontSize: "0.68rem",
-                fontWeight: 700,
-                padding: "2px 8px",
-                borderRadius: "6px",
-                background: roleBadge.bg,
-                color: roleBadge.text,
-                letterSpacing: "0.02em",
-                textTransform: "uppercase",
-              }}
-            >
+            <span className={`admin-card__role-badge ${roleBadge.className}`}>
               {roleBadge.label}
             </span>
           </div>
@@ -134,21 +123,13 @@ function AdminCard({
       </div>
 
       {!isSelf && (
-        <div style={{ padding: "8px 16px", background: "rgba(255,255,255,0.03)", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px" }}>
-          <span style={{ fontSize: "0.78rem", color: "#9ca3af" }}>Ubah Role:</span>
+        <div className="admin-card__role-bar">
+          <span className="role-label">Ubah Role:</span>
           <select
             value={admin.role || "SUPER_ADMIN"}
             disabled={isPending}
             onChange={(e) => handleRoleChange(e.target.value)}
-            style={{
-              padding: "4px 8px",
-              fontSize: "0.78rem",
-              borderRadius: "6px",
-              background: "#1f2937",
-              color: "#f3f4f6",
-              border: "1px solid #374151",
-              cursor: "pointer",
-            }}
+            className="role-select"
           >
             <option value="SUPER_ADMIN">👑 Super Admin</option>
             <option value="KASIR">🧾 Kasir (POS & Orders)</option>
@@ -298,23 +279,13 @@ function PromoteForm({ onSuccess }: { onSuccess: () => void }) {
           </div>
         </div>
 
-        <div className="promote-form__row">
-          <div className="form-field" style={{ width: "100%" }}>
+        <div className="promote-form__row promote-form__row--full">
+          <div className="form-field form-field--full">
             <label htmlFor="pf-role">Role Akses</label>
             <select
               id="pf-role"
               name="role"
               defaultValue="SUPER_ADMIN"
-              style={{
-                width: "100%",
-                padding: "8px 12px",
-                borderRadius: "8px",
-                background: "#1f2937",
-                border: "1px solid #374151",
-                color: "#f3f4f6",
-                fontSize: "0.875rem",
-                marginTop: "4px",
-              }}
             >
               <option value="SUPER_ADMIN">👑 Super Admin Toko (Akses Penuh Semua Modul)</option>
               <option value="KASIR">🧾 Kasir (Point of Sale, Orders & Pelanggan)</option>
