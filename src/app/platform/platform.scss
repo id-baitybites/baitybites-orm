@@ -116,7 +116,7 @@
       a {
         color: var(--platform-text-muted);
         text-decoration: none;
-        font-size: 0.65rem;
+        font-size: 0.85rem;
         font-weight: 450;
         transition: color 0.15s ease;
 
@@ -231,14 +231,15 @@
       justify-content: center;
       gap: 1rem;
       flex-wrap: wrap;
+      font-size: 1rem;
 
       .btn-hero-primary {
         display: inline-flex;
         align-items: center;
+        font-size: inherit;
         gap: 0.5rem;
         padding: 0.85rem 1.6rem;
         border-radius: 8px;
-        font-size: 0.65rem;
         font-weight: 550;
         color: #ffffff;
         background: var(--platform-accent);
@@ -257,7 +258,7 @@
         gap: 0.5rem;
         padding: 0.85rem 1.4rem;
         border-radius: 8px;
-        font-size: 0.65rem;
+        font-size: inherit;
         font-weight: 400;
         color: var(--platform-text);
         background: #ffffff;
@@ -310,7 +311,6 @@
 
     .case-card {
       background: #ffffff;
-      border: 1px solid var(--platform-border);
       border-radius: 12px;
       padding: 2.25rem;
       display: grid;
@@ -440,14 +440,13 @@
 
       .feature-card {
         background: #ffffff;
-        border: 1px solid var(--platform-border);
         border-radius: 10px;
         padding: 1.5rem;
         transition: border-color 0.15s ease, box-shadow 0.15s ease;
 
         &:hover {
           border-color: #cbd5e1;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+          box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.25);
         }
 
         .icon-box {
@@ -527,12 +526,10 @@
 
       .price-card {
         background: #ffffff;
-        border: 1px solid var(--platform-border);
         border-radius: 12px;
         padding: 1.85rem;
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
         position: relative;
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
 
@@ -557,6 +554,7 @@
         }
 
         .plan-header {
+          height: 100px;
           margin-bottom: 1.25rem;
 
           .plan-name {
@@ -618,6 +616,7 @@
         }
 
         .btn-select-plan {
+          margin-top: auto;
           width: 100%;
           padding: 0.75rem 1rem;
           border-radius: 8px;
@@ -737,7 +736,7 @@
   /* ── Footer ─────────────────────────────────────── */
   &__footer {
     border-top: 1px solid var(--platform-border);
-    background: #ffffff;
+    background: var(--platform-text);
     padding: 3.5rem 1.5rem 2rem;
     margin-top: 5rem;
 
@@ -759,11 +758,11 @@
           gap: 0.5rem;
           font-size: 1rem;
           font-weight: 400;
-          color: #0f172a;
+          color: var(--platform-accent);
           margin-bottom: 0.75rem;
 
           span {
-            color: var(--platform-accent);
+            color: var(--platform-teal);
           }
         }
 
@@ -779,7 +778,7 @@
         h4 {
           font-size: 0.825rem;
           font-weight: 400;
-          color: #0f172a;
+          color: var(--platform-emerald);
           text-transform: uppercase;
           letter-spacing: 0.05em;
           margin: 0 0 0.85rem 0;
@@ -800,7 +799,7 @@
             transition: color 0.15s ease;
 
             &:hover {
-              color: var(--platform-text);
+              color: var(--platform-surface);
             }
           }
         }
@@ -811,7 +810,7 @@
       max-width: 1080px;
       margin: 2.5rem auto 0;
       padding-top: 1.5rem;
-      border-top: 1px solid var(--platform-border-subtle);
+      border-top: 1px solid var(--platform-text-muted);
       display: flex;
       justify-content: space-between;
       align-items: center;

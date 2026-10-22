@@ -283,6 +283,14 @@ export default function PlatformLandingPage() {
         <div className="platform-landing__footer-inner">
           <div className="footer-about">
             <div className="logo-wrap">
+              <Image
+                src={platformIcon}
+                alt="Baitybites ORM"
+                width={36}
+                height={36}
+                className="brand-badge-img"
+                priority
+              />
               <span>Baitybites</span> ORM
             </div>
             <p>
