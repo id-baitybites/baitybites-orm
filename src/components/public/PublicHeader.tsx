@@ -96,19 +96,12 @@ export function PublicHeader({
               alt={`${effectiveBrand} Logo`}
               width={140}
               height={38}
-              style={{ height: "auto" }}
+              style={{ width: "auto", height: "auto" }}
               className="public-header__brand-logo"
               priority
             />
           ) : effectiveBrand.toLowerCase() !== "baitybites" ? (
-            <span
-              style={{
-                fontSize: "1.25rem",
-                fontWeight: 800,
-                color: "#f8fafc",
-                letterSpacing: "-0.02em",
-              }}
-            >
+            <span className="public-header__brand-name">
               {effectiveBrand}
             </span>
           ) : (
@@ -117,7 +110,7 @@ export function PublicHeader({
               alt="Baitybites Logo"
               width={140}
               height={38}
-              style={{ height: "auto" }}
+              style={{ width: "auto", height: "auto" }}
               className="public-header__brand-logo"
               priority
             />

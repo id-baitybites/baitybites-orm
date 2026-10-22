@@ -2,6 +2,7 @@
 
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
+import { dispatchWebhookEvent } from "@/lib/webhook-dispatcher";
 import type { OrderStatus } from "@prisma/client";
 
 export type { OrderStatus };
@@ -276,6 +277,16 @@ export async function updateOrderStatusAction(
     revalidatePath("/orders");
     revalidatePath(`/orders/${orderId}`);
     revalidatePath("/kitchen");
+
+    // Asynchronous Webhook Dispatch
+    dispatchWebhookEvent("order.status_updated", {
+      orderId,
+      status: newStatus,
+      note: note ?? null,
+      updatedAt: new Date().toISOString(),
+    }).catch((whErr) => {
+      console.warn("Async webhook order.status_updated notice:", whErr?.message);
+    });
 
     return { success: true };
   } catch (err) {

@@ -508,8 +508,8 @@ function PaketLisensiSection() {
             </div>
             <ul className="tier-features">
               <li>Unlimited Cabang &amp; Outlet</li>
-              <li>Dedicated Neon Branch Database</li>
-              <li>Prioritas SLA 99.9% Uptime</li>
+              <li>100% Isolated Database Schema (Neon PostgreSQL)</li>
+              <li>Prioritas SLA 99.9% High Availability</li>
               <li>Dukungan Custom Domain Mandiri</li>
               <li>Akses API &amp; Webhook Lengkap</li>
             </ul>

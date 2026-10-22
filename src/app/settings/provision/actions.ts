@@ -5,6 +5,7 @@ import { Client } from "pg";
 import * as bcrypt from "bcryptjs";
 import { sendEmailWithFallback } from "@/lib/email-service";
 import { db } from "@/lib/db";
+import { provisionClientDatabaseBranch } from "@/lib/neon-branch";
 
 export interface ProvisionRequest {
   clientName: string;
@@ -97,8 +98,14 @@ DIRECT_URL="${maskSecret(clientDirectUrl)}"
 STORE_ADMIN_PIN="1234"
 `;
 
-    // 1. Eksekusi Pembuatan Skema Database Terisolasi di Neon PostgreSQL
+    // 1. Eksekusi Pembuatan Dedicated Branch / Skema Database Terisolasi di Neon PostgreSQL
     let schemaCreated = false;
+    try {
+      await provisionClientDatabaseBranch(cleanSlug, { isEnterprise: true });
+    } catch (branchErr: any) {
+      console.warn("Neon branch provisioning notice:", branchErr?.message);
+    }
+
     if (process.env.DIRECT_URL) {
       try {
         const dbClient = new Client({
