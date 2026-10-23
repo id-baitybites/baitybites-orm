@@ -175,7 +175,7 @@ function ProfilPlatformSection() {
           <Link href="/settings/provision" className="ecosystem-card">
             <div className="card-badge">Generator</div>
             <strong>Generator Instance Repositori</strong>
-            <p>Otomasi duplikasi repositori blueprint dan isolasi skema Neon PostgreSQL klien baru.</p>
+            <p>Otomasi duplikasi repositori blueprint dan isolasi skema database PostgreSQL klien baru.</p>
           </Link>
         </div>
       </div>
@@ -185,7 +185,7 @@ function ProfilPlatformSection() {
 
 // ─── 2. Multi-Tenant Engine & Database ───────────────────────────────────────
 function MultiTenantEngineSection() {
-  const [dbProvider] = useState("Neon Serverless PostgreSQL (Singapore Region - ap-southeast-1)");
+  const [dbProvider] = useState("Serverless PostgreSQL (Singapore Region - ap-southeast-1)");
   const [masterRepo] = useState("id-baitybites/baitybites-orm");
   const [targetOrg] = useState("id-baitybites");
 
@@ -196,7 +196,7 @@ function MultiTenantEngineSection() {
         <div>
           <strong>Router Multi-Tenant Database Terisolasi</strong>
           <p>
-            Arsitektur <em>Schema-per-Tenant</em> aktif via Neon PostgreSQL. Data transaksi, katalog produk,
+            Arsitektur <em>Schema-per-Tenant</em> aktif via Serverless PostgreSQL. Data transaksi, katalog produk,
             dan konfigurasi tiap klien terpisah 100% pada namespace database mandiri (Zero Collision).
           </p>
         </div>
@@ -219,11 +219,11 @@ function MultiTenantEngineSection() {
           <label className="settings-field">
             <span>
               <HugeiconsIcon icon={Globe02Icon} size={14} />
-              Target Organisasi GitHub Klien
+              Target Organisasi Repositori Klien
             </span>
             <input value={targetOrg} readOnly className="input-readonly" />
             <span className="settings-field__hint">
-              Organisasi resmi GitHub tempat repositori private setiap klien digenerate.
+              Organisasi resmi tempat repositori private setiap klien digenerate secara otomatis.
             </span>
           </label>
 
@@ -247,7 +247,7 @@ function MultiTenantEngineSection() {
             <span className="status-label">Status Router Multi-Tenant:</span>
             <strong className="status-badge">
               <HugeiconsIcon icon={CheckmarkCircle02Icon} size={14} />
-              Neon Multi-Tenant Active &amp; Isolated
+              Multi-Tenant Active &amp; Isolated
             </strong>
           </div>
           <div className="status-row">
@@ -394,7 +394,7 @@ function GatewayNotifikasiSection() {
   return (
     <div className="settings-panel__body">
       <div className="settings-section-group">
-        <p className="settings-section-group__title">Pengirim Email Transaksional (Brevo &amp; Resend)</p>
+        <p className="settings-section-group__title">Pengirim Email Transaksional</p>
         <div className="settings-field-row">
           <label className="settings-field">
             <span>
@@ -424,7 +424,7 @@ function GatewayNotifikasiSection() {
         </div>
         <div className="settings-field">
           <span className="settings-field__hint">
-            Kredensial API Key diamankan via server environment secret <code>BREVO_API_KEY</code> &amp; <code>RESEND_API_KEY</code>.
+            Kredensial API Key diamankan via server environment secret <code>EMAIL_API_KEY</code>.
           </span>
         </div>
       </div>
@@ -508,8 +508,8 @@ function PaketLisensiSection() {
             </div>
             <ul className="tier-features">
               <li>Unlimited Cabang &amp; Outlet</li>
-              <li>100% Isolated Database Schema (Neon PostgreSQL)</li>
-              <li>Prioritas SLA 99.9% High Availability</li>
+              <li>Dedicated Branch Database</li>
+              <li>Prioritas SLA 99.9% Uptime</li>
               <li>Dukungan Custom Domain Mandiri</li>
               <li>Akses API &amp; Webhook Lengkap</li>
             </ul>
@@ -601,7 +601,7 @@ const SECTION_PANEL: Record<
     component: <ProfilPlatformSection />,
   },
   "multi-tenant-engine": {
-    description: "Infrastruktur database Neon PostgreSQL, router skema terisolasi, dan master blueprint upstream repositori.",
+    description: "Infrastruktur database PostgreSQL, router skema terisolasi, dan master blueprint upstream repositori.",
     component: <MultiTenantEngineSection />,
   },
   "billing-vendor": {
@@ -609,7 +609,7 @@ const SECTION_PANEL: Record<
     component: <BillingVendorSection />,
   },
   "gateway-notifikasi": {
-    description: "Pengaturan pengirim email Brevo / Resend dan otomasi notifikasi transaksional onboarding klien.",
+    description: "Pengaturan pengirim email transaksional dan otomasi notifikasi onboarding klien.",
     component: <GatewayNotifikasiSection />,
   },
   "paket-lisensi": {

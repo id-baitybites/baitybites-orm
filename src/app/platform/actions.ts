@@ -139,19 +139,19 @@ export async function sendSubscriptionEmail(
   `;
 
   try {
-    // 1. Kirim email notifikasi ke Platform Owner via Brevo
+    // 1. Kirim email notifikasi ke Platform Owner via email transaksional
     const ownerResult = await sendEmailWithFallback({
       to: PLATFORM_EMAIL,
       replyTo: data.email,
-      subject: `🔔 Permintaan Langganan Baru — ${planLabel} (${data.businessName})`,
+      subject: `Permintaan Langganan Baru - ${planLabel} (${data.businessName})`,
       html: ownerHtml,
     });
 
     if (!ownerResult.success) {
-      console.warn("[Brevo Warning - Owner Email]", ownerResult.error);
+      console.warn("[Email Warning - Owner Email]", ownerResult.error);
     }
 
-    // 2. Kirim email konfirmasi ke Calon Klien via Brevo
+    // 2. Kirim email konfirmasi ke Calon Klien via email transaksional
     const clientEmailResult = await sendEmailWithFallback({
       to: data.email,
       subject: `Terima Kasih! Permintaan Langganan ${planLabel} Anda Telah Diterima`,
@@ -160,13 +160,13 @@ export async function sendSubscriptionEmail(
     });
 
     if (!clientEmailResult.success) {
-      console.warn("[Brevo Warning - Client Email]", clientEmailResult.error);
+      console.warn("[Email Warning - Client Email]", clientEmailResult.error);
       if (savedLeadId) {
         try {
           await updateLeadStatus(
             savedLeadId,
             "BARU",
-            `⚠️ Email resume konfirmasi gagal terkirim otomatis (${clientEmailResult.error || "Gagal Brevo"}). Gunakan tombol "Kirim Resume" di menu Leads.`
+            `Email resume konfirmasi gagal terkirim otomatis (${clientEmailResult.error || "Gagal email"}). Gunakan tombol "Kirim Resume" di menu Leads.`
           );
         } catch {
           // ignore

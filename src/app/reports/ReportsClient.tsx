@@ -311,7 +311,7 @@ export function ReportsClient({ initialData }: ReportsClientProps) {
             {data.operational.completionRate}%
           </div>
           <div className="reports-kpi-card__sub">
-            {data.operational.completedOrders} Selesai • {data.operational.inProgressOrders} Diproses
+            {data.operational.completedOrders} Selesai / {data.operational.inProgressOrders} Diproses
           </div>
         </div>
       </div>
@@ -593,7 +593,7 @@ export function ReportsClient({ initialData }: ReportsClientProps) {
                     <div className="meter-item__label-row">
                       <strong className="meter-item__title">{ch.label}</strong>
                       <span className="meter-item__stat">
-                        {ch.orderCount} Order • Rp {ch.totalRevenue.toLocaleString("id-ID")}
+                        {ch.orderCount} Order - Rp {ch.totalRevenue.toLocaleString("id-ID")}
                       </span>
                     </div>
                     <div className="meter-item__track">
@@ -626,7 +626,7 @@ export function ReportsClient({ initialData }: ReportsClientProps) {
                     <div className="meter-item__label-row">
                       <strong className="meter-item__title">{pm.label}</strong>
                       <span className="meter-item__stat">
-                        {pm.paidTransactions}/{pm.totalTransactions} Lunas • Rp {pm.totalAmount.toLocaleString("id-ID")}
+                        {pm.paidTransactions}/{pm.totalTransactions} Lunas - Rp {pm.totalAmount.toLocaleString("id-ID")}
                       </span>
                     </div>
                     <div className="meter-item__track">
@@ -653,7 +653,7 @@ export function ReportsClient({ initialData }: ReportsClientProps) {
             <div className="reports-card__header">
               <h3>Pelanggan Teratas (Top Spenders)</h3>
               <span>
-                {data.totalCustomerCount > 0 ? `${data.totalCustomerCount} Pelanggan Terdaftar • ` : ""}
+                {data.totalCustomerCount > 0 ? `${data.totalCustomerCount} Pelanggan Terdaftar - ` : ""}
                 Berdasarkan akumulasi nilai pesanan
               </span>
             </div>

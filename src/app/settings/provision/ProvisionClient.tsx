@@ -212,7 +212,7 @@ export default function ProvisionClient() {
                   <div className="result-banner is-schema">
                     <HugeiconsIcon icon={CheckmarkCircle02Icon} size={18} />
                     <span>
-                      Skema database terisolasi <code>{result.schemaName}</code> aktif di Neon PostgreSQL. Data 100% terpisah dari klien lain!
+                      Skema database terisolasi <code>{result.schemaName}</code> aktif di Cloud PostgreSQL. Data 100% terpisah dari klien lain!
                     </span>
                   </div>
                 )}
@@ -325,7 +325,7 @@ export default function ProvisionClient() {
           <div className="provision-empty">
             <HugeiconsIcon icon={FolderOpenIcon} size={48} className="empty-icon" />
             <p>
-              Isi data brand klien di samping untuk menghasilkan tautan GitHub Repository &amp; akses vscode.dev secara otomatis.
+              Isi data brand klien di samping untuk menghasilkan tautan repositori kode klien &amp; akses editor cloud secara otomatis.
             </p>
           </div>
         )}

@@ -534,12 +534,12 @@ Mohon diproses ya kak. Terima kasih!`;
                   <div className="sameday-origin-info">
                     <HugeiconsIcon icon={Location01Icon} size={18} className="origin-icon" />
                     <div>
-                      <div>Titik Asal Paxel: <strong>{PAXEL_STORE_ORIGIN.name}</strong></div>
+                      <div>Titik Asal Ekspedisi: <strong>{PAXEL_STORE_ORIGIN.name}</strong></div>
                       <small style={{ color: "#64748b", display: "block", marginTop: "2px" }}>
                         {PAXEL_STORE_ORIGIN.address}
                       </small>
                       <div className="sameday-calc-hint" style={{ marginTop: "4px" }}>
-                        Tarif Paxel ({deliveryCity} • Size {packageSizeInfo.size}):{" "}
+                        Tarif Pengiriman ({deliveryCity} - Ukuran {packageSizeInfo.size}):{" "}
                         <strong>Rp {deliveryFee.toLocaleString("id-ID")}</strong> (diterapkan ke total tagihan).
                       </div>
                     </div>

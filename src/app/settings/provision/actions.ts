@@ -37,9 +37,9 @@ export interface ProvisionResult {
 
 /**
  * Server Action: Provisioning Client Repository
- * 1. Membuat schema PostgreSQL terisolasi khusus di Neon Database
- * 2. Meng-generate repository dari template master di GitHub
- * 3. Mengirimkan kredensial & preset .env otomatis ke email klien via Brevo
+ * 1. Membuat schema PostgreSQL terisolasi khusus di Database Cloud
+ * 2. Meng-generate repository dari template master di Repositori
+ * 3. Mengirimkan kredensial & preset .env otomatis ke email klien via email transaksional
  */
 export async function provisionClientRepository(
   payload: ProvisionRequest
@@ -74,15 +74,15 @@ export async function provisionClientRepository(
         clientDbUrl = `${clientDbUrl}?schema=${sanitizedSlugUnderscore}`;
       }
     } else {
-      clientDbUrl = `postgresql://db_user:password@neon.tech/neondb?sslmode=require&schema=${sanitizedSlugUnderscore}`;
+      clientDbUrl = `postgresql://db_user:password@cloud-db.internal/appdb?sslmode=require&schema=${sanitizedSlugUnderscore}`;
     }
 
     const clientDirectUrl =
       process.env.DIRECT_URL?.trim() ||
-      "postgresql://db_user:password@neon.tech/neondb?sslmode=require";
+      "postgresql://db_user:password@cloud-db.internal/appdb?sslmode=require";
 
     // Masking kredensial sensitif untuk tampilan browser & email klien
-    const maskSecret = (url: string) => url.replace(/:\/\/[^:]+:([^@]+)@/, "://neondb_owner:••••••••@");
+    const maskSecret = (url: string) => url.replace(/:\/\/[^:]+:([^@]+)@/, "://db_owner:••••••••@");
 
     const envPreset = `# === KONFIGURASI INSTANCE CLIENT: ${payload.clientName.toUpperCase()} ===
 NEXT_PUBLIC_STORE_NAME="${payload.clientName}"
@@ -98,12 +98,12 @@ DIRECT_URL="${maskSecret(clientDirectUrl)}"
 STORE_ADMIN_PIN="1234"
 `;
 
-    // 1. Eksekusi Pembuatan Dedicated Branch / Skema Database Terisolasi di Neon PostgreSQL
+    // 1. Eksekusi Pembuatan Dedicated Branch / Skema Database Terisolasi di PostgreSQL
     let schemaCreated = false;
     try {
       await provisionClientDatabaseBranch(cleanSlug, { isEnterprise: true });
     } catch (branchErr: any) {
-      console.warn("Neon branch provisioning notice:", branchErr?.message);
+      console.warn("DB branch provisioning notice:", branchErr?.message);
     }
 
     if (process.env.DIRECT_URL) {
@@ -117,11 +117,11 @@ STORE_ADMIN_PIN="1234"
         await dbClient.end();
         schemaCreated = true;
       } catch (dbErr: any) {
-        console.warn("Neon DB schema provision notice:", dbErr?.message);
+        console.warn("DB schema provision notice:", dbErr?.message);
       }
     }
 
-    // 2. Eksekusi otomatis via GitHub REST API jika token tersedia
+    // 2. Eksekusi otomatis via Repositori REST API jika token tersedia
     let finalRepoUrl = `https://github.com/${targetOwner}/${cleanSlug}`;
     let finalCloneCommand = `git clone ${finalRepoUrl}.git`;
     let finalVscodeDevUrl = `https://vscode.dev/github/${targetOwner}/${cleanSlug}`;
@@ -162,7 +162,7 @@ STORE_ADMIN_PIN="1234"
           finalRepoUrl = ghData.html_url;
           finalCloneCommand = `git clone ${ghData.clone_url || finalRepoUrl + ".git"}`;
           finalVscodeDevUrl = `https://vscode.dev/github/${ghData.full_name}`;
-          successMessage = `Repository klien '${ghData.full_name}' berhasil dibuat secara otomatis di GitHub!`;
+          successMessage = `Repository klien '${ghData.full_name}' berhasil dibuat secara otomatis di Git!`;
         } else {
           // Jika target org tidak ditemukan (misal: baitybites-clients), coba fallback buat di akun personal id-baitybites
           if (!isSelfUser && (ghResponse.status === 404 || ghResponse.status === 422)) {
@@ -195,11 +195,11 @@ STORE_ADMIN_PIN="1234"
           }
         }
       } catch (apiErr: any) {
-        console.warn("GitHub API fetch failure:", apiErr?.message);
+        console.warn("Repositori API fetch failure:", apiErr?.message);
       }
     }
 
-    // 3. Auto-Generate Akun Client Admin & Pengiriman Email Kredensial via Brevo
+    // 3. Auto-Generate Akun Client Admin & Pengiriman Email Kredensial via Email Transaksional
     let emailSent = false;
     let emailRecipient: string | undefined = undefined;
 
@@ -242,7 +242,7 @@ STORE_ADMIN_PIN="1234"
 
     if (payload.clientEmail?.trim()) {
       try {
-        const baseUrl = process.env.NEXT_PUBLIC_APP_URL?.trim() || "https://baitybites-orm.vercel.app";
+        const baseUrl = process.env.NEXT_PUBLIC_APP_URL?.trim() || "https://baitybites.site";
         const loginUrl = `${baseUrl}/admin?from=%2Fonboarding`;
 
         const emailHtml = `
@@ -291,10 +291,10 @@ STORE_ADMIN_PIN="1234"
 
               <!-- CTA LOGIN OTENTIKASI & ONBOARDING -->
               <div style="background: #eef2ff; border: 2px solid #6366f1; border-radius: 10px; padding: 22px; margin: 24px 0; text-align: center;">
-                <h3 style="margin: 0 0 6px; font-size: 16px; color: #3730a3;">🔐 Autentikasi &amp; Lanjut Onboarding Toko</h3>
+                <h3 style="margin: 0 0 6px; font-size: 16px; color: #3730a3;">Autentikasi &amp; Lanjut Onboarding Toko</h3>
                 <p style="margin: 0 0 16px; font-size: 13px; color: #4338ca;">Demi keamanan sistem, Anda diwajibkan melakukan autentikasi login terlebih dahulu sebelum masuk ke Wizard Setup Brand dan Menu:</p>
                 <a href="${loginUrl}" style="display: inline-block; background: #4f46e5; color: #ffffff; padding: 14px 30px; border-radius: 8px; font-weight: 700; text-decoration: none; font-size: 14px; box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.25);">
-                  🔐 Login Client Admin &amp; Setup Toko &rarr;
+                  Login Client Admin &amp; Setup Toko &rarr;
                 </a>
                 <p style="margin: 12px 0 0; font-size: 12px; color: #6366f1;">
                   Tautan login resmi: <a href="${loginUrl}" style="color: #4f46e5; word-break: break-all;">${loginUrl}</a>
@@ -304,20 +304,20 @@ STORE_ADMIN_PIN="1234"
               <!-- DETAIL REPOSITORI & ENVIRONMENT -->
               <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 18px 20px; margin: 20px 0;">
                 <h3 style="margin: 0 0 12px; font-size: 14px; color: #0284c7; text-transform: uppercase; letter-spacing: 0.05em;">Detail Repositori Dedicated:</h3>
-                <p style="margin: 0 0 8px;"><strong>URL Repositori GitHub:</strong><br />
+                <p style="margin: 0 0 8px;"><strong>URL Repositori Git:</strong><br />
                   <a href="${finalRepoUrl}" style="color: #0284c7; word-break: break-all;">${finalRepoUrl}</a>
                 </p>
                 <p style="margin: 0 0 8px;"><strong>Perintah Kloning Git:</strong><br />
                   <code style="background: #ffffff; padding: 4px 8px; border: 1px solid #cbd5e1; border-radius: 4px; display: block; margin-top: 4px; font-size: 12px; word-break: break-all;">${finalCloneCommand}</code>
                 </p>
                 <p style="margin: 0 0 8px;"><strong>Editor Cloud Instan (Tanpa Install):</strong><br />
-                  <a href="${finalVscodeDevUrl}" style="color: #0284c7; font-weight: 400;">Buka Langsung di VS Code Web (vscode.dev) &rarr;</a>
+                  <a href="${finalVscodeDevUrl}" style="color: #0284c7; font-weight: 400;">Buka Langsung di Cloud Editor (vscode.dev)</a>
                 </p>
               </div>
 
               <div style="background: #fdfbf7; border: 1px solid #fed7aa; border-radius: 8px; padding: 18px 20px; margin: 20px 0;">
                 <h3 style="margin: 0 0 10px; font-size: 14px; color: #ea580c; text-transform: uppercase; letter-spacing: 0.05em;">Konfigurasi Lingkungan Database (.env):</h3>
-                <p style="margin: 0 0 6px; font-size: 13px;"><strong>Skema Database:</strong> <code style="background: #ffffff; padding: 2px 6px; border: 1px solid #cbd5e1; border-radius: 4px;">${sanitizedSlugUnderscore}</code> (Terisolasi di Neon PostgreSQL)</p>
+                <p style="margin: 0 0 6px; font-size: 13px;"><strong>Skema Database:</strong> <code style="background: #ffffff; padding: 2px 6px; border: 1px solid #cbd5e1; border-radius: 4px;">${sanitizedSlugUnderscore}</code> (Terisolasi di Cloud PostgreSQL)</p>
                 <pre style="background: #ffffff; padding: 12px; border: 1px solid #fed7aa; border-radius: 6px; font-size: 11px; overflow-x: auto; margin-top: 10px; color: #334155;">${envPreset}</pre>
               </div>
 
@@ -340,7 +340,7 @@ STORE_ADMIN_PIN="1234"
 
         const emailSendResult = await sendEmailWithFallback({
           to: payload.clientEmail.trim(),
-          subject: `🔐 Kredensial Otentikasi Resmi Client Admin & Akses Onboarding Toko — ${payload.clientName}`,
+          subject: `Kredensial Otentikasi Resmi Client Admin & Akses Onboarding Toko — ${payload.clientName}`,
           html: emailHtml,
         });
 
@@ -349,7 +349,7 @@ STORE_ADMIN_PIN="1234"
           emailRecipient = emailSendResult.deliveredTo;
         }
       } catch (mailErr: any) {
-        console.warn("Brevo automated provision email notice:", mailErr?.message);
+        console.warn("Automated provision email notice:", mailErr?.message);
       }
     }
 

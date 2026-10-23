@@ -131,9 +131,9 @@ function AdminCard({
             onChange={(e) => handleRoleChange(e.target.value)}
             className="role-select"
           >
-            <option value="SUPER_ADMIN">👑 Super Admin</option>
-            <option value="KASIR">🧾 Kasir (POS & Orders)</option>
-            <option value="KITCHEN_STAFF">🍳 Kitchen Staff (KDS)</option>
+            <option value="SUPER_ADMIN">Super Admin</option>
+            <option value="KASIR">Kasir (POS & Orders)</option>
+            <option value="KITCHEN_STAFF">Kitchen Staff (KDS)</option>
           </select>
         </div>
       )}
@@ -287,9 +287,9 @@ function PromoteForm({ onSuccess }: { onSuccess: () => void }) {
               name="role"
               defaultValue="SUPER_ADMIN"
             >
-              <option value="SUPER_ADMIN">👑 Super Admin Toko (Akses Penuh Semua Modul)</option>
-              <option value="KASIR">🧾 Kasir (Point of Sale, Orders & Pelanggan)</option>
-              <option value="KITCHEN_STAFF">🍳 Kitchen Staff (Layar Dapur KDS & Batching Produksi)</option>
+              <option value="SUPER_ADMIN">Super Admin Toko (Akses Penuh Semua Modul)</option>
+              <option value="KASIR">Kasir (Point of Sale, Orders & Pelanggan)</option>
+              <option value="KITCHEN_STAFF">Kitchen Staff (Layar Dapur KDS & Batching Produksi)</option>
             </select>
           </div>
         </div>

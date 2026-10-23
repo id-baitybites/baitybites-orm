@@ -709,7 +709,7 @@ export function CmsClient({
                       <div className="testimonial-card__meta">
                         <span className="testimonial-card__name">{t.author}</span>
                         <span className="testimonial-card__subtitle">
-                          {t.role || "Pelanggan"} {t.city ? `• ${t.city}` : ""}
+                          {t.role || "Pelanggan"} {t.city ? `- ${t.city}` : ""}
                         </span>
                       </div>
                     </div>
@@ -1137,7 +1137,7 @@ export function CmsClient({
                         Klik atau pilih file gambar foto
                       </span>
                       <span style={{ fontSize: "11px", color: "var(--text-muted, #64748b)" }}>
-                        Format PNG, JPG, JPEG, WEBP • Disimpan di folder <strong>Gallery</strong>
+                        Format PNG, JPG, JPEG, WEBP - Disimpan di folder <strong>Gallery</strong>
                       </span>
                     </div>
                   </div>

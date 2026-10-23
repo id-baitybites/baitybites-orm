@@ -28,14 +28,14 @@ export async function getSystemSlaHealth(): Promise<SystemSlaReport> {
     await db.$queryRaw`SELECT 1`;
     const dbLatency = Date.now() - dbStart;
     components.push({
-      name: "Database (Neon Serverless PostgreSQL)",
+      name: "Database (Serverless PostgreSQL Engine)",
       status: dbLatency < 800 ? "UP" : "DEGRADED",
       latencyMs: dbLatency,
       message: dbLatency < 800 ? "Koneksi stabil dan responsif" : "Latensi database meningkat",
     });
   } catch (err: any) {
     components.push({
-      name: "Database (Neon Serverless PostgreSQL)",
+      name: "Database (Serverless PostgreSQL Engine)",
       status: "DOWN",
       latencyMs: Date.now() - dbStart,
       message: err?.message || "Koneksi database gagal",

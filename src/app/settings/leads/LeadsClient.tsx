@@ -23,6 +23,8 @@ import {
   Globe02Icon,
   User02Icon,
   Calendar03Icon,
+  ArrowRight01Icon,
+  Attachment01Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
@@ -76,7 +78,7 @@ const PIPELINE_STAGES: Array<{
     { status: "BARU", label: "New", nextLabel: "", icon: SparklesIcon },
     { status: "INVOICE_DIKIRIM", label: "Invoiced", nextLabel: "Send Invoice", icon: Invoice01Icon },
     { status: "LUNAS", label: "Paid", nextLabel: "Mark as Paid", icon: CheckmarkCircle02Icon },
-    { status: "PROVISIONED", label: "Instance Ready", nextLabel: "Provision →", icon: RocketIcon },
+    { status: "PROVISIONED", label: "Instance Ready", nextLabel: "Provision", icon: RocketIcon },
     { status: "WEBSITE_AKTIF", label: "Live", nextLabel: "Go Live", icon: Globe02Icon },
   ];
 
@@ -184,7 +186,7 @@ export default function LeadsClient({ initialLeads }: LeadsClientProps) {
       setStatusFeedback(`Mengirimkan kredensial otentikasi Client Admin & link onboarding ke ${name}...`);
       const res = await sendOnboardingInviteAction(id);
       if (res.success) {
-        setStatusFeedback(`Kredensial Client Admin berhasil dikirim via Brevo ke: ${res.emailRecipient}`);
+        setStatusFeedback(`Kredensial Client Admin berhasil dikirim via email ke: ${res.emailRecipient}`);
       } else {
         setStatusFeedback(`Gagal mengirim kredensial: ${res.message}`);
       }
@@ -197,7 +199,7 @@ export default function LeadsClient({ initialLeads }: LeadsClientProps) {
       setStatusFeedback(`Mengirimkan ulang email resume formulir langganan ke ${name}...`);
       const res = await resendSubscriptionResumeAction(id);
       if (res.success) {
-        setStatusFeedback(`Email resume formulir langganan berhasil dikirim ulang via Brevo ke: ${res.emailRecipient}`);
+        setStatusFeedback(`Email resume formulir langganan berhasil dikirim ulang ke: ${res.emailRecipient}`);
       } else {
         setStatusFeedback(`Gagal mengirim email resume: ${res.message}`);
       }
@@ -205,13 +207,13 @@ export default function LeadsClient({ initialLeads }: LeadsClientProps) {
     });
   };
 
-  // Send credentials via Brevo then mark status as WEBSITE_AKTIF
+  // Send credentials via email then mark status as WEBSITE_AKTIF
   const handleSendCredentialsAndGoLive = (id: string, name: string) => {
     startTransition(async () => {
       setStatusFeedback(`Mengirimkan kredensial admin client ke ${name}...`);
       const credRes = await sendOnboardingInviteAction(id);
       if (!credRes.success) {
-        setStatusFeedback(`❌ Gagal mengirim kredensial: ${credRes.message}`);
+        setStatusFeedback(`Gagal mengirim kredensial: ${credRes.message}`);
         setTimeout(() => setStatusFeedback(null), 8000);
         return;
       }
@@ -221,10 +223,10 @@ export default function LeadsClient({ initialLeads }: LeadsClientProps) {
           prev.map((l) => (l.id === id ? { ...l, status: "WEBSITE_AKTIF" } : l))
         );
         setStatusFeedback(
-          `✅ Kredensial terkirim ke ${credRes.emailRecipient} — "${name}" kini berstatus Live!`
+          `Kredensial terkirim ke ${credRes.emailRecipient} — "${name}" kini berstatus Live!`
         );
       } else {
-        setStatusFeedback(`❌ Gagal mengaktifkan status Live: ${liveRes.error}`);
+        setStatusFeedback(`Gagal mengaktifkan status Live: ${liveRes.error}`);
       }
       setTimeout(() => setStatusFeedback(null), 10000);
     });
@@ -297,7 +299,7 @@ export default function LeadsClient({ initialLeads }: LeadsClientProps) {
         setStatusFeedback(res.message);
         setCurateInvoiceLead(null);
       } else {
-        setStatusFeedback(`❌ Kurasi Ditolak: ${res.message}`);
+        setStatusFeedback(`Kurasi Ditolak: ${res.message}`);
       }
       setTimeout(() => setStatusFeedback(null), 10000);
     });
@@ -326,7 +328,7 @@ export default function LeadsClient({ initialLeads }: LeadsClientProps) {
         setStatusFeedback(res.message);
         setCuratePaymentLead(null);
       } else {
-        setStatusFeedback(`❌ Verifikasi Ditolak: ${res.message}`);
+        setStatusFeedback(`Verifikasi Ditolak: ${res.message}`);
       }
       setTimeout(() => setStatusFeedback(null), 10000);
     });
@@ -352,7 +354,7 @@ export default function LeadsClient({ initialLeads }: LeadsClientProps) {
         setStatusFeedback(res.message);
         setCurateProvisionLead(null);
       } else {
-        setStatusFeedback(`❌ Kurasi Ditolak: ${res.message}`);
+        setStatusFeedback(`Kurasi Ditolak: ${res.message}`);
       }
       setTimeout(() => setStatusFeedback(null), 10000);
     });
@@ -376,7 +378,7 @@ export default function LeadsClient({ initialLeads }: LeadsClientProps) {
         setStatusFeedback(res.message);
         setCurateHandoverLead(null);
       } else {
-        setStatusFeedback(`❌ Aktivasi Ditolak: ${res.message}`);
+        setStatusFeedback(`Aktivasi Ditolak: ${res.message}`);
       }
       setTimeout(() => setStatusFeedback(null), 10000);
     });
@@ -512,7 +514,7 @@ export default function LeadsClient({ initialLeads }: LeadsClientProps) {
         <div className="metric-card metric-card--progress">
           <span className="metric-title">Dalam Proses</span>
           <span className="metric-val">{inProgressCount}</span>
-          <span className="metric-sub">Invoice → Instance Ready</span>
+          <span className="metric-sub">Invoice ke Instance Ready</span>
         </div>
         <div className="metric-card metric-card--live">
           <span className="metric-title">Live / Aktif</span>
@@ -635,7 +637,7 @@ export default function LeadsClient({ initialLeads }: LeadsClientProps) {
                         >
                           <span>{statusLabel}</span>
                           {!isTerminal && (
-                            <span className="lead-card__status-arrow" aria-hidden="true">→</span>
+                            <HugeiconsIcon icon={ArrowRight01Icon} size={13} className="lead-card__status-arrow" aria-hidden="true" />
                           )}
                         </button>
                       </TooltipTrigger>
@@ -706,7 +708,9 @@ export default function LeadsClient({ initialLeads }: LeadsClientProps) {
                   {lead.status === "INVOICE_DIKIRIM" && (
                     <div className="lead-card__prereq-badge lead-card__prereq-badge--wait">
                       {lead.paymentProofUrl ? (
-                        <span>📎 Bukti Transfer Terlampir — Siap Dikurasi</span>
+                        <span style={{ display: "inline-flex", alignItems: "center", gap: "5px" }}>
+                          <HugeiconsIcon icon={Attachment01Icon} size={14} /> Bukti Transfer Terlampir — Siap Dikurasi
+                        </span>
                       ) : (
                         <span>Tahap 2: Menunggu Verifikasi Pembayaran</span>
                       )}
@@ -715,19 +719,21 @@ export default function LeadsClient({ initialLeads }: LeadsClientProps) {
 
                   {lead.status === "BUKTI_DITERIMA" && (
                     <div className="lead-card__prereq-badge lead-card__prereq-badge--proof">
-                      <span>📎 Bukti Transfer Diunggah Klien — Butuh Verifikasi</span>
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: "5px" }}>
+                        <HugeiconsIcon icon={Attachment01Icon} size={14} /> Bukti Transfer Diunggah Klien — Butuh Verifikasi
+                      </span>
                     </div>
                   )}
 
                   {lead.status === "LUNAS" && (
                     <div className="lead-card__prereq-badge lead-card__prereq-badge--lunas">
-                      <span>Tahap 3: Lunas ✓ — Menunggu Kurasi Instance</span>
+                      <span>Tahap 3: Lunas — Menunggu Kurasi Instance</span>
                     </div>
                   )}
 
                   {(lead.status === "PROVISIONING" || lead.status === "PROVISIONED") && (
                     <div className="lead-card__prereq-badge lead-card__prereq-badge--ready">
-                      <span>Tahap 4: Instance Siap ({lead.customDomain || "Configured"}) ✓ — Siap Handover</span>
+                      <span>Tahap 4: Instance Siap ({lead.customDomain || "Configured"}) — Siap Handover</span>
                     </div>
                   )}
 
@@ -787,7 +793,8 @@ export default function LeadsClient({ initialLeads }: LeadsClientProps) {
                         className="lead-card__link-sub"
                         title="Buka panduan provision instance langkah demi langkah"
                       >
-                        <span>Wizard Deployment Manual →</span>
+                        <span>Wizard Deployment Manual</span>
+                        <HugeiconsIcon icon={ArrowRight01Icon} size={14} />
                       </Link>
                     </div>
                   )}
@@ -798,7 +805,7 @@ export default function LeadsClient({ initialLeads }: LeadsClientProps) {
                       className="lead-card__btn-cta lead-card__btn-cta--golive"
                       disabled={isPending}
                       onClick={() => handleOpenCurateHandover(lead)}
-                      title="Periksa data kredensial & serahkan ke klien via Brevo"
+                      title="Periksa data kredensial & serahkan ke klien via email"
                     >
                       {isPending ? (
                         <HugeiconsIcon icon={Loading03Icon} size={15} className="spin-icon" />
@@ -879,7 +886,7 @@ export default function LeadsClient({ initialLeads }: LeadsClientProps) {
         </TooltipProvider>
       )}
 
-      {/* ── Modal Balas Email via Brevo ─────────────────────────────── */}
+      {/* ── Modal Balas Email Klien ─────────────────────────────── */}
       {emailModalOpen && activeEmailLead && (
         <div className="leads-modal-overlay" onClick={() => setEmailModalOpen(false)}>
           <div className="leads-modal" onClick={(e) => e.stopPropagation()}>
@@ -894,7 +901,7 @@ export default function LeadsClient({ initialLeads }: LeadsClientProps) {
             <div className="modal-header">
               <h3>Balas Email Klien</h3>
               <p>
-                Kirim tanggapan langsung ke <strong>{activeEmailLead.email}</strong> via Brevo.
+                Kirim tanggapan langsung ke <strong>{activeEmailLead.email}</strong> via email transaksional.
               </p>
             </div>
 
@@ -1034,7 +1041,7 @@ export default function LeadsClient({ initialLeads }: LeadsClientProps) {
               </div>
               <h3>Penerbitan Invoice Resmi</h3>
               <p>
-                Periksa kelayakan inkuiri sebelum menerbitkan invoice resmi ke calon klien via Brevo.
+                Periksa kelayakan inkuiri sebelum menerbitkan invoice resmi ke calon klien via email.
               </p>
             </div>
 
@@ -1104,7 +1111,7 @@ export default function LeadsClient({ initialLeads }: LeadsClientProps) {
                 <label>Catatan Tambahan untuk Klien (Opsional)</label>
                 <textarea
                   rows={3}
-                  placeholder="Contoh: Invoice berlaku 3×24 jam. Biaya sudah termasuk setup Neon DB & private repository."
+                  placeholder="Contoh: Invoice berlaku 3×24 jam. Biaya sudah termasuk setup database terisolasi & private repository."
                   value={invoiceCustomNotes}
                   onChange={(e) => setInvoiceCustomNotes(e.target.value)}
                 />
@@ -1186,7 +1193,10 @@ export default function LeadsClient({ initialLeads }: LeadsClientProps) {
             {/* Bukti Transfer Klien jika ada */}
             {curatePaymentLead.paymentProofUrl ? (
               <div className="modal-proof-box">
-                <div className="modal-proof-box__badge">📎 Bukti Transfer Terlampir</div>
+                <div className="modal-proof-box__badge" style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                  <HugeiconsIcon icon={Attachment01Icon} size={14} />
+                  <span>Bukti Transfer Terlampir</span>
+                </div>
                 <div className="modal-proof-box__content">
                   <p>
                     <strong>Pengirim:</strong> {curatePaymentLead.paymentSenderName || "—"} ({curatePaymentLead.paymentBankName || "Bank"})
@@ -1325,7 +1335,7 @@ export default function LeadsClient({ initialLeads }: LeadsClientProps) {
               <ul className="checklist-items">
                 <li className="checklist-item checklist-item--pass">
                   <HugeiconsIcon icon={CheckmarkCircle02Icon} size={15} />
-                  <span>Status Pembayaran: <strong>LUNAS (Terverifikasi ✓)</strong></span>
+                  <span>Status Pembayaran: <strong>LUNAS (Terverifikasi)</strong></span>
                 </li>
                 <li className="checklist-item checklist-item--pass">
                   <HugeiconsIcon icon={CheckmarkCircle02Icon} size={15} />
@@ -1353,7 +1363,7 @@ export default function LeadsClient({ initialLeads }: LeadsClientProps) {
 
               <div className="form-row form-row--2cols">
                 <div className="form-group">
-                  <label>Repository Instance (GitHub)</label>
+                  <label>Repository Instance (Private Git)</label>
                   <input
                     type="text"
                     placeholder="https://github.com/id-baitybites/client-instance"
@@ -1509,7 +1519,7 @@ export default function LeadsClient({ initialLeads }: LeadsClientProps) {
                   onCheckedChange={(checked) => setHandoverConfirmedCheck(checked === true)}
                 />
                 <label htmlFor="handover-confirmed-check">
-                  Saya menyatakan instance telah siap, data konfigurasi telah akurat, dan menyetujui pengiriman kredensial resmi ke klien via Brevo untuk mengaktifkan status <strong>WEBSITE AKTIF (LIVE)</strong>.
+                  Saya menyatakan instance telah siap, data konfigurasi telah akurat, dan menyetujui pengiriman kredensial resmi ke klien via email transaksional untuk mengaktifkan status <strong>WEBSITE AKTIF (LIVE)</strong>.
                 </label>
               </div>
 

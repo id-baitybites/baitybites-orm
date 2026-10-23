@@ -104,7 +104,7 @@ function checkEnvVar(key: string, label: string, sensitive = false): CheckItem {
       label,
       status: "error",
       detail: `${key} belum dikonfigurasi di environment variables.`,
-      action: `Tambahkan ${key} ke .env / Vercel Environment Variables`,
+      action: `Tambahkan ${key} ke .env / Server Environment Variables`,
     };
   }
   const display = sensitive
@@ -216,11 +216,11 @@ export async function runMigrationChecks(): Promise<MigrationCheckResult[]> {
     label: "Strategi Backup",
     status: hasBackupWorkflow ? "ok" : "warning",
     detail: hasBackupWorkflow
-      ? "GitHub Actions backup otomatis terjadwal setiap hari 02:00 WIB."
+      ? "CI/CD pipeline backup otomatis terjadwal setiap hari 02:00 WIB."
       : "Backup otomatis belum dikonfigurasi.",
     action: hasBackupWorkflow
-      ? "Pastikan secret DATABASE_URL sudah ditambahkan di GitHub repo → Settings → Secrets."
-      : "Buat .github/workflows/db-backup.yml",
+      ? "Pastikan secret DATABASE_URL sudah ditambahkan di repository Git -> Settings -> Secrets."
+      : "Buat workflow db-backup.yml",
   });
 
   results.push({ category: "database", items: dbItems });
@@ -228,7 +228,7 @@ export async function runMigrationChecks(): Promise<MigrationCheckResult[]> {
   // ── 2. Server & Hosting ──────────────────────────────────────────────────────
   const hostingItems: CheckItem[] = [];
 
-  hostingItems.push(checkEnvVar("VERCEL_URL", "Vercel URL", false));
+  hostingItems.push(checkEnvVar("VERCEL_URL", "Hosting Platform URL", false));
 
   const nodeEnv = process.env.NODE_ENV;
   hostingItems.push({
@@ -238,7 +238,7 @@ export async function runMigrationChecks(): Promise<MigrationCheckResult[]> {
     detail: `NODE_ENV = ${nodeEnv ?? "tidak diset"}`,
     action:
       nodeEnv !== "production"
-        ? "Pastikan NODE_ENV=production di Vercel Environment Variables."
+        ? "Pastikan NODE_ENV=production di Environment Variables server hosting."
         : undefined,
   });
 
@@ -253,7 +253,7 @@ export async function runMigrationChecks(): Promise<MigrationCheckResult[]> {
       ? `Terkonfigurasi: ${process.env.SUPERADMIN_USERNAME}`
       : "SUPERADMIN_USERNAME belum diset. Wajib untuk production.",
     action: !process.env.SUPERADMIN_USERNAME
-      ? "Set SUPERADMIN_USERNAME di Vercel → Project Settings → Environment Variables"
+      ? "Set SUPERADMIN_USERNAME di Project Settings -> Environment Variables"
       : undefined,
   });
 
@@ -290,23 +290,23 @@ export async function runMigrationChecks(): Promise<MigrationCheckResult[]> {
     label: "URL Aplikasi",
     status: appUrl ? "info" : "warning",
     detail: appUrl ? `URL saat ini: ${appUrl}` : "URL aplikasi belum dikonfigurasi.",
-    action: "Pastikan domain custom sudah di-assign di Vercel → Project → Domains.",
+    action: "Pastikan domain custom sudah di-assign di Project Settings -> Domains.",
   });
 
   domainItems.push({
     id: "domain-ssl",
     label: "SSL/TLS Certificate",
     status: "info",
-    detail: "Vercel otomatis menyediakan SSL via Let's Encrypt untuk semua domain yang terhubung.",
-    action: "Tidak diperlukan tindakan manual jika menggunakan Vercel.",
+    detail: "Hosting otomatis menyediakan sertifikat SSL terenkripsi untuk semua domain yang terhubung.",
+    action: "Tidak diperlukan tindakan manual jika SSL otomatis aktif.",
   });
 
   domainItems.push({
     id: "domain-dns",
     label: "DNS Records",
     status: "info",
-    detail: "Tambahkan CNAME/A record ke registrar domain Anda yang mengarah ke cname.vercel-dns.com.",
-    action: "Panduan: Vercel Docs → Projects → Domains → Custom Domain.",
+    detail: "Tambahkan CNAME/A record ke registrar domain Anda yang mengarah ke cluster server.",
+    action: "Panduan: Menu Settings -> Domains -> Custom Domain.",
   });
 
   domainItems.push({
@@ -333,7 +333,7 @@ export async function runMigrationChecks(): Promise<MigrationCheckResult[]> {
       ? `Tambahkan di Google Console: ${appUrlForOAuth}/api/auth/callback/google`
       : "NEXTAUTH_URL belum diset — tidak dapat memverifikasi redirect URI.",
     action:
-      "Google Cloud Console → Credentials → OAuth Client → Authorized redirect URIs → tambahkan URL produksi.",
+      "Cloud Console -> Credentials -> OAuth Client -> Authorized redirect URIs -> tambahkan URL produksi.",
   });
 
   oauthItems.push({
@@ -341,15 +341,15 @@ export async function runMigrationChecks(): Promise<MigrationCheckResult[]> {
     label: "OAuth Consent Screen",
     status: "info",
     detail: "Pastikan Consent Screen sudah diatur ke 'Production' (bukan Testing) agar semua pengguna bisa login.",
-    action: "Google Cloud Console → OAuth Consent Screen → Publish App.",
+    action: "Cloud Console -> OAuth Consent Screen -> Publish App.",
   });
 
   oauthItems.push({
     id: "oauth-domain-verify",
     label: "Domain Terverifikasi",
     status: "info",
-    detail: "Domain produksi harus diverifikasi di Google Search Console sebelum ditambahkan ke OAuth.",
-    action: "Google Search Console → Add Property → Verifikasi kepemilikan domain.",
+    detail: "Domain produksi harus diverifikasi di Search Console sebelum ditambahkan ke OAuth.",
+    action: "Search Console -> Add Property -> Verifikasi kepemilikan domain.",
   });
 
   results.push({ category: "oauth", items: oauthItems });
@@ -365,7 +365,7 @@ export async function runMigrationChecks(): Promise<MigrationCheckResult[]> {
     id: "security-csp",
     label: "Content Security Policy",
     status: "ok",
-    detail: "CSP Header sudah dikonfigurasi di vercel.json.",
+    detail: "CSP Header sudah dikonfigurasi di konfigurasi server.",
   });
 
   securityItems.push({
@@ -451,7 +451,7 @@ export async function getReleaseConfig(): Promise<ReleaseConfig> {
     blockSearchEngines: !isProd,
     enableApiDocs: false,
     minSupportedAppVersion: "1.0.0",
-    changelogNotes: "Rilis Publik Perdana BaityBites (Full Production Stack: Neon PostgreSQL + Vercel + Google Auth)",
+    changelogNotes: "Rilis Publik Perdana BaityBites (Full Production Stack: Serverless PostgreSQL + Edge Cloud + SSO Auth)",
     deployedAt: new Date().toISOString(),
     releaseChannel: "stable",
   };

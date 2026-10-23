@@ -1,9 +1,9 @@
-﻿/**
+/**
  * Rate Limiter sederhana berbasis in-memory untuk Server Actions.
  *
  * Catatan: In-memory berarti reset saat server restart (serverless per-invocation).
- * Untuk production multi-instance, gunakan Redis (Upstash, dll.).
- * Untuk Vercel single-region deployment ini sudah cukup efektif.
+ * Untuk production multi-instance, gunakan distributed cache/memory store.
+ * Untuk single-region deployment ini sudah cukup efektif.
  */
 
 interface AttemptRecord {

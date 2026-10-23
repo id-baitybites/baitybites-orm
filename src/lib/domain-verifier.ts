@@ -14,7 +14,10 @@ const EXPECTED_CNAME_TARGETS = [
   "cname.vercel-dns.com",
   "baitybites.site",
   "instance.baitybites.site",
+  "cname.baitybites.site",
 ];
+
+const RECOMMENDED_CNAME = "cname.baitybites.site";
 
 /**
  * Validasi sintaks format nama domain
@@ -40,7 +43,7 @@ export async function verifyCustomDomainDns(domain: string): Promise<DomainCheck
       isValidFormat: false,
       isConfigured: false,
       cnameTargets: [],
-      recommendedCname: "cname.vercel-dns.com",
+      recommendedCname: RECOMMENDED_CNAME,
       status: "INVALID_DOMAIN",
       message: `Format nama domain '${cleanDomain}' tidak valid. Pastikan tanpa http:// atau garis miring.`,
     };
@@ -58,7 +61,7 @@ export async function verifyCustomDomainDns(domain: string): Promise<DomainCheck
         isValidFormat: true,
         isConfigured: true,
         cnameTargets: cnameRecords,
-        recommendedCname: "cname.vercel-dns.com",
+        recommendedCname: RECOMMENDED_CNAME,
         status: "VERIFIED",
         message: `Domain '${cleanDomain}' berhasil terverifikasi dan mengarah ke cluster server Baitybites.`,
       };
@@ -68,9 +71,9 @@ export async function verifyCustomDomainDns(domain: string): Promise<DomainCheck
         isValidFormat: true,
         isConfigured: false,
         cnameTargets: cnameRecords,
-        recommendedCname: "cname.vercel-dns.com",
+        recommendedCname: RECOMMENDED_CNAME,
         status: "PENDING_DNS",
-        message: `CNAME terdeteksi (${cnameRecords.join(", ")}), namun belum mengarah ke 'cname.vercel-dns.com'.`,
+        message: `CNAME terdeteksi (${cnameRecords.join(", ")}), namun belum mengarah ke '${RECOMMENDED_CNAME}'.`,
       };
     }
   } catch (dnsErr: any) {
@@ -80,9 +83,9 @@ export async function verifyCustomDomainDns(domain: string): Promise<DomainCheck
       isValidFormat: true,
       isConfigured: false,
       cnameTargets: [],
-      recommendedCname: "cname.vercel-dns.com",
+      recommendedCname: RECOMMENDED_CNAME,
       status: "PENDING_DNS",
-      message: `Rekord DNS CNAME untuk '${cleanDomain}' belum terdeteksi. Silakan pasang CNAME mengarah ke 'cname.vercel-dns.com' di panel DNS registrar Anda.`,
+      message: `Rekord DNS CNAME untuk '${cleanDomain}' belum terdeteksi. Silakan pasang CNAME mengarah ke '${RECOMMENDED_CNAME}' di panel DNS registrar Anda.`,
     };
   }
 }

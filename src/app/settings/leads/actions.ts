@@ -16,7 +16,7 @@ export async function getLeadsAction(): Promise<ClientLead[]> {
 
 /**
  * 1. KURASI PENERBITAN INVOICE
- * Memeriksa kelayakan dan menerbitkan invoice resmi ke klien via Brevo.
+ * Memeriksa kelayakan dan menerbitkan invoice resmi ke klien via email transaksional.
  */
 export async function curateInvoiceAction(params: {
   leadId: string;
@@ -210,7 +210,7 @@ export async function curateHandoverAndGoLiveAction(leadId: string): Promise<{
       };
     }
 
-    // 1. Buat akun Admin & kirim kredensial via Brevo
+    // 1. Buat akun Admin & kirim kredensial via email transaksional
     const inviteRes = await sendOnboardingInviteAction(lead.id);
     if (!inviteRes.success) {
       return {
@@ -232,7 +232,7 @@ export async function curateHandoverAndGoLiveAction(leadId: string): Promise<{
     return {
       success: true,
       lead: updated || undefined,
-      message: `🎉 Kredensial dan panduan onboarding berhasil dikirim ke ${inviteRes.emailRecipient}. Website "${lead.businessName}" kini resmi LIVE!`,
+      message: `Kredensial dan panduan onboarding berhasil dikirim ke ${inviteRes.emailRecipient}. Website "${lead.businessName}" kini resmi LIVE!`,
     };
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Terjadi kesalahan internal";
@@ -241,7 +241,7 @@ export async function curateHandoverAndGoLiveAction(leadId: string): Promise<{
 }
 
 /**
- * Update status lead sekaligus otomatis mengirimkan email notifikasi status & invoice ke klien via Brevo.
+ * Update status lead sekaligus otomatis mengirimkan email notifikasi status & invoice ke klien via email transaksional.
  */
 export async function updateLeadStatusAction(
   id: string,
@@ -282,14 +282,14 @@ export async function updateLeadStatusAction(
       timeZone: "Asia/Jakarta",
     });
 
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL?.trim() || "https://baitybites-orm.vercel.app";
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL?.trim() || "https://baitybites.site";
     const onboardingUrl = `${baseUrl}/admin?from=%2Fonboarding`;
     const storeUrl = `${baseUrl}/demo/store`;
     const adminUrl = `${baseUrl}/admin`;
     const kdsUrl = `${baseUrl}/kitchen`;
 
     if (status === "INVOICE_DIKIRIM") {
-      emailSubject = `🧾 Tagihan Resmi (Invoice) Langganan Baitybites ORM — ${updated.businessName} [${invoiceNo}]`;
+      emailSubject = `Tagihan Resmi (Invoice) Langganan Baitybites ORM - ${updated.businessName} [${invoiceNo}]`;
       emailHtml = `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 620px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #ffffff;">
           <div style="background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%); padding: 26px 32px; color: #ffffff;">
@@ -317,8 +317,8 @@ export async function updateLeadStatusAction(
                 <tr>
                   <td style="padding: 6px 0; color: #64748b;">Fasilitas Termasuk:</td>
                   <td style="padding: 6px 0; color: #334155;">
-                    &bull; Dedicated Multi-Tenant Database (Neon PostgreSQL)<br />
-                    &bull; Private GitHub Repository Source Code<br />
+                    &bull; Dedicated Multi-Tenant Database (Cloud PostgreSQL)<br />
+                    &bull; Private Git Repository Source Code<br />
                     &bull; Kitchen Display System (KDS) &amp; POS Kasir Toko<br />
                     &bull; Integrasi Checkout WhatsApp &amp; Katalog Publik
                   </td>
@@ -346,11 +346,11 @@ export async function updateLeadStatusAction(
 
             <!-- TAUTAN KONFIRMASI PEMBAYARAN -->
             <div style="background: #fffbeb; border: 1px solid #fcd34d; border-radius: 8px; padding: 18px 20px; margin: 24px 0;">
-              <h4 style="margin: 0 0 6px; color: #b45309; font-size: 14px; text-transform: uppercase; letter-spacing: 0.04em;">📤 Unggah Bukti Transfer Pembayaran</h4>
+              <h4 style="margin: 0 0 6px; color: #b45309; font-size: 14px; text-transform: uppercase; letter-spacing: 0.04em;">Unggah Bukti Transfer Pembayaran</h4>
               <p style="margin: 0 0 12px; font-size: 13px; color: #92400e;">Setelah melakukan transfer, silakan mengunggah foto/screenshot bukti transfer Anda melalui form konfirmasi pembayaran resmi kami. Admin kami akan memverifikasi dalam waktu 1×24 jam:</p>
               <div style="text-align: center; margin: 14px 0 6px;">
                 <a href="${baseUrl}/payment-confirmation?lead=${updated.id}&invoice=${invoiceNo}" style="display: inline-block; background: #d97706; color: #ffffff; padding: 11px 22px; border-radius: 6px; font-weight: 700; text-decoration: none; font-size: 13px;">
-                  📎 Unggah Bukti Transfer &rarr;
+                  Unggah Bukti Transfer &rarr;
                 </a>
               </div>
               <p style="margin: 10px 0 0; font-size: 12px; color: #92400e; text-align: center;">
@@ -454,7 +454,7 @@ export async function updateLeadStatusAction(
         </div>
       `;
     } else if (status === "DIHUBUNGI") {
-      emailSubject = `📞 Pembaruan Status: Permohonan Langganan ${updated.businessName} Sedang Diproses`;
+      emailSubject = `Pembaruan Status: Permohonan Langganan ${updated.businessName} Sedang Diproses`;
       emailHtml = `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #ffffff;">
           <div style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); padding: 24px 30px; color: #ffffff;">
@@ -469,7 +469,7 @@ export async function updateLeadStatusAction(
             ${internalNotes ? `<div style="background: #f8fafc; border-left: 3px solid #0284c7; padding: 10px 14px; margin: 16px 0; font-size: 13px; color: #475569;">${internalNotes}</div>` : ""}
             <div style="margin: 20px 0; text-align: center;">
               <a href="${onboardingUrl}" style="display: inline-block; background: #0284c7; color: #ffffff; padding: 10px 20px; border-radius: 6px; font-weight: 400; text-decoration: none; font-size: 13px;">
-                Lihat Simulasi Setup Toko &rarr;
+                Lihat Simulasi Setup Toko
               </a>
             </div>
             <p style="margin-bottom: 0;">Silakan hubungi kami kembali jika ada detail tambahan yang ingin Anda diskusikan.</p>
@@ -533,7 +533,7 @@ export async function updateLeadStatusAction(
         </div>
       `;
     } else if (status === "ONBOARDING_SELESAI") {
-      emailSubject = `🎊 Selamat! Onboarding Toko ${updated.businessName} Telah Selesai`;
+      emailSubject = `Selamat! Onboarding Toko ${updated.businessName} Telah Selesai`;
       emailHtml = `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 620px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #ffffff;">
           <div style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); padding: 26px 32px; color: #ffffff;">
@@ -678,7 +678,7 @@ export async function updateLeadStatusAction(
 }
 
 /**
- * Balas pesan / kirim email kustom ke klien via Brevo
+ * Balas pesan / kirim email kustom ke klien via email transaksional
  */
 export async function sendEmailReplyAction(params: {
   leadId: string;
@@ -792,14 +792,14 @@ export async function sendOnboardingInviteAction(leadId: string): Promise<{
     console.warn("Notice: could not auto-create client admin account in db:", dbErr?.message);
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL?.trim() || "https://baitybites-orm.vercel.app";
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL?.trim() || "https://baitybites.site";
   const loginUrl = `${baseUrl}/admin?from=%2Fonboarding`;
   const storeUrl = `${baseUrl}/demo/store`;
   const adminUrl = `${baseUrl}/admin`;
   const kdsUrl = `${baseUrl}/kitchen`;
   const platformEmail = "id.baitybites@gmail.com";
 
-  const emailSubject = `🔐 Kredensial Otentikasi Resmi Client Admin & Akses Onboarding Toko — ${lead.businessName}`;
+  const emailSubject = `Kredensial Otentikasi Resmi Client Admin & Akses Onboarding Toko — ${lead.businessName}`;
   const emailHtml = `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 620px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #ffffff;">
       <div style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); padding: 26px 32px; color: #ffffff;">
@@ -846,7 +846,7 @@ export async function sendOnboardingInviteAction(leadId: string): Promise<{
         <!-- TOMBOL CTA LOGIN & ONBOARDING -->
         <div style="text-align: center; margin: 28px 0;">
           <a href="${loginUrl}" style="display: inline-block; background: #4f46e5; color: #ffffff; padding: 14px 32px; border-radius: 8px; font-weight: 700; text-decoration: none; font-size: 15px; box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.3);">
-            🔐 Login Sebagai Client Admin &amp; Lanjut Onboarding &rarr;
+            Login Sebagai Client Admin &amp; Lanjut Onboarding &rarr;
           </a>
           <p style="margin: 10px 0 0; font-size: 12px; color: #64748b;">
             Tautan Login Resmi: <a href="${loginUrl}" style="color: #4f46e5; word-break: break-all;">${loginUrl}</a>
@@ -868,15 +868,15 @@ export async function sendOnboardingInviteAction(leadId: string): Promise<{
           <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
             <tr>
               <td style="padding: 5px 0; color: #64748b; width: 180px;">Web E-Commerce Publik:</td>
-              <td style="padding: 5px 0;"><a href="${storeUrl}" style="color: #2563eb; font-weight: 400;">Lihat Tampilan Toko Publik &rarr;</a></td>
+              <td style="padding: 5px 0;"><a href="${storeUrl}" style="color: #2563eb; font-weight: 400;">Lihat Tampilan Toko Publik</a></td>
             </tr>
             <tr>
               <td style="padding: 5px 0; color: #64748b;">Dashboard Kasir &amp; OMS:</td>
-              <td style="padding: 5px 0;"><a href="${adminUrl}" style="color: #2563eb; font-weight: 400;">Buka Portal Backoffice Admin &rarr;</a></td>
+              <td style="padding: 5px 0;"><a href="${adminUrl}" style="color: #2563eb; font-weight: 400;">Buka Portal Backoffice Admin</a></td>
             </tr>
             <tr>
               <td style="padding: 5px 0; color: #64748b;">Kitchen Display (KDS):</td>
-              <td style="padding: 5px 0;"><a href="${kdsUrl}" style="color: #2563eb; font-weight: 400;">Buka Layar Display Dapur &rarr;</a></td>
+              <td style="padding: 5px 0;"><a href="${kdsUrl}" style="color: #2563eb; font-weight: 400;">Buka Layar Display Dapur</a></td>
             </tr>
           </table>
         </div>
@@ -906,7 +906,7 @@ export async function sendOnboardingInviteAction(leadId: string): Promise<{
   await updateLeadStatus(
     lead.id,
     lead.status,
-    `Kredensial Client Admin & Tautan onboarding dikirimkan via Brevo pada ${new Date().toLocaleDateString("id-ID")}`
+    `Kredensial Client Admin & Tautan onboarding dikirimkan via email pada ${new Date().toLocaleDateString("id-ID")}`
   );
 
   return {
@@ -917,7 +917,7 @@ export async function sendOnboardingInviteAction(leadId: string): Promise<{
 }
 
 /**
- * Kirim ulang email resume / konfirmasi formulir berlangganan ke calon klien via Brevo
+ * Kirim ulang email resume / konfirmasi formulir berlangganan ke calon klien via email transaksional
  */
 export async function resendSubscriptionResumeAction(leadId: string): Promise<{
   success: boolean;
@@ -984,7 +984,7 @@ export async function resendSubscriptionResumeAction(leadId: string): Promise<{
   await updateLeadStatus(
     lead.id,
     lead.status,
-    `Email resume langganan dikirim ulang via Brevo pada ${new Date().toLocaleString("id-ID")}`
+    `Email resume langganan dikirim ulang via email pada ${new Date().toLocaleString("id-ID")}`
   );
 
   return {

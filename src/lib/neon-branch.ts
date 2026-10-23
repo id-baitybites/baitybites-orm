@@ -1,6 +1,6 @@
 /**
- * Neon Serverless Database Branching Service
- * Mengelola pembuatan Dedicated Neon Database Branch via REST API Neon Console
+ * Serverless Database Branching Service
+ * Mengelola pembuatan Dedicated Database Branch via REST API
  * dengan failover otomatis ke PostgreSQL Schema Isolation jika API Key tidak disetel.
  */
 
@@ -22,7 +22,7 @@ export interface NeonBranchCapability {
 }
 
 /**
- * Periksa kesiapan integrasi Neon API Branching
+ * Periksa kesiapan integrasi API Branching
  */
 export function checkNeonBranchCapability(): NeonBranchCapability {
   const hasApiKey = Boolean(process.env.NEON_API_KEY?.trim());
@@ -38,7 +38,7 @@ export function checkNeonBranchCapability(): NeonBranchCapability {
 
 /**
  * Eksekusi pembuatan branch database untuk klien Enterprise
- * Jika NEON_API_KEY & NEON_PROJECT_ID tersedia -> Request ke API Neon v2
+ * Jika NEON_API_KEY & NEON_PROJECT_ID tersedia -> Request ke API v2
  * Jika tidak tersedia -> Fallback otomatis ke Schema Isolation
  */
 export async function provisionClientDatabaseBranch(
@@ -49,7 +49,7 @@ export async function provisionClientDatabaseBranch(
   const branchName = `tenant-${cleanSlug}`;
   const capability = checkNeonBranchCapability();
 
-  // Hanya paket Enterprise yang dialokasikan ke Dedicated Neon Branch jika API tersedia
+  // Hanya paket Enterprise yang dialokasikan ke Dedicated Branch jika API tersedia
   if (options?.isEnterprise && capability.isReady) {
     try {
       const apiKey = process.env.NEON_API_KEY!.trim();
@@ -73,9 +73,9 @@ export async function provisionClientDatabaseBranch(
         const data = await response.json();
         const branchId = data?.branch?.id || data?.id;
 
-        // Ambil endpoint / connection string jika di-return oleh Neon API
-        const host = data?.endpoints?.[0]?.host || `${projectId}.neon.tech`;
-        const generatedDbUrl = `postgresql://neondb_owner:••••••••@${host}/neondb?sslmode=require`;
+        // Ambil endpoint / connection string jika di-return oleh API
+        const host = data?.endpoints?.[0]?.host || `${projectId}.cloud-db.internal`;
+        const generatedDbUrl = `postgresql://db_owner:••••••••@${host}/appdb?sslmode=require`;
 
         return {
           success: true,
@@ -84,14 +84,14 @@ export async function provisionClientDatabaseBranch(
           branchName,
           databaseUrl: generatedDbUrl,
           directUrl: generatedDbUrl,
-          message: `Dedicated Neon Branch '${branchName}' berhasil diprovision via Neon Cloud API.`,
+          message: `Dedicated Branch '${branchName}' berhasil diprovision via Cloud API.`,
         };
       } else {
         const errorText = await response.text();
-        console.warn(`[Neon Branch API] Gagal membuat branch: ${response.status} - ${errorText}. Menggunakan fallback schema isolation.`);
+        console.warn(`[DB Branch API] Gagal membuat branch: ${response.status} - ${errorText}. Menggunakan fallback schema isolation.`);
       }
     } catch (err: any) {
-      console.warn(`[Neon Branch API] Error koneksi: ${err.message}. Menggunakan fallback schema isolation.`);
+      console.warn(`[DB Branch API] Error koneksi: ${err.message}. Menggunakan fallback schema isolation.`);
     }
   }
 

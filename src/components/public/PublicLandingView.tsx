@@ -748,7 +748,9 @@ export function PublicLandingView({
             {!initialCustomer ? (
               // Guest: tampilkan ajakan login
               <div className="testimony-login-prompt">
-                <div className="prompt-icon">⭐</div>
+                <div className="prompt-icon">
+                  <HugeiconsIcon icon={StarIcon} size={20} />
+                </div>
                 <div>
                   <strong>Punya pengalaman dengan {brandName}?</strong>
                   <p>Masuk dengan akun Google untuk meninggalkan ulasan dan membantu pelanggan lain.</p>

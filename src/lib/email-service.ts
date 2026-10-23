@@ -11,7 +11,7 @@ export interface SendEmailResult {
   success: boolean;
   isSimulated?: boolean;
   deliveredTo: string;
-  provider: "BREVO" | "BREVO_SMTP";
+  provider: "HTTP_API" | "SMTP_RELAY";
   error?: string;
 }
 
@@ -21,44 +21,44 @@ const PLATFORM_EMAIL =
   "id.baitybites@gmail.com";
 
 /**
- * Universal Email Dispatcher — Khusus Brevo (Dedicated Transactional Provider):
- * 1. Brevo HTTP API (POST https://api.brevo.com/v3/smtp/email) → Pengiriman langsung ke email tujuan
- * 2. Brevo SMTP Relay (smtp-relay.brevo.com:587) → Fallback otomatis jika HTTP API ada gangguan
+ * Universal Email Dispatcher — Dual-Channel Transactional Provider:
+ * 1. HTTP API (POST ke endpoint email provider) -> Pengiriman langsung ke email tujuan
+ * 2. SMTP Relay (fallback otomatis jika HTTP API ada gangguan)
  */
 export async function sendEmailWithFallback(
   options: SendEmailOptions
 ): Promise<SendEmailResult> {
-  // ── 1. Kirim via Brevo HTTP API (Utama) ──────────────────────────────────
+  // ── 1. Kirim via HTTP API (Utama) ────────────────────────────────────────
   const brevoApiKey = process.env.BREVO_API_KEY?.trim();
   if (brevoApiKey && !brevoApiKey.startsWith("xkeysib-REPLACE")) {
-    const result = await sendViaBrevoAPI(options, brevoApiKey);
+    const result = await sendViaHTTPAPI(options, brevoApiKey);
     if (result.success) return result;
-    console.warn("[Email Service] Brevo HTTP API gagal, mencoba Brevo SMTP...", result.error);
+    console.warn("[Email Service] HTTP API gagal, mencoba SMTP Relay...", result.error);
   }
 
-  // ── 2. Kirim via Brevo SMTP Relay (Fallback) ────────────────────────────
+  // ── 2. Kirim via SMTP Relay (Fallback) ────────────────────────────────────
   const smtpUser = process.env.SMTP_USER?.trim() || "a2bf9a001@smtp-brevo.com";
   const smtpPass = (process.env.SMTP_PASS || process.env.SMTP_PASSWORD)?.trim();
   if (smtpPass) {
-    const result = await sendViaBrevoSMTP(options, smtpUser, smtpPass);
+    const result = await sendViaSMTPRelay(options, smtpUser, smtpPass);
     if (result.success) return result;
-    console.warn("[Email Service] Brevo SMTP gagal:", result.error);
+    console.warn("[Email Service] SMTP Relay gagal:", result.error);
   }
 
   return {
     success: false,
     isSimulated: false,
     deliveredTo: "",
-    provider: "BREVO",
+    provider: "HTTP_API",
     error:
-      "Layanan email Brevo belum terhubung. Pastikan BREVO_API_KEY terpasang di .env.",
+      "Layanan email transaksional belum terhubung. Pastikan EMAIL_API_KEY terpasang di .env.",
   };
 }
 
 /**
- * Driver 1: Brevo HTTP API
+ * Driver 1: HTTP API
  */
-async function sendViaBrevoAPI(
+async function sendViaHTTPAPI(
   options: SendEmailOptions,
   apiKey: string
 ): Promise<SendEmailResult> {
@@ -86,44 +86,44 @@ async function sendViaBrevoAPI(
 
     if (response.ok && data.messageId) {
       console.log(
-        `[Email Service - Brevo API] ✅ Email berhasil terkirim ke ${options.to} | Message ID: ${data.messageId}`
+        `[Email Service - HTTP API] Email berhasil terkirim ke ${options.to} | Message ID: ${data.messageId}`
       );
       return {
         success: true,
         isSimulated: false,
         deliveredTo: options.to.trim(),
-        provider: "BREVO",
+        provider: "HTTP_API",
       };
     }
 
     const errMsg =
       (data.message as string) || `HTTP ${response.status}: ${JSON.stringify(data)}`;
-    console.error("[Email Service - Brevo API Error]:", errMsg);
+    console.error("[Email Service - HTTP API Error]:", errMsg);
     return {
       success: false,
       isSimulated: false,
       deliveredTo: "",
-      provider: "BREVO",
-      error: `Brevo API: ${errMsg}`,
+      provider: "HTTP_API",
+      error: `Email API: ${errMsg}`,
     };
   } catch (err: unknown) {
     const msg =
-      err instanceof Error ? err.message : "Kesalahan jaringan Brevo API";
-    console.error("[Email Service - Brevo API Exception]:", msg);
+      err instanceof Error ? err.message : "Kesalahan jaringan Email API";
+    console.error("[Email Service - HTTP API Exception]:", msg);
     return {
       success: false,
       isSimulated: false,
       deliveredTo: "",
-      provider: "BREVO",
+      provider: "HTTP_API",
       error: msg,
     };
   }
 }
 
 /**
- * Driver 2: Brevo SMTP Relay via Nodemailer
+ * Driver 2: SMTP Relay via Nodemailer
  */
-async function sendViaBrevoSMTP(
+async function sendViaSMTPRelay(
   options: SendEmailOptions,
   smtpUser: string,
   smtpPass: string
@@ -152,22 +152,22 @@ async function sendViaBrevoSMTP(
       html: options.html,
     });
 
-    console.log(`[Email Service - Brevo SMTP] ✅ Email berhasil terkirim via SMTP ke ${options.to}`);
+    console.log(`[Email Service - SMTP Relay] Email berhasil terkirim via SMTP ke ${options.to}`);
     return {
       success: true,
       isSimulated: false,
       deliveredTo: options.to.trim(),
-      provider: "BREVO_SMTP",
+      provider: "SMTP_RELAY",
     };
   } catch (err: unknown) {
     const msg =
-      err instanceof Error ? err.message : "Kesalahan pengiriman Brevo SMTP";
-    console.error("[Email Service - Brevo SMTP Error]:", msg);
+      err instanceof Error ? err.message : "Kesalahan pengiriman SMTP Relay";
+    console.error("[Email Service - SMTP Relay Error]:", msg);
     return {
       success: false,
       isSimulated: false,
       deliveredTo: "",
-      provider: "BREVO_SMTP",
+      provider: "SMTP_RELAY",
       error: msg,
     };
   }

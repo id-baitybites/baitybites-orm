@@ -4,7 +4,7 @@ import { createDatabaseSnapshot } from "@/lib/backup-engine";
 export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
-  // Verifikasi secret Vercel Cron jika diset
+  // Verifikasi secret cron task jika diset
   const authHeader = request.headers.get("authorization");
   const cronSecret = process.env.CRON_SECRET;
 

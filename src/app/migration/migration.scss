@@ -450,8 +450,6 @@
     color: var(--color-primary, #f97316);
     font-weight: var(--font-weight-medium);
     font-family: var(--font-sans);
-
-    &::before { content: "→ "; }
   }
 
   &__badge {

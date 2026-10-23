@@ -113,7 +113,7 @@ export async function getProductsAction(): Promise<ProductItemDisplay[]> {
       return {
         id: p.id,
         title: p.name,
-        subtitle: `${p.code} / ${p.category.name} • Rp ${p.price.toLocaleString("id-ID")}`,
+        subtitle: `${p.code} / ${p.category.name} - Rp ${p.price.toLocaleString("id-ID")}`,
         value: `${p.stock} ${p.unit}`,
         status,
         tone,
@@ -207,7 +207,7 @@ export async function createProductAction(input: CreateProductInput): Promise<{
       product: {
         id: newProduct.id,
         title: newProduct.name,
-        subtitle: `${newProduct.code} / ${newProduct.category.name} • Rp ${newProduct.price.toLocaleString("id-ID")}`,
+        subtitle: `${newProduct.code} / ${newProduct.category.name} - Rp ${newProduct.price.toLocaleString("id-ID")}`,
         value: `${newProduct.stock} ${newProduct.unit}`,
         status,
         tone,

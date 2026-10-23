@@ -72,7 +72,7 @@ const CATEGORY_META: Record<TabId, { title: string; desc: string; color: string;
   },
   hosting: {
     title: "Server & Hosting",
-    desc: "Environment variables, Vercel deployment, dan konfigurasi runtime.",
+    desc: "Environment variables, server deployment, dan konfigurasi runtime.",
     color: "#f97316",
     bg: "rgba(249,115,22,0.1)",
   },
@@ -658,7 +658,7 @@ function EnvironmentMigratorSuite({
             <input
               id="env-db-url"
               type="text"
-              placeholder="postgresql://user:password@host-pooler.neon.tech/neondb?sslmode=require"
+              placeholder="postgresql://user:password@db-pooler.cloud-server.internal:6543/appdb?sslmode=require"
               value={creds.databaseUrl}
               onChange={(e) => {
                 setCreds({ ...creds, databaseUrl: e.target.value });
@@ -710,7 +710,7 @@ function EnvironmentMigratorSuite({
           <input
             id="env-direct-url"
             type="text"
-            placeholder="postgresql://user:password@host-direct.neon.tech/neondb?sslmode=require (kosongkan jika sama)"
+            placeholder="postgresql://user:password@db-direct.cloud-server.internal:5432/appdb?sslmode=require (kosongkan jika sama)"
             value={creds.directUrl}
             onChange={(e) => setCreds({ ...creds, directUrl: e.target.value })}
           />
@@ -854,7 +854,7 @@ function EnvironmentMigratorSuite({
 
           <p style={{ margin: 0, fontSize: "11px", color: "#a1a1aa", lineHeight: 1.5, display: "flex", alignItems: "flex-start", gap: "6px" }}>
             <HugeiconsIcon icon={ArrowRight01Icon} size={14} style={{ flexShrink: 0, marginTop: "2px" }} />
-            <span><strong>Langkah Terakhir:</strong> Salin teks di atas, lalu tempelkan ke menu <em>Project Settings → Environment Variables</em> penyedia hosting Anda atau ke file <code>.env</code> di VPS baru Anda. Restart / Redeploy aplikasi untuk menerapkan seluruh perubahan secara permanen.</span>
+            <span><strong>Langkah Terakhir:</strong> Salin teks di atas, lalu tempelkan ke menu <em>Project Settings - Environment Variables</em> penyedia hosting Anda atau ke file <code>.env</code> di VPS baru Anda. Restart / Redeploy aplikasi untuk menerapkan seluruh perubahan secara permanen.</span>
           </p>
         </div>
       )}

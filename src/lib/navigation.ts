@@ -27,7 +27,7 @@ export type NavItem = {
 };
 
 /**
- * 👑 NAVIGASI 1: PLATFORM OWNER (Baitybites ORM Engine Vendor)
+ * NAVIGASI 1: PLATFORM OWNER (Baitybites ORM Engine Vendor)
  * Dikhususkan untuk pemilik software: manajemen leads, lisensi, repo generator, arsitektur.
  */
 export const platformNavigation: NavItem[] = [
@@ -49,7 +49,7 @@ export const platformNavigation: NavItem[] = [
 ];
 
 /**
- * 🏪 NAVIGASI 2: STORE ADMIN / SUPER ADMIN (Klien Toko Baitybites Shop)
+ * NAVIGASI 2: STORE ADMIN / SUPER ADMIN (Klien Toko Baitybites Shop)
  * Dikhususkan untuk pemilik & tim toko: manajemen pesanan risol, stok produk, dapur, dan CMS.
  */
 export const storeNavigation: NavItem[] = [
@@ -75,7 +75,7 @@ export const storeNavigation: NavItem[] = [
 ];
 
 /**
- * 🧾 NAVIGASI 3: KASIR (Point of Sale, Pesanan Masuk, & Pelanggan)
+ * NAVIGASI 3: KASIR (Point of Sale, Pesanan Masuk, & Pelanggan)
  * Dibatasi hanya pada operasional kasir dan pencatatan pesanan.
  */
 export const kasirNavigation: NavItem[] = [
@@ -85,7 +85,7 @@ export const kasirNavigation: NavItem[] = [
 ];
 
 /**
- * 🍳 NAVIGASI 4: KITCHEN STAFF (Kitchen Display System & Produksi)
+ * NAVIGASI 4: KITCHEN STAFF (Kitchen Display System & Produksi)
  * Dibatasi hanya pada layar display dapur dan batching produksi.
  */
 export const kitchenNavigation: NavItem[] = [

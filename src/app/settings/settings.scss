@@ -744,9 +744,15 @@
           gap: 0.45rem;
 
           &::before {
-            content: "✓";
-            color: #10b981;
-            font-weight: 700;
+            content: "";
+            display: inline-block;
+            width: 4px;
+            height: 8px;
+            border: solid #10b981;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+            margin-bottom: 2px;
+            flex-shrink: 0;
           }
         }
       }

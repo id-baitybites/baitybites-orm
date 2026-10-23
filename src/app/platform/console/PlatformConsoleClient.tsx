@@ -332,7 +332,7 @@ export function PlatformConsoleClient({ leads }: { leads: ClientLead[] }) {
               <div className="pro-card pro-card--featured">
                 <div className="pro-card__header">
                   <div>
-                    <span className="card-kicker">Tenant Unggulan • Flagship Instance #1</span>
+                    <span className="card-kicker">Tenant Unggulan - Flagship Instance #1</span>
                     <h3>Baitybites (Sensasi Risol Mayo)</h3>
                   </div>
                   <span className="pill-status pill-status--live">
@@ -394,7 +394,7 @@ export function PlatformConsoleClient({ leads }: { leads: ClientLead[] }) {
                       </div>
                       <div>
                         <strong>Dedicated Cloud Database</strong>
-                        <span>Pool koneksi: 3/20 aktif • Cloud Cluster</span>
+                        <span>Pool koneksi: 3/20 aktif - Cloud Cluster</span>
                       </div>
                     </div>
                     <span className="badge-health badge-health--good">Normal (34ms)</span>
@@ -407,7 +407,7 @@ export function PlatformConsoleClient({ leads }: { leads: ClientLead[] }) {
                       </div>
                       <div>
                         <strong>Transactional Email Gateway</strong>
-                        <span>id.baitybites@gmail.com • Delivery 99.8%</span>
+                        <span>id.baitybites@gmail.com - Delivery 99.8%</span>
                       </div>
                     </div>
                     <span className="badge-health badge-health--good">Connected</span>
