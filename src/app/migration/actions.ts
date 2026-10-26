@@ -357,9 +357,13 @@ export async function runMigrationChecks(): Promise<MigrationCheckResult[]> {
   // ── 5. Keamanan & Lain-lain ──────────────────────────────────────────────────
   const securityItems: CheckItem[] = [];
 
-  securityItems.push(checkEnvVar("CLOUDINARY_CLOUD_NAME", "Cloudinary Cloud Name", false));
-  securityItems.push(checkEnvVar("CLOUDINARY_API_KEY", "Cloudinary API Key", true));
-  securityItems.push(checkEnvVar("CLOUDINARY_API_SECRET", "Cloudinary API Secret", true));
+  if (process.env.CLOUDINARY_URL) {
+    securityItems.push(checkEnvVar("CLOUDINARY_URL", "Cloud Media Storage (CLOUDINARY_URL)", true));
+  } else {
+    securityItems.push(checkEnvVar("CLOUDINARY_CLOUD_NAME", "Cloudinary Cloud Name", false));
+    securityItems.push(checkEnvVar("CLOUDINARY_API_KEY", "Cloudinary API Key", true));
+    securityItems.push(checkEnvVar("CLOUDINARY_API_SECRET", "Cloudinary API Secret", true));
+  }
 
   securityItems.push({
     id: "security-csp",

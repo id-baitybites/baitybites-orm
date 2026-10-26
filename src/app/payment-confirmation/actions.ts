@@ -119,15 +119,25 @@ export async function submitPaymentProofAction(payload: {
     }
 
     // 1. Upload ke Cloudinary
+    let proofUrl = "";
     const uploadRes = await uploadToCloudinary(imageBase64, "payment-proofs");
-    if (!uploadRes.success || !uploadRes.url) {
-      return {
-        success: false,
-        message: uploadRes.error || "Gagal mengunggah foto bukti transfer. Silakan periksa ukuran file dan coba lagi.",
-      };
+    if (uploadRes.success && uploadRes.url) {
+      proofUrl = uploadRes.url;
+    } else {
+      console.warn("Upload bukti transfer ke cloud media bermasalah:", uploadRes.error);
+      // Fallback keselamatan: jika koneksi gateway media terkendala,
+      // simpan representasi gambar langsung ke database agar verifikasi pembayaran klien tidak terhambat
+      if (imageBase64 && imageBase64.startsWith("data:image/") && imageBase64.length <= 4 * 1024 * 1024) {
+        proofUrl = imageBase64;
+      } else {
+        return {
+          success: false,
+          message:
+            uploadRes.error ||
+            "Gagal mengunggah foto bukti transfer. Silakan periksa ukuran berkas dan coba kembali.",
+        };
+      }
     }
-
-    const proofUrl = uploadRes.url;
     const internalNotes = `Bukti transfer diunggah mandiri via portal konfirmasi. Pengirim: ${bankSenderName.trim()} (${bankName.trim()}) ke ${targetBank.trim()}. Ref: ${referenceNumber?.trim() || "-"}`;
 
     // 2. Update status lead ke BUKTI_DITERIMA via updateLeadStatusAction (otomatis trigger email penerimaan bukti)
