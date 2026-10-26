@@ -66,3 +66,4 @@ scripts/test*
 scripts/temp*
 scripts/check*
 scripts/scratch*
+.mailmap*

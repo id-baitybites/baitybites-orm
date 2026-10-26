@@ -6,6 +6,7 @@ import * as bcrypt from "bcryptjs";
 import { sendEmailWithFallback } from "@/lib/email-service";
 import { db } from "@/lib/db";
 import { provisionClientDatabaseBranch } from "@/lib/neon-branch";
+import { getAppBaseUrl } from "@/lib/app-url";
 
 export interface ProvisionRequest {
   clientName: string;
@@ -243,7 +244,7 @@ STORE_ADMIN_PIN="1234"
 
     if (payload.clientEmail?.trim()) {
       try {
-        const baseUrl = process.env.NEXT_PUBLIC_APP_URL?.trim() || "https://baitybites.site";
+        const baseUrl = getAppBaseUrl();
         const loginUrl = `${baseUrl}/admin?from=%2Fonboarding`;
 
         const emailHtml = `

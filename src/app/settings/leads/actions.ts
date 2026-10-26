@@ -9,6 +9,7 @@ import {
 import { sendEmailWithFallback } from "@/lib/email-service";
 import { db } from "@/lib/db";
 import * as bcrypt from "bcryptjs";
+import { getAppBaseUrl } from "@/lib/app-url";
 
 const SUPPORT_PHONE = process.env.SUPPORT_WHATSAPP_PHONE?.trim() || "0812-9876-5432";
 
@@ -248,7 +249,8 @@ export async function curateHandoverAndGoLiveAction(leadId: string): Promise<{
 export async function updateLeadStatusAction(
   id: string,
   status: LeadStatus,
-  internalNotes?: string
+  internalNotes?: string,
+  extra?: Parameters<typeof updateLeadStatus>[3]
 ): Promise<{
   success: boolean;
   lead?: ClientLead;
@@ -257,7 +259,7 @@ export async function updateLeadStatusAction(
   error?: string;
 }> {
   try {
-    const updated = await updateLeadStatus(id, status, internalNotes);
+    const updated = await updateLeadStatus(id, status, internalNotes, extra);
     if (!updated) {
       return { success: false, error: "Lead tidak ditemukan" };
     }
@@ -287,7 +289,7 @@ export async function updateLeadStatusAction(
       timeZone: "Asia/Jakarta",
     });
 
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL?.trim() || "https://baitybites.site";
+    const baseUrl = getAppBaseUrl();
     const onboardingUrl = `${baseUrl}/admin?from=%2Fonboarding`;
     const storeUrl = `${baseUrl}/demo/store`;
     const adminUrl = `${baseUrl}/admin`;
@@ -797,7 +799,7 @@ export async function sendOnboardingInviteAction(leadId: string): Promise<{
     console.warn("Notice: could not auto-create client admin account in db:", dbErr?.message);
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL?.trim() || "https://baitybites.site";
+  const baseUrl = getAppBaseUrl();
   const loginUrl = `${baseUrl}/admin?from=%2Fonboarding`;
   const storeUrl = `${baseUrl}/demo/store`;
   const adminUrl = `${baseUrl}/admin`;

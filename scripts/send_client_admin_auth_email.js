@@ -15,7 +15,7 @@ async function sendAuthEmail() {
     process.exit(1);
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL?.trim() || "https://baitybites.site";
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL?.trim() || process.env.NEXTAUTH_URL?.trim() || process.env.NEXT_PUBLIC_BASE_URL?.trim() || "https://baitybites-orm.vercel.app";
   const loginUrl = `${baseUrl}/admin?from=%2Fonboarding`;
   const platformEmail = process.env.PLATFORM_SUPPORT_EMAIL || "id.baitybites@gmail.com";
   const supportPhone = process.env.SUPPORT_WHATSAPP_PHONE || "0812-9876-5432";
