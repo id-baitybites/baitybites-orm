@@ -88,7 +88,8 @@ export async function provisionClientDatabaseBranch(
         };
       } else {
         const errorText = await response.text();
-        console.warn(`[DB Branch API] Gagal membuat branch: ${response.status} - ${errorText}. Menggunakan fallback schema isolation.`);
+        const safeError = errorText.slice(0, 160).replace(/Bearer\s+[^\s]+/gi, "Bearer [REDACTED]");
+        console.warn(`[DB Branch API] Gagal membuat branch: HTTP ${response.status} - ${safeError}. Menggunakan fallback schema isolation.`);
       }
     } catch (err: any) {
       console.warn(`[DB Branch API] Error koneksi: ${err.message}. Menggunakan fallback schema isolation.`);

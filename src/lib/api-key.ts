@@ -36,8 +36,8 @@ export function validateApiKey(req: NextRequest): ApiAuthResult {
     process.env.PLATFORM_API_KEY?.trim(),
     process.env.ENTERPRISE_API_KEY?.trim(),
     process.env.INTERNAL_CRON_SECRET?.trim(),
-    // Default development fallback jika belum diatur di .env
-    "bb_live_enterprise_demo_secret",
+    // Default development fallback hanya berlaku pada non-production
+    process.env.NODE_ENV !== "production" ? "bb_live_enterprise_demo_secret" : undefined,
   ].filter(Boolean) as string[];
 
   const isMatched = validMasterKeys.some((k) => k === providedKey);

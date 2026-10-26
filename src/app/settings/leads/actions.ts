@@ -10,6 +10,8 @@ import { sendEmailWithFallback } from "@/lib/email-service";
 import { db } from "@/lib/db";
 import * as bcrypt from "bcryptjs";
 
+const SUPPORT_PHONE = process.env.SUPPORT_WHATSAPP_PHONE?.trim() || "0812-9876-5432";
+
 export async function getLeadsAction(): Promise<ClientLead[]> {
   return await getAllLeads();
 }
@@ -354,7 +356,7 @@ export async function updateLeadStatusAction(
                 </a>
               </div>
               <p style="margin: 10px 0 0; font-size: 12px; color: #92400e; text-align: center;">
-                Atau kirim via WhatsApp ke <strong>0812-9876-5432</strong> dengan menyebutkan nomor invoice: <code>${invoiceNo}</code>
+                Atau kirim via WhatsApp ke <strong>${SUPPORT_PHONE}</strong> dengan menyebutkan nomor invoice: <code>${invoiceNo}</code>
               </p>
             </div>
 
@@ -397,7 +399,7 @@ export async function updateLeadStatusAction(
             <p>Setelah pembayaran terverifikasi, Anda akan menerima email konfirmasi pembayaran lunas beserta tautan untuk mengakses dan melakukan konfigurasi dashboard sistem toko Anda.</p>
 
             <p style="margin: 20px 0 0; font-size: 13px; color: #64748b;">
-              Ada pertanyaan? Hubungi tim kami di <a href="mailto:${platformEmail}" style="color: #d97706;">${platformEmail}</a> atau WhatsApp <strong>0812-9876-5432</strong>.
+              Ada pertanyaan? Hubungi tim kami di <a href="mailto:${platformEmail}" style="color: #d97706;">${platformEmail}</a> atau WhatsApp <strong>${SUPPORT_PHONE}</strong>.
             </p>
           </div>
 
@@ -523,7 +525,7 @@ export async function updateLeadStatusAction(
             </div>
 
             <p style="margin: 20px 0 0; font-size: 13px; color: #64748b;">
-              Jika butuh pendampingan teknis atau peluncuran domain kustom, balas email ini atau hubungi tim kami via WhatsApp di <strong>0812-9876-5432</strong>.
+              Jika butuh pendampingan teknis atau peluncuran domain kustom, balas email ini atau hubungi tim kami via WhatsApp di <strong>${SUPPORT_PHONE}</strong>.
             </p>
           </div>
 
@@ -636,7 +638,7 @@ export async function updateLeadStatusAction(
             </div>
 
             <p style="margin: 20px 0 0; font-size: 13px; color: #64748b;">
-              Untuk panduan lengkap penggunaan platform, dokumentasi, atau bantuan teknis — hubungi tim kami di <a href="mailto:${platformEmail}" style="color: #16a34a;">${platformEmail}</a> atau WhatsApp <strong>0812-9876-5432</strong>.
+              Untuk panduan lengkap penggunaan platform, dokumentasi, atau bantuan teknis — hubungi tim kami di <a href="mailto:${platformEmail}" style="color: #16a34a;">${platformEmail}</a> atau WhatsApp <strong>${SUPPORT_PHONE}</strong>.
             </p>
           </div>
 
@@ -882,7 +884,7 @@ export async function sendOnboardingInviteAction(leadId: string): Promise<{
         </div>
 
         <p style="margin: 20px 0 0; font-size: 13px; color: #64748b;">
-          Jika Anda mengalami kendala saat login atau verifikasi, hubungi tim dukungan kami di <a href="mailto:${platformEmail}" style="color: #4f46e5;">${platformEmail}</a> atau WhatsApp support di <strong>0812-9876-5432</strong>.
+          Jika Anda mengalami kendala saat login atau verifikasi, hubungi tim dukungan kami di <a href="mailto:${platformEmail}" style="color: #4f46e5;">${platformEmail}</a> atau WhatsApp support di <strong>${SUPPORT_PHONE}</strong>.
         </p>
       </div>
 

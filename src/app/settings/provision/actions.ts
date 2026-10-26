@@ -10,6 +10,7 @@ import { provisionClientDatabaseBranch } from "@/lib/neon-branch";
 export interface ProvisionRequest {
   clientName: string;
   clientEmail?: string;
+  clientPhone?: string;
   brandSlug: string;
   targetOrgOrUser: string;
   templateRepo: string;
@@ -87,7 +88,7 @@ export async function provisionClientRepository(
     const envPreset = `# === KONFIGURASI INSTANCE CLIENT: ${payload.clientName.toUpperCase()} ===
 NEXT_PUBLIC_STORE_NAME="${payload.clientName}"
 NEXT_PUBLIC_APP_URL="https://${cleanSlug}.baitybites.site"
-NEXT_PUBLIC_WHATSAPP_PHONE="081298765432"
+NEXT_PUBLIC_WHATSAPP_PHONE="${payload.clientPhone?.trim() || process.env.NEXT_PUBLIC_WHATSAPP_PHONE?.trim() || "081298765432"}"
 
 # Database Dedicated (Skema: ${sanitizedSlugUnderscore})
 # Kredensial dikelola otomatis dan aman di server environment

@@ -2,14 +2,25 @@ require('dotenv').config();
 const { Pool } = require('pg');
 const bcrypt = require('bcryptjs');
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) {
+  console.error('[Error] DATABASE_URL tidak ditemukan di environment.');
+  process.exit(1);
+}
+
+const pool = new Pool({ connectionString });
 
 async function seedAdmins() {
-  const pwPlatform = await bcrypt.hash('superadmin2026', 10);
-  const pinPlatform = await bcrypt.hash('8899', 10);
+  const pwPlatformRaw = process.env.SUPERADMIN_INITIAL_PASSWORD || 'superadmin2026';
+  const pinPlatformRaw = process.env.SUPERADMIN_INITIAL_PIN || '8899';
+  const pwClientRaw = process.env.CLIENT_DEMO_INITIAL_PASSWORD || 'baitybites2026';
+  const pinClientRaw = process.env.CLIENT_DEMO_INITIAL_PIN || '1234';
 
-  const pwClient = await bcrypt.hash('baitybites2026', 10);
-  const pinClient = await bcrypt.hash('1234', 10);
+  const pwPlatform = await bcrypt.hash(pwPlatformRaw, 10);
+  const pinPlatform = await bcrypt.hash(pinPlatformRaw, 10);
+
+  const pwClient = await bcrypt.hash(pwClientRaw, 10);
+  const pinClient = await bcrypt.hash(pinClientRaw, 10);
 
   // 1. Admin Platform (Owner Baitybites ORM)
   await pool.query(
@@ -29,13 +40,13 @@ async function seedAdmins() {
     [pwClient, pinClient]
   );
 
-  console.log('✅ Berhasil mengupdate akun Superadmin Platform dan Admin Client!');
-  const res = await pool.query('SELECT username, display_name, is_active FROM admins');
-  console.log('DAFTAR AKUN AKTIF:', res.rows);
+  console.log('[Success] Berhasil mengupdate akun Superadmin Platform dan Admin Client.');
+  const res = await pool.query('SELECT username, display_name, role, is_active FROM admins');
+  console.log('Daftar Akun Aktif:', res.rows);
   await pool.end();
 }
 
 seedAdmins().catch((err) => {
-  console.error('❌ Error seeding admins:', err);
+  console.error('[Error] Gagal seeding admins:', err?.message || err);
   pool.end();
 });

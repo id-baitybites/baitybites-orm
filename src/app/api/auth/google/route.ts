@@ -23,9 +23,33 @@ export async function GET(request: NextRequest) {
   const baseUrl = isLocal ? `${protocol}://${host}` : (process.env.NEXTAUTH_URL || `${protocol}://${host}`);
   const redirectUri = `${baseUrl}/api/auth/google/callback`;
 
-  // Jika dipanggil dengan mode=demo atau kredensial Google belum di-set di .env:
-  // Arahkan ke endpoint demo login yang otomatis membuat/mengaitkan customer di DB
-  if (mode === "demo" || !clientId) {
+  const isProduction = process.env.NODE_ENV === "production";
+
+  if (!clientId) {
+    if (isProduction) {
+      return NextResponse.redirect(
+        new URL("/login?error=" + encodeURIComponent("Google OAuth belum dikonfigurasi di server production."), request.url)
+      );
+    }
+    // Lingkungan non-production: fallback ke mock demo login
+    const demoEmail = searchParams.get("email") || "pelanggan.baitybites@gmail.com";
+    const demoName = searchParams.get("name") || "Budi Santoso (Google)";
+    const demoAvatar =
+      searchParams.get("avatar") ||
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80";
+
+    const demoCallbackUrl = new URL("/api/auth/google/callback", request.url);
+    demoCallbackUrl.searchParams.set("demo", "true");
+    demoCallbackUrl.searchParams.set("email", demoEmail);
+    demoCallbackUrl.searchParams.set("name", demoName);
+    demoCallbackUrl.searchParams.set("avatar", demoAvatar);
+    demoCallbackUrl.searchParams.set("returnTo", returnTo);
+
+    return NextResponse.redirect(demoCallbackUrl);
+  }
+
+  // Demo mode login hanya diperbolehkan pada lingkungan non-production (pengujian lokal)
+  if (!isProduction && mode === "demo") {
     const demoEmail = searchParams.get("email") || "pelanggan.baitybites@gmail.com";
     const demoName = searchParams.get("name") || "Budi Santoso (Google)";
     const demoAvatar =

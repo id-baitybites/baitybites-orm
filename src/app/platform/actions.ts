@@ -172,6 +172,18 @@ export async function sendSubscriptionEmail(
           // ignore
         }
       }
+    } else {
+      if (savedLeadId) {
+        try {
+          await updateLeadStatus(
+            savedLeadId,
+            "BARU",
+            `Permintaan diterima. Email konfirmasi otomatis berhasil dikirimkan ke ${data.email}.`
+          );
+        } catch {
+          // ignore
+        }
+      }
     }
 
     return {

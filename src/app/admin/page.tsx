@@ -157,7 +157,7 @@ function AdminLoginForm() {
                 autoFocus
                 required
                 className="admin-field__input"
-                placeholder="Contoh: admin.sidrrevive"
+                placeholder="Contoh: admin.tokoku"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 disabled={isLoading}

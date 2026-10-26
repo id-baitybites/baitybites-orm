@@ -2,18 +2,25 @@ require('dotenv').config({ path: '.env.local' });
 require('dotenv').config({ path: '.env' });
 
 async function sendAuthEmail() {
-  const recipientEmail = "edukmp51@gmail.com";
-  const contactName = "kmp";
-  const businessName = "Sidr Revive";
-  const username = "admin.sidrrevive";
-  const rawPassword = "SidrRevive2026!#";
-  const pin = "1234";
+  const args = process.argv.slice(2);
+  const recipientEmail = args[0] || process.env.CLIENT_ADMIN_EMAIL;
+  const contactName = args[1] || process.env.CLIENT_CONTACT_NAME || "Mitra Klien";
+  const businessName = args[2] || process.env.CLIENT_BUSINESS_NAME || "Toko Mitra";
+  const username = args[3] || process.env.CLIENT_ADMIN_USERNAME || "admin.toko";
+  const rawPassword = args[4] || process.env.CLIENT_ADMIN_PASSWORD || "GantiPasswordSaatLogin2026!";
+  const pin = args[5] || process.env.CLIENT_ADMIN_PIN || "1234";
 
-  const baseUrl = "https://baitybites-orm.vercel.app";
+  if (!recipientEmail) {
+    console.error("[Error] Mohon sertakan email penerima sebagai argumen: node scripts/send_client_admin_auth_email.js <email> [contactName] [businessName] [username] [password] [pin]");
+    process.exit(1);
+  }
+
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL?.trim() || "https://baitybites.site";
   const loginUrl = `${baseUrl}/admin?from=%2Fonboarding`;
-  const platformEmail = "id.baitybites@gmail.com";
+  const platformEmail = process.env.PLATFORM_SUPPORT_EMAIL || "id.baitybites@gmail.com";
+  const supportPhone = process.env.SUPPORT_WHATSAPP_PHONE || "0812-9876-5432";
 
-  const emailSubject = `🔐 Kredensial Otentikasi Resmi Client Admin — ${businessName} [Baitybites ORM]`;
+  const emailSubject = `Kredensial Otentikasi Resmi Client Admin — ${businessName} [Baitybites ORM]`;
   const emailHtml = `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 620px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #ffffff;">
       <div style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); padding: 28px 32px; color: #ffffff;">
@@ -60,7 +67,7 @@ async function sendAuthEmail() {
         <!-- TOMBOL CTA LOGIN -->
         <div style="text-align: center; margin: 28px 0;">
           <a href="${loginUrl}" style="display: inline-block; background: #4f46e5; color: #ffffff; padding: 14px 32px; border-radius: 8px; font-weight: 700; text-decoration: none; font-size: 15px; box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.3);">
-            🔐 Login Sebagai Client Admin &amp; Lanjut Onboarding &rarr;
+            Login Sebagai Client Admin &amp; Lanjut Onboarding &rarr;
           </a>
           <p style="margin: 10px 0 0; font-size: 12px; color: #64748b;">
             Tautan Login: <a href="${loginUrl}" style="color: #4f46e5; word-break: break-all;">${loginUrl}</a>
@@ -78,7 +85,7 @@ async function sendAuthEmail() {
         </div>
 
         <p style="margin: 20px 0 0; font-size: 13px; color: #64748b;">
-          Jika Anda mengalami kendala saat melakukan login atau verifikasi, hubungi tim dukungan kami di <a href="mailto:${platformEmail}" style="color: #4f46e5;">${platformEmail}</a> atau WhatsApp support di <strong>0812-9876-5432</strong>.
+          Jika Anda mengalami kendala saat melakukan login atau verifikasi, hubungi tim dukungan kami di <a href="mailto:${platformEmail}" style="color: #4f46e5;">${platformEmail}</a> atau WhatsApp support di <strong>${supportPhone}</strong>.
         </p>
       </div>
 
@@ -88,7 +95,12 @@ async function sendAuthEmail() {
     </div>
   `;
 
-  const brevoApiKey = process.env.BREVO_API_KEY?.trim();
+  const emailApiKey = (process.env.BREVO_API_KEY || process.env.EMAIL_API_KEY)?.trim();
+  if (!emailApiKey) {
+    console.error("[Error] API Key transactional email tidak ditemukan di environment.");
+    process.exit(1);
+  }
+
   const payload = {
     sender: { name: "Baitybites ORM Security", email: platformEmail },
     to: [{ email: recipientEmail }],
@@ -97,11 +109,11 @@ async function sendAuthEmail() {
     htmlContent: emailHtml,
   };
 
-  console.log(`Sending client admin credentials via Brevo to ${recipientEmail}...`);
+  console.log(`[Info] Mengirim kredensial client admin via Email Gateway ke ${recipientEmail}...`);
   const response = await fetch("https://api.brevo.com/v3/smtp/email", {
     method: "POST",
     headers: {
-      "api-key": brevoApiKey,
+      "api-key": emailApiKey,
       "Content-Type": "application/json",
       Accept: "application/json",
     },
@@ -109,8 +121,13 @@ async function sendAuthEmail() {
   });
 
   const resData = await response.json();
-  console.log("Brevo HTTP Status:", response.status);
-  console.log("Brevo Delivery Result:", JSON.stringify(resData, null, 2));
+  if (response.ok) {
+    console.log(`[Success] Email berhasil dikirim ke ${recipientEmail} (HTTP ${response.status})`);
+  } else {
+    console.error(`[Error] Gagal mengirim email (HTTP ${response.status}):`, resData?.message || resData);
+  }
 }
 
-sendAuthEmail().catch(console.error);
+sendAuthEmail().catch((err) => {
+  console.error("[Fatal Error]:", err?.message || err);
+});

@@ -28,12 +28,17 @@ const PLATFORM_EMAIL =
 export async function sendEmailWithFallback(
   options: SendEmailOptions
 ): Promise<SendEmailResult> {
+  const errors: string[] = [];
+
   // ── 1. Kirim via HTTP API (Utama) ────────────────────────────────────────
   const brevoApiKey = process.env.BREVO_API_KEY?.trim();
   if (brevoApiKey && !brevoApiKey.startsWith("xkeysib-REPLACE")) {
     const result = await sendViaHTTPAPI(options, brevoApiKey);
     if (result.success) return result;
     console.warn("[Email Service] HTTP API gagal, mencoba SMTP Relay...", result.error);
+    if (result.error) errors.push(`HTTP API: ${result.error}`);
+  } else {
+    errors.push("Kunci API email transaksional belum dikonfigurasi.");
   }
 
   // ── 2. Kirim via SMTP Relay (Fallback) ────────────────────────────────────
@@ -43,6 +48,9 @@ export async function sendEmailWithFallback(
     const result = await sendViaSMTPRelay(options, smtpUser, smtpPass);
     if (result.success) return result;
     console.warn("[Email Service] SMTP Relay gagal:", result.error);
+    if (result.error) errors.push(`SMTP Relay: ${result.error}`);
+  } else {
+    errors.push("Kredensial SMTP Relay belum dikonfigurasi.");
   }
 
   return {
@@ -50,8 +58,7 @@ export async function sendEmailWithFallback(
     isSimulated: false,
     deliveredTo: "",
     provider: "HTTP_API",
-    error:
-      "Layanan email transaksional belum terhubung. Pastikan EMAIL_API_KEY terpasang di .env.",
+    error: errors.join(" | ") || "Layanan pengiriman email tidak dapat dijangkau.",
   };
 }
 

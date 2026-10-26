@@ -50,9 +50,9 @@ async function migrate() {
           updatedAt: lead.updatedAt ? new Date(lead.updatedAt) : new Date(),
         }
       });
-      console.log(`✅ Migrated lead: ${lead.businessName} (${lead.email})`);
+      console.log(`[Success] Migrated lead: ${lead.businessName} (${lead.email})`);
     } else {
-      console.log(`ℹ️ Lead already exists: ${lead.businessName} (${lead.email})`);
+      console.log(`[Info] Lead already exists: ${lead.businessName} (${lead.email})`);
     }
   }
 
@@ -78,7 +78,7 @@ async function migrate() {
         invoiceAmount: 3900000,
         paidAt: new Date("2026-09-12T13:43:12.938Z"),
         repoUrl: "https://github.com/id-baitybites/baitybites-orm",
-        deploymentUrl: "https://baitybites-orm.vercel.app",
+        deploymentUrl: "https://baitybites.site",
         customDomain: "baitybites.site",
         dbSchemaName: "public",
         provisionedAt: new Date("2026-09-12T13:43:12.938Z"),
@@ -86,9 +86,9 @@ async function migrate() {
         updatedAt: new Date(),
       }
     });
-    console.log("✅ Seeded flagship tenant instance: Baitybites (Status: PROVISIONED)");
+    console.log("[Success] Seeded flagship tenant instance: Baitybites (Status: PROVISIONED)");
   } else {
-    console.log("ℹ️ Flagship tenant Baitybites already recorded.");
+    console.log("[Info] Flagship tenant Baitybites already recorded.");
   }
 
   const count = await prisma.clientLead.count();

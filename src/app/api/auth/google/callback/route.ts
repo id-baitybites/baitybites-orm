@@ -33,6 +33,11 @@ export async function GET(request: NextRequest) {
   let avatarUrl = "";
 
   if (isDemo) {
+    if (process.env.NODE_ENV === "production") {
+      return NextResponse.redirect(
+        new URL("/login?error=" + encodeURIComponent("Mode demo dinonaktifkan pada server production."), request.url)
+      );
+    }
     // Mode Demo / Dev pengujian lokal instan
     email = searchParams.get("email") || "pelanggan.baitybites@gmail.com";
     name = searchParams.get("name") || "Budi Santoso (Google)";
