@@ -20,7 +20,10 @@ export interface SubscriptionResult {
 export async function sendSubscriptionEmail(
   data: SubscriptionRequest
 ): Promise<SubscriptionResult> {
-  const PLATFORM_EMAIL = "id.baitybites@gmail.com";
+  const PLATFORM_EMAIL =
+    process.env.STORE_EMAIL?.match(/<([^>]+)>/)?.[1] ||
+    process.env.STORE_EMAIL ||
+    "id.baitybites@gmail.com";
 
   const planLabel = data.selectedPlan;
   const timestamp = new Date().toLocaleString("id-ID", {

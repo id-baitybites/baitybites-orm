@@ -262,7 +262,10 @@ export async function updateLeadStatusAction(
       return { success: false, error: "Lead tidak ditemukan" };
     }
 
-    const platformEmail = "id.baitybites@gmail.com";
+    const platformEmail =
+      process.env.STORE_EMAIL?.match(/<([^>]+)>/)?.[1] ||
+      process.env.STORE_EMAIL ||
+      "id.baitybites@gmail.com";
     let emailSubject = "";
     let emailHtml = "";
 
@@ -932,7 +935,10 @@ export async function resendSubscriptionResumeAction(leadId: string): Promise<{
     return { success: false, message: "Data calon klien atau email tidak ditemukan." };
   }
 
-  const platformEmail = "id.baitybites@gmail.com";
+  const platformEmail =
+    process.env.STORE_EMAIL?.match(/<([^>]+)>/)?.[1] ||
+    process.env.STORE_EMAIL ||
+    "id.baitybites@gmail.com";
   const planLabel = lead.selectedPlan;
 
   const clientHtml = `

@@ -44,5 +44,25 @@ next-env.d.ts
 # database backups (gunakan GitHub Actions artifacts, bukan di repo)
 /backups
 
-# temporary scratchpad / debug scripts
+# temporary scratchpad, test scripts, and debug logs (Strict Prevention)
 /scratch
+/temp
+/tmp
+*.test.js
+*.test.ts
+*.spec.js
+*.spec.ts
+__tests__/
+tests/
+test/
+*.tmp
+*.bak
+*.swp
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+scripts/test*
+scripts/temp*
+scripts/check*
+scripts/scratch*

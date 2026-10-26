@@ -15,10 +15,17 @@ export interface SendEmailResult {
   error?: string;
 }
 
-const PLATFORM_EMAIL =
+function sanitizeEmail(val?: string): string {
+  if (!val) return "id.baitybites@gmail.com";
+  const match = val.match(/<([^>]+)>/);
+  return (match ? match[1] : val).trim();
+}
+
+const PLATFORM_EMAIL = sanitizeEmail(
   process.env.STORE_EMAIL ||
   process.env.SMTP_FROM_EMAIL ||
-  "id.baitybites@gmail.com";
+  process.env.SMTP_FROM
+);
 
 /**
  * Universal Email Dispatcher — Dual-Channel Transactional Provider:
