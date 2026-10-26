@@ -31,7 +31,11 @@ export async function sendEmailWithFallback(
   const errors: string[] = [];
 
   // ── 1. Kirim via HTTP API (Utama) ────────────────────────────────────────
-  const brevoApiKey = process.env.BREVO_API_KEY?.trim();
+  const brevoApiKey = (
+    process.env.BREVO_API_KEY ||
+    process.env.EMAIL_API_KEY ||
+    process.env.BREVO_KEY
+  )?.trim();
   if (brevoApiKey && !brevoApiKey.startsWith("xkeysib-REPLACE")) {
     const result = await sendViaHTTPAPI(options, brevoApiKey);
     if (result.success) return result;
@@ -43,7 +47,11 @@ export async function sendEmailWithFallback(
 
   // ── 2. Kirim via SMTP Relay (Fallback) ────────────────────────────────────
   const smtpUser = process.env.SMTP_USER?.trim() || "a2bf9a001@smtp-brevo.com";
-  const smtpPass = (process.env.SMTP_PASS || process.env.SMTP_PASSWORD)?.trim();
+  const smtpPass = (
+    process.env.SMTP_PASS ||
+    process.env.SMTP_PASSWORD ||
+    process.env.BREVO_SMTP_PASS
+  )?.trim();
   if (smtpPass) {
     const result = await sendViaSMTPRelay(options, smtpUser, smtpPass);
     if (result.success) return result;
